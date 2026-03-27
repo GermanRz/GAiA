@@ -1,0 +1,80 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #f8f9fa, #e9f5ff);
+    color: #333;
+}
+
+header {
+    background: linear-gradient(135deg, #0d6efd, #4dabf7);
+    color: rgb(37, 0, 0);
+    text-align: center;
+    padding: 40px 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 1.1rem;
+    opacity: 0.95;
+}
+
+.contenedor {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.caja {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.caja:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.caja img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    background: #f2f2f2;
+}
+
+.caja h2 {
+    font-size: 1.5rem;
+    color: #0d6efd;
+    margin: 15px 20px 10px;
+}
+
+.caja p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0 20px 20px;
+    color: #555;
+}
+
+footer {
+    background: #0d1b2a;
+    color: white;
+    text-align: center;
+    padding: 18px;
+    margin-top: 40px;
+    font-size: 0.95rem;
+}
