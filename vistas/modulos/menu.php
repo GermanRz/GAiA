@@ -114,7 +114,7 @@
           </li>   
           
           <li class="nav-item">
-            <a href="pages/widgets.html" class="nav-link">
+            <a href="financiera" class="nav-link">
               <i class="fas fa-money-bill-wave"></i>
               <p>
                 Financiera
