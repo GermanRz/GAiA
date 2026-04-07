@@ -63,17 +63,14 @@
       if (isset($_GET["ruta"])) {
         if (
           $_GET["ruta"] == "inicio" ||
-<<<<<<< HEAD
           $_GET["ruta"] == "puntuacion" ||
           $_GET["ruta"] == "apoyos" ||
           $_GET["ruta"] == "sedes" ||
           $_GET["ruta"] == "identificacion"|| 
-          $_GET["ruta"] == "financiera"
-=======
-          $_GET["ruta"] == "apoyos" ||
+          $_GET["ruta"] == "financiera"||
           $_GET["ruta"] == "Usuarios"
->>>>>>> 2743c6e (Revert "Maquetacion vista usuarios")
-        ) {
+        ) 
+        {
           include "modulos/" . $_GET["ruta"] . ".php";
         } //fin del enrutador
         else {
