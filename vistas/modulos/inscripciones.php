@@ -23,7 +23,7 @@
       <!-- Botones superiores -->
       <div class="row mb-4">
         <div class="col-md-6 mb-2">
-          <button class="btn btn-primary btn-block" style="border-radius: 5px; font-weight: 500;">Inscripción a apoyos</button>
+          <button class="btn btn-primary btn-block" style="border-radius: 5px; font-weight: 500;" data-toggle="modal" data-target="#modalDatosPersonales">Inscripción a apoyos</button>
         </div>
         <div class="col-md-6 mb-2">
           <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#modalPreguntas" style="border-radius: 5px; font-weight: 500;">Preguntas Frecuentes</button>
@@ -387,6 +387,279 @@
       </div>
 
     </section>
+    
+    <!-- Modal Datos Personales -->
+    <div class="modal fade" id="modalDatosPersonales" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header p-3" style="background-color: #2852ff; color: white; border-bottom: none;">
+            <div class="d-flex align-items-center w-100">
+              <i class="fas fa-graduation-cap fa-lg ml-2 mr-3" style="color: white !important;"></i>
+              <h5 class="modal-title font-weight-bold mb-0 text-uppercase mx-auto" style="font-size: 1.1rem; letter-spacing: 0.5px; color: white !important;">
+                DATOS PERSONALES DEL APRENDIZ
+              </h5>
+              <button type="button" class="close text-white ml-0" style="opacity: 1; text-shadow: none;" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true" style="color: white !important;">&times;</span>
+              </button>
+            </div>
+          </div>
+          <div class="modal-body p-4">
+            
+            <!-- Contenedor del paso 1 -->
+            <div id="pd-step-1" class="pd-step">
+              <!-- Box 1 -->
+              <div style="border: 1px dashed #6c757d; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <div class="row">
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Nombre completo</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="far fa-user"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Apellidos</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="far fa-user"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-3 form-group mb-0">
+                    <input type="text" class="form-control bg-transparent" placeholder="Tipo de documento" style="box-shadow: none; text-align: center; border-radius: 20px;">
+                  </div>
+                  <div class="col-md-4 form-group mb-0">
+                    <input type="text" class="form-control bg-transparent" placeholder="Numero identificación" style="box-shadow: none; text-align: center; border-radius: 20px;">
+                  </div>
+                  <div class="col-md-3 form-group mb-0">
+                    <input type="text" class="form-control bg-transparent" placeholder="Género" style="box-shadow: none; text-align: center; border-radius: 20px;">
+                  </div>
+                  <div class="col-md-2 form-group mb-0">
+                    <input type="text" class="form-control bg-transparent" placeholder="Edad" style="box-shadow: none; text-align: center; border-radius: 20px;">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Box 2 -->
+              <div style="border: 1px dashed #6c757d; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <div class="row">
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Departamento residencia</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-home"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Municipio de residencia</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-home"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Dirección</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-home"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Numero contacto</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-phone-alt"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row justify-content-center">
+                  <div class="col-md-6 form-group mb-0 flex-column d-flex align-items-center">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Correo electronico</label>
+                    <div class="input-group w-100">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="far fa-envelope"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Box 3 -->
+              <div style="border: 1px dashed #6c757d; padding: 15px; border-radius: 5px;">
+                <div class="row">
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Nombre contacto</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="far fa-user"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Número contacto</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-phone-alt"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 form-group mb-0">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Grupo SISBEN</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-users"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                  <div class="col-md-6 form-group mb-0">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Nivel SISBEN</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-layer-group"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Pasos vacíos adicionales 2 al 8 -->
+            <div id="pd-step-2" class="pd-step" style="display: none;">
+              <div class="text-center py-5"><h4>Paso 2</h4><p>Formulario del paso 2...</p></div>
+            </div>
+            <div id="pd-step-3" class="pd-step" style="display: none;">
+              <div class="text-center py-5"><h4>Paso 3</h4><p>Formulario del paso 3...</p></div>
+            </div>
+            <div id="pd-step-4" class="pd-step" style="display: none;">
+              <div class="text-center py-5"><h4>Paso 4</h4><p>Formulario del paso 4...</p></div>
+            </div>
+            <div id="pd-step-5" class="pd-step" style="display: none;">
+              <div class="text-center py-5"><h4>Paso 5</h4><p>Formulario del paso 5...</p></div>
+            </div>
+            <div id="pd-step-6" class="pd-step" style="display: none;">
+              <div class="text-center py-5"><h4>Paso 6</h4><p>Formulario del paso 6...</p></div>
+            </div>
+            <div id="pd-step-7" class="pd-step" style="display: none;">
+              <div class="text-center py-5"><h4>Paso 7</h4><p>Formulario del paso 7...</p></div>
+            </div>
+            <div id="pd-step-8" class="pd-step" style="display: none;">
+              <div class="text-center py-5"><h4>Paso 8</h4><p>Finalización del registro...</p></div>
+            </div>
+
+          </div>
+          <div class="modal-footer d-flex justify-content-center border-0 pt-0 pb-4">
+            <div class="w-100 d-flex justify-content-between align-items-center px-4 flex-wrap">
+              <div class="d-flex mb-2" style="gap: 5px; flex-wrap: wrap;" id="pd-pagination">
+                <span class="pd-circle active" data-step="1">1</span>
+                <span class="pd-circle" data-step="2">2</span>
+                <span class="pd-circle" data-step="3">3</span>
+                <span class="pd-circle" data-step="4">4</span>
+                <span class="pd-circle" data-step="5">5</span>
+                <span class="pd-circle" data-step="6">6</span>
+                <span class="pd-circle" data-step="7">7</span>
+                <span class="pd-circle" data-step="8">8</span>
+              </div>
+              <div class="d-flex mb-2">
+                <button type="button" class="btn btn-danger mr-2" data-dismiss="modal" style="border-radius: 8px; padding: 6px 20px;">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnPdSiguiente" style="background-color: #2852ff; border-color: #2852ff; border-radius: 8px; padding: 6px 20px;">Siguiente</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+    .pd-circle {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #bcbcbc;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .pd-circle.active {
+      background-color: #2852ff;
+    }
+    </style>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        let pdCurrentStep = 1;
+        const pdTotalSteps = 8;
+        const btnPdSiguiente = document.getElementById('btnPdSiguiente');
+        const pdCircles = document.querySelectorAll('.pd-circle');
+        
+        function updatePdStep(step) {
+          for(let i=1; i<=pdTotalSteps; i++) {
+            let el = document.getElementById('pd-step-' + i);
+            if(el) el.style.display = 'none';
+          }
+          let currentEl = document.getElementById('pd-step-' + step);
+          if(currentEl) currentEl.style.display = 'block';
+
+          pdCircles.forEach(c => {
+            c.classList.remove('active');
+            if(parseInt(c.getAttribute('data-step')) === step) {
+              c.classList.add('active');
+            }
+          });
+
+          if(step === pdTotalSteps) {
+            if(btnPdSiguiente) btnPdSiguiente.textContent = 'Finalizar';
+          } else {
+            if(btnPdSiguiente) btnPdSiguiente.textContent = 'Siguiente';
+          }
+        }
+
+        if (btnPdSiguiente) {
+          btnPdSiguiente.addEventListener('click', function() {
+            if (pdCurrentStep < pdTotalSteps) {
+              pdCurrentStep++;
+              updatePdStep(pdCurrentStep);
+            } else {
+              $('#modalDatosPersonales').modal('hide');
+              pdCurrentStep = 1;
+              updatePdStep(pdCurrentStep);
+            } 
+          });
+        }
+
+        pdCircles.forEach(circle => {
+          circle.addEventListener('click', function() {
+            pdCurrentStep = parseInt(this.getAttribute('data-step'));
+            updatePdStep(pdCurrentStep);
+          });
+        });
+      });
+    </script>
     <!-- /.content -->
   
   <!-- </div> -->
