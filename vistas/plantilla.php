@@ -69,7 +69,8 @@
           $_GET["ruta"] == "fichas" ||
           $_GET["ruta"] == "identificacion"|| 
           $_GET["ruta"] == "financiera"||
-          $_GET["ruta"] == "Usuarios"
+          $_GET["ruta"] == "Usuarios"||
+          $_GET["ruta"] == "verificacion"
         ) 
         {
           include "modulos/" . $_GET["ruta"] . ".php";
