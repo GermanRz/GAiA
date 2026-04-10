@@ -28,8 +28,8 @@ $(function () {
                 className: 'btn btn-success btn-sm'
             },
             {
-                extend: 'csv',
-                text: 'WORD',
+                extend: 'pdf',
+                text: 'PDF',
                 className: 'btn btn-success btn-sm'
             }
         ]
