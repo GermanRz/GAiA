@@ -992,29 +992,7 @@
       </div>
     </div>
 
-    <style>
-    .pd-circle {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background-color: #bcbcbc;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .pd-circle.active {
-      background-color: #2852ff;
-    }
-    
-    /* Aseguramos que la modal de subir archivo se monte siempre encima de otras modales activas */
-    #modalSubirArchivo {
-      z-index: 1060 !important;
-    }
-    </style>
+    <link rel="stylesheet" href="vistas/inscripcion.css/style.css">
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
