@@ -26,7 +26,7 @@
               </div>
               <!-- /.card-header -->
               <div class="card-body">
-                <table id="tblApoyos" class="table table-bordered table-striped">
+                <table id="tblApoyos" class="table tbl-GAiA table-bordered table-striped">
                   <thead>
                   <tr>
                     <th>ID</th>
