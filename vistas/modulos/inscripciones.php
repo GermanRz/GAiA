@@ -80,15 +80,15 @@
                     <td class="bg-success py-1" style="font-size: 0.8rem;">Aprobado</td>
                   </tr>
                   <tr>
-                    <td class="py-2"><i class="fas fa-upload fa-lg" style="cursor: pointer;"></i></td>
-                    <td class="py-2"><i class="fas fa-upload fa-lg" style="cursor: pointer;"></i></td>
+                    <td class="py-2"><i class="fas fa-upload fa-lg" style="cursor: pointer;" data-toggle="modal" data-target="#modalSubirArchivo"></i></td>
+                    <td class="py-2"><i class="fas fa-upload fa-lg" style="cursor: pointer;" data-toggle="modal" data-target="#modalSubirArchivo"></i></td>
                     <td class="py-2"><i class="fas fa-ban fa-lg text-muted"></i></td>
-                    <td class="py-2"><i class="fas fa-upload fa-lg" style="cursor: pointer;"></i></td>
-                    <td class="py-2"><i class="fas fa-upload fa-lg" style="cursor: pointer;"></i></td>
+                    <td class="py-2"><i class="fas fa-upload fa-lg" style="cursor: pointer;" data-toggle="modal" data-target="#modalSubirArchivo"></i></td>
+                    <td class="py-2"><i class="fas fa-upload fa-lg" style="cursor: pointer;" data-toggle="modal" data-target="#modalSubirArchivo"></i></td>
                     <td class="py-2"><i class="fas fa-ban fa-lg text-muted"></i></td>
-                    <td class="py-2"><i class="fas fa-upload fa-lg" style="cursor: pointer;"></i></td>
+                    <td class="py-2"><i class="fas fa-upload fa-lg" style="cursor: pointer;" data-toggle="modal" data-target="#modalSubirArchivo"></i></td>
                     <td class="py-2"><i class="fas fa-ban fa-lg text-muted"></i></td>
-                    <td class="py-2"><i class="fas fa-upload fa-lg" style="cursor: pointer;"></i></td>
+                    <td class="py-2"><i class="fas fa-upload fa-lg" style="cursor: pointer;" data-toggle="modal" data-target="#modalSubirArchivo"></i></td>
                     <td class="py-2"><i class="fas fa-ban fa-lg text-muted"></i></td>
                   </tr>
                 </tbody>
@@ -395,7 +395,7 @@
           <div class="modal-header p-3" style="background-color: #2852ff; color: white; border-bottom: none;">
             <div class="d-flex align-items-center w-100">
               <i class="fas fa-graduation-cap fa-lg ml-2 mr-3" style="color: white !important;"></i>
-              <h5 class="modal-title font-weight-bold mb-0 text-uppercase mx-auto" style="font-size: 1.1rem; letter-spacing: 0.5px; color: white !important;">
+              <h5 class="modal-title font-weight-bold mb-0 text-uppercase mx-auto" id="pdModalTitle" style="font-size: 1.1rem; letter-spacing: 0.5px; color: white !important;">
                 DATOS PERSONALES DEL APRENDIZ
               </h5>
               <button type="button" class="close text-white ml-0" style="opacity: 1; text-shadow: none;" data-dismiss="modal" aria-label="Close">
@@ -545,27 +545,395 @@
               </div>
             </div>
             
-            <!-- Pasos vacíos adicionales 2 al 8 -->
+            <!-- Contenedor del paso 2 -->
             <div id="pd-step-2" class="pd-step" style="display: none;">
-              <div class="text-center py-5"><h4>Paso 2</h4><p>Formulario del paso 2...</p></div>
+              <div style="border: 1px dashed #6c757d; padding: 25px 20px; border-radius: 5px; min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <p class="mb-2" style="font-size: 1.1rem;">Centro Latinoamericano De Especies Menores</p>
+                <p class="mb-4">seleccione la sede a la que pertenece</p>
+                <select class="form-control mb-4 bg-transparent border-dark" style="box-shadow: none; border-radius: 8px; width: 60%; max-width: 350px;">
+                  <option>Select option</option>
+                </select>
+                <div style="width: 60%; max-width: 350px;">
+                  <label style="font-weight: normal; margin-bottom: 5px;">numero de ficha</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text bg-transparent border-dark" style="border-right: none;"><i class="fas fa-file-alt"></i></span>
+                    </div>
+                    <input type="text" class="form-control bg-transparent border-dark" style="border-left: none; box-shadow: none;">
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- Contenedor del paso 3 -->
             <div id="pd-step-3" class="pd-step" style="display: none;">
-              <div class="text-center py-5"><h4>Paso 3</h4><p>Formulario del paso 3...</p></div>
+              <div style="border: 1px dashed #6c757d; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <div class="row">
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Nombres del representante</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="far fa-user"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Apellidos del representante</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="far fa-user"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row justify-content-center">
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">parentezco</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-user-friends"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row justify-content-center">
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">numero de documento</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-file-alt"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-4 form-group mb-0">
+                    <input type="text" class="form-control bg-transparent" placeholder="Tipo de documento" style="box-shadow: none; text-align: center; border-radius: 20px;">
+                  </div>
+                  <div class="col-md-4 form-group mb-0">
+                    <input type="text" class="form-control bg-transparent" placeholder="Género" style="box-shadow: none; text-align: center; border-radius: 20px;">
+                  </div>
+                  <div class="col-md-4 form-group mb-0">
+                    <input type="text" class="form-control bg-transparent" placeholder="Edad" style="box-shadow: none; text-align: center; border-radius: 20px;">
+                  </div>
+                </div>
+              </div>
+              <div style="border: 1px dashed #6c757d; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <div class="row">
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Departamento residencia</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-home"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Municipio de residencia</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-home"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row justify-content-center">
+                  <div class="col-md-6 form-group mb-3 flex-column d-flex align-items-center">
+                    <label style="font-weight: normal; margin-bottom: 5px; text-align: left; width: 100%;">Correo electronico</label>
+                    <div class="input-group w-100">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="far fa-envelope"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row justify-content-center">
+                  <div class="col-md-6 form-group mb-0 flex-column d-flex align-items-center">
+                    <label style="font-weight: normal; margin-bottom: 5px; text-align: left; width: 100%;">Dirección</label>
+                    <div class="input-group w-100">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-home"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row justify-content-center">
+                <div class="col-md-6 form-group mb-3">
+                  <label style="font-weight: normal; margin-bottom: 5px;">Número contacto</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-phone-alt"></i></span>
+                    </div>
+                    <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                  </div>
+                </div>
+              </div>
+              <p class="text-center mt-2 mb-0" style="color: #dc3545; font-size: 0.95rem;">*En Caso De Que El Aprendiz Sea Menor De Edad El Tutor A Cargo Deberá Llenar Estos Datos*</p>
             </div>
+
+            <!-- Contenedor del paso 4 -->
             <div id="pd-step-4" class="pd-step" style="display: none;">
-              <div class="text-center py-5"><h4>Paso 4</h4><p>Formulario del paso 4...</p></div>
+              <div style="border: 1px dashed #6c757d; padding: 25px 20px; border-radius: 5px; margin-bottom: 20px;">
+                <div class="row">
+                  <div class="col-md-6 form-group mb-4">
+                    <label style="font-weight: normal; margin-bottom: 5px;">ubicación de la vivienda</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-home"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                  <div class="col-md-6 form-group mb-4">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Número de estrato</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="far fa-edit"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 form-group mb-4">
+                    <label style="font-weight: normal; margin-bottom: 5px;">tipo de regimen</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-hand-holding-medical"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                  <div class="col-md-6 form-group mb-4">
+                    <label style="font-weight: normal; margin-bottom: 5px;">EPS</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-user-md"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row justify-content-center">
+                  <div class="col-md-6 form-group mb-0">
+                    <label style="font-weight: normal; margin-bottom: 5px;">tipo de vinculación</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="far fa-user"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- Contenedor del paso 5 (Mismo contenido del paso 3 modificado o similar para mantener la captura) -->
             <div id="pd-step-5" class="pd-step" style="display: none;">
-              <div class="text-center py-5"><h4>Paso 5</h4><p>Formulario del paso 5...</p></div>
+              <!-- El diseño del paso 5 es casi idéntico al 3 en los campos pero dice INFORMACION SOCIOECONOMICA -->
+              <div style="border: 1px dashed #6c757d; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <div class="row">
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Nombres del representante</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="far fa-user"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Apellidos del representante</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="far fa-user"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row justify-content-center">
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">parentezco</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-user-friends"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row justify-content-center">
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">numero de documento</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-file-alt"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-4 form-group mb-0">
+                    <input type="text" class="form-control bg-transparent" placeholder="Tipo de documento" style="box-shadow: none; text-align: center; border-radius: 20px;">
+                  </div>
+                  <div class="col-md-4 form-group mb-0">
+                    <input type="text" class="form-control bg-transparent" placeholder="Género" style="box-shadow: none; text-align: center; border-radius: 20px;">
+                  </div>
+                  <div class="col-md-4 form-group mb-0">
+                    <input type="text" class="form-control bg-transparent" placeholder="Edad" style="box-shadow: none; text-align: center; border-radius: 20px;">
+                  </div>
+                </div>
+              </div>
+              <div style="border: 1px dashed #6c757d; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <div class="row">
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Departamento residencia</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-home"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                  <div class="col-md-6 form-group mb-3">
+                    <label style="font-weight: normal; margin-bottom: 5px;">Municipio de residencia</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-home"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row justify-content-center">
+                  <div class="col-md-6 form-group mb-3 flex-column d-flex align-items-center">
+                    <label style="font-weight: normal; margin-bottom: 5px; text-align: left; width: 100%;">Correo electronico</label>
+                    <div class="input-group w-100">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="far fa-envelope"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+                <div class="row justify-content-center">
+                  <div class="col-md-6 form-group mb-0 flex-column d-flex align-items-center">
+                    <label style="font-weight: normal; margin-bottom: 5px; text-align: left; width: 100%;">Dirección</label>
+                    <div class="input-group w-100">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-home"></i></span>
+                      </div>
+                      <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row justify-content-center">
+                <div class="col-md-6 form-group mb-0">
+                  <label style="font-weight: normal; margin-bottom: 5px;">Número contacto</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text bg-transparent" style="border-right: none;"><i class="fas fa-phone-alt"></i></span>
+                    </div>
+                    <input type="text" class="form-control bg-transparent" style="border-left: none; box-shadow: none;">
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- Contenedor del paso 6 -->
             <div id="pd-step-6" class="pd-step" style="display: none;">
-              <div class="text-center py-5"><h4>Paso 6</h4><p>Formulario del paso 6...</p></div>
+              <p class="text-center mb-3 mt-4">Documentos del aprendiz</p>
+              <div style="border: 1px dashed #6c757d; padding: 25px 20px; border-radius: 5px; margin-bottom: 25px;">
+                <div class="d-flex justify-content-center flex-wrap" style="gap: 15px;">
+                  <button type="button" class="btn btn-primary" style="background-color: #2852ff; border-color: #2852ff; border-radius: 8px; padding: 8px 15px;" data-toggle="modal" data-target="#modalSubirArchivo">Documento de identidad</button>
+                  <button type="button" class="btn btn-primary" style="background-color: #2852ff; border-color: #2852ff; border-radius: 8px; padding: 8px 15px;" data-toggle="modal" data-target="#modalSubirArchivo">Recibo de servicio publico(Energia, Agua o Gas)</button>
+                  <button type="button" class="btn btn-primary" style="background-color: #2852ff; border-color: #2852ff; border-radius: 8px; padding: 8px 15px;" data-toggle="modal" data-target="#modalSubirArchivo">Documento de su EPS</button>
+                </div>
+              </div>
+              <p class="text-center mb-4" style="color: #dc3545;">¡Documentos del representante en caso del aprendiz ser menor de edad!</p>
+              <div class="text-center mb-4 pb-2">
+                <button type="button" class="btn btn-primary" style="background-color: #2852ff; border-color: #2852ff; border-radius: 8px; padding: 8px 15px;" data-toggle="modal" data-target="#modalSubirArchivo">Documento de identidad</button>
+              </div>
             </div>
+            
             <div id="pd-step-7" class="pd-step" style="display: none;">
-              <div class="text-center py-5"><h4>Paso 7</h4><p>Formulario del paso 7...</p></div>
+              <div style="max-height: 50vh; overflow-y: auto; padding-right: 15px; margin-bottom: 20px;">
+                <?php
+                $preguntasPaso7 = [
+                  ["texto" => "aprendiz embarazada o en periodo de lactancia hasta un (1) año despues del parto y por razones de lactancia?", "color" => "text-danger"],
+                  ["texto" => "se reconoce como aprendiz padre o madre cabeza de familia?", "color" => ""],
+                  ["texto" => "se reconoce como aprendiz en cituacion de discapacidad? cual discapacidad?", "color" => "text-danger"],
+                  ["texto" => "se reconoce como aprendiz victima de violencia basada en genero y violencia contra la mujer", "color" => ""],
+                  ["texto" => "aprendiz victima de conflicto armado ley 1448 de 2011 - decreto 4800 de 2011", "color" => ""],
+                  ["texto" => "se reconoce como aprendiz perteneciente a comunidades narp (negritudez, afrocolombianos, raizales palanqueros) pueblo rom, poblacion indigena?", "color" => ""],
+                  ["texto" => "se reconoce como aprendiz en cituacion de desplazamiento por fenomenos naturales en los ultimos dos (2) años?", "color" => "text-danger"]
+                ];
+                foreach ($preguntasPaso7 as $index => $pregunta):
+                ?>
+                <div class="row align-items-center mb-4">
+                  <div class="col-8">
+                    <p class="mb-0 <?php echo $pregunta['color']; ?>"><?php echo $pregunta['texto']; ?></p>
+                  </div>
+                  <div class="col-4 d-flex justify-content-around">
+                    <div class="custom-control custom-radio">
+                      <input type="radio" id="p7_<?php echo $index; ?>_si" name="p7_<?php echo $index; ?>" class="custom-control-input">
+                      <label class="custom-control-label" for="p7_<?php echo $index; ?>_si" style="font-weight: normal;">si</label>
+                    </div>
+                    <div class="custom-control custom-radio">
+                      <input type="radio" id="p7_<?php echo $index; ?>_no" name="p7_<?php echo $index; ?>" class="custom-control-input">
+                      <label class="custom-control-label" for="p7_<?php echo $index; ?>_no" style="font-weight: normal;">no</label>
+                    </div>
+                  </div>
+                </div>
+                <?php endforeach; ?>
+              </div>
             </div>
+            
             <div id="pd-step-8" class="pd-step" style="display: none;">
-              <div class="text-center py-5"><h4>Paso 8</h4><p>Finalización del registro...</p></div>
+              <div style="max-height: 50vh; overflow-y: auto; padding-right: 15px; margin-bottom: 20px;">
+                <?php
+                $preguntasPaso8 = [
+                  ["texto" => "es aprendiz con sisben nivel grupo a 1,2,3,4,", "color" => ""],
+                  ["texto" => "es aprendiz con sisben nivel grupo b 1,2,3,4,5,6", "color" => ""],
+                  ["texto" => "se reconoce como aprendiz campesino?", "color" => "text-danger"],
+                  ["texto" => "es aprendiz representante elegido segun normatividad institucional?", "color" => ""],
+                  ["texto" => "es aprendiz vocero principal y/o suplente elegido segun normatividad institucional", "color" => ""],
+                  ["texto" => "¿es aperndiz que participa en semillero de navegacion o worldskills o senasoft o produccion dell centro? cual?", "color" => ""],
+                  ["texto" => "es aprendiz que ha tenido un cupo en el internado en la vigencia interior?", "color" => ""],
+                  ["texto" => "tiene certificado de nivel tecnologo o titulo profesional?", "color" => "text-danger"],
+                  ["texto" => "Adjunta informacion declaracion fundamentada", "color" => "text-danger"]
+                ];
+                foreach ($preguntasPaso8 as $index => $pregunta):
+                ?>
+                <div class="row align-items-center mb-4">
+                  <div class="col-8">
+                    <p class="mb-0 <?php echo $pregunta['color']; ?>"><?php echo $pregunta['texto']; ?></p>
+                  </div>
+                  <div class="col-4 d-flex justify-content-around">
+                    <div class="custom-control custom-radio">
+                      <input type="radio" id="p8_<?php echo $index; ?>_si" name="p8_<?php echo $index; ?>" class="custom-control-input">
+                      <label class="custom-control-label" for="p8_<?php echo $index; ?>_si" style="font-weight: normal;">si</label>
+                    </div>
+                    <div class="custom-control custom-radio">
+                      <input type="radio" id="p8_<?php echo $index; ?>_no" name="p8_<?php echo $index; ?>" class="custom-control-input">
+                      <label class="custom-control-label" for="p8_<?php echo $index; ?>_no" style="font-weight: normal;">no</label>
+                    </div>
+                  </div>
+                </div>
+                <?php endforeach; ?>
+              </div>
             </div>
 
           </div>
@@ -582,10 +950,43 @@
                 <span class="pd-circle" data-step="8">8</span>
               </div>
               <div class="d-flex mb-2">
-                <button type="button" class="btn btn-danger mr-2" data-dismiss="modal" style="border-radius: 8px; padding: 6px 20px;">Cancelar</button>
+                <button type="button" class="btn btn-danger mr-2" id="btnPdAnterior" style="border-radius: 8px; padding: 6px 20px;">Cancelar</button>
                 <button type="button" class="btn btn-primary" id="btnPdSiguiente" style="background-color: #2852ff; border-color: #2852ff; border-radius: 8px; padding: 6px 20px;">Siguiente</button>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Confirmacion Obligaciones -->
+    <div class="modal fade" id="modalConfirmacion" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content text-center" style="border-radius: 15px; padding: 20px;">
+          <div class="modal-body">
+            <i class="fas fa-exclamation-circle mb-3" style="font-size: 2.5rem; color: #333;"></i>
+            <p style="font-size: 1.1rem; line-height: 1.3;" class="mb-4">
+              conoce las<br>obligaciones que<br>adquiere como<br>aprendiz<br>si es beneficiario del<br>apoyo<br>socioeconomico al<br>que<br>se esta postulando?
+            </p>
+            <div class="d-flex justify-content-center" style="gap: 15px;">
+              <button type="button" class="btn btn-danger px-4" data-dismiss="modal" style="border-radius: 8px;">Cancelar</button>
+              <button type="button" class="btn btn-primary px-4" id="btnContinuarConfirmacion" style="background-color: #1565c0; border-radius: 8px;" data-dismiss="modal">Continuar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Finalizado Exito -->
+    <div class="modal fade" id="modalExitoInscripcion" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content text-center" style="border-radius: 15px; padding: 20px;">
+          <div class="modal-body">
+            <i class="fas fa-exclamation-circle mb-3" style="font-size: 2.5rem; color: #333;"></i>
+            <p style="font-size: 1.1rem; line-height: 1.3;" class="mb-4">
+              Tu inscripción se<br>completo<br>corectamente. te<br>invitamos a estar al<br>tanto con las<br>notificaciones.
+            </p>
+            <button type="button" class="btn btn-primary px-5" id="btnFinalizarTodo" style="background-color: #1565c0; border-radius: 8px;" data-dismiss="modal">Finalizar</button>
           </div>
         </div>
       </div>
@@ -608,6 +1009,11 @@
     .pd-circle.active {
       background-color: #2852ff;
     }
+    
+    /* Aseguramos que la modal de subir archivo se monte siempre encima de otras modales activas */
+    #modalSubirArchivo {
+      z-index: 1060 !important;
+    }
     </style>
 
     <script>
@@ -615,7 +1021,20 @@
         let pdCurrentStep = 1;
         const pdTotalSteps = 8;
         const btnPdSiguiente = document.getElementById('btnPdSiguiente');
+        const btnPdAnterior = document.getElementById('btnPdAnterior');
         const pdCircles = document.querySelectorAll('.pd-circle');
+        const pdModalTitle = document.getElementById('pdModalTitle');
+        
+        const stepTitles = {
+          1: "DATOS PERSONALES DEL APRENDIZ",
+          2: "DATOS DE FORMACIÓN",
+          3: "DATOS DEL REPRESENTANTE LEGAL",
+          4: "VIVIENDA Y SERVICIO",
+          5: "INFORMACION SOCIOECONOMICA",
+          6: "DOCUMENTO DE SOPORTE DEL APRENDIZ Y REPRESENTANTE",
+          7: "CONDICIONES DEL APRENDIZ",
+          8: "CONDICIONES DEL APRENDIZ PAG 2"
+        };
         
         function updatePdStep(step) {
           for(let i=1; i<=pdTotalSteps; i++) {
@@ -633,9 +1052,24 @@
           });
 
           if(step === pdTotalSteps) {
-            if(btnPdSiguiente) btnPdSiguiente.textContent = 'Finalizar';
+            if(btnPdSiguiente) btnPdSiguiente.textContent = 'siguiente'; // En la captura dice siguiente minúscula
           } else {
             if(btnPdSiguiente) btnPdSiguiente.textContent = 'Siguiente';
+          }
+
+          if(step > 1) {
+            if(btnPdAnterior) {
+              // En la captura de paso 8 el botón dice "Atras", para otros es Anterior
+              btnPdAnterior.textContent = (step === 8) ? 'Atras' : 'Anterior';
+            }
+          } else {
+            if(btnPdAnterior) {
+              btnPdAnterior.textContent = 'Cancelar';
+            }
+          }
+
+          if(pdModalTitle && stepTitles[step]) {
+            pdModalTitle.textContent = stepTitles[step];
           }
         }
 
@@ -645,10 +1079,20 @@
               pdCurrentStep++;
               updatePdStep(pdCurrentStep);
             } else {
-              $('#modalDatosPersonales').modal('hide');
-              pdCurrentStep = 1;
-              updatePdStep(pdCurrentStep);
+              // En lugar de cerrar, abrimos la modal de confirmacion
+              $('#modalConfirmacion').modal('show');
             } 
+          });
+        }
+
+        if (btnPdAnterior) {
+          btnPdAnterior.addEventListener('click', function() {
+            if (pdCurrentStep > 1) {
+              pdCurrentStep--;
+              updatePdStep(pdCurrentStep);
+            } else {
+              $('#modalDatosPersonales').modal('hide');
+            }
           });
         }
 
@@ -658,6 +1102,33 @@
             updatePdStep(pdCurrentStep);
           });
         });
+        
+        // Lógica de los modales finales
+        $('#btnContinuarConfirmacion').on('click', function() {
+          // Un pequeño delay para que al cerrar la de confirmacion, la de exito se abra bien
+          setTimeout(function() {
+            $('#modalExitoInscripcion').modal('show');
+          }, 400);
+        });
+
+        $('#btnFinalizarTodo').on('click', function() {
+          // Cerramos todo el flujo
+          $('#modalDatosPersonales').modal('hide');
+        });
+
+        // Aseguramos que la opacidad del fondo de modalSubirArchivo quede superior a todo
+        $('#modalSubirArchivo').on('show.bs.modal', function () {
+          setTimeout(function() {
+            $('.modal-backdrop').last().css('z-index', 1059);
+          }, 10);
+        });
+        // Si tienes problemas visuales en Bootstrap 4.6 con múltiples backdrops:
+        $('#modalSubirArchivo, #modalConfirmacion, #modalExitoInscripcion').on('hidden.bs.modal', function() {
+           if ($('.modal.show').length > 0) {
+             $('body').addClass('modal-open');
+           }
+        });
+
       });
     </script>
     <!-- /.content -->
