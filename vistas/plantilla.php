@@ -73,19 +73,18 @@
 
   </head>
 
-<body class="hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+<body class="hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed login-page">
 
-  <div class="wrapper">
+  <div class="login-box"> <!--Wrapper-->
     <?php
-    include 'modulos/encabezado.php';
-    include 'modulos/menu.php';
-    ?>
+    if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok"){
 
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-
-
-      <?php
+      include 'modulos/encabezado.php';
+      include 'modulos/menu.php';
+      
+      //Content Wrapper. Contains page content
+      echo '<div class="content-wrapper">';
+      
       if (isset($_GET["ruta"])) {
         if (
           $_GET["ruta"] == "inicio" ||
@@ -99,21 +98,19 @@
           $_GET["ruta"] == "reportes"||  
           $_GET["ruta"] == "inscripciones"||
           $_GET["ruta"] == "Usuarios"
-        ) 
-        {
-          include "modulos/" . $_GET["ruta"] . ".php";
-        } //fin del enrutador
-        else {
-          include "modulos/error404.php";
-        } // si la ruta no existe
+          ) {
+            include "modulos/" . $_GET["ruta"] . ".php";
+          } //Fin del enrutador
+          else {
+            include "modulos/error404.php";
+          } // si la ruta no existe
       }
+        echo '</div>'; //Content Wrapper closed
+        include 'modulos/footer.php';
 
-      ?>
-
-    </div>
-    <!-- /.content-wrapper -->
-    <?php
-    include 'modulos/footer.php';
+    } else {
+      include "modulos/login.php";
+    }
     ?>
   </div>
 
