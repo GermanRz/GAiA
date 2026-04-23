@@ -17,6 +17,9 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="vistas/dist/css/adminlte.min.css">
 
+    <style>
+    </style>
+
     <!-- DataTables -->
     <link rel="stylesheet" href="vistas/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="vistas/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
@@ -115,7 +118,9 @@
 
 
   <script src="vistas/js/plantilla.js"></script>
-  <script src="vistas/js/financiera.js"></script>
+  <script src="vistas/js/styles.css"></script>
+
+
 
 </body>
 

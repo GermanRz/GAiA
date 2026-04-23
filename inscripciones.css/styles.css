@@ -1,0 +1,296 @@
+/* Estilos personalizados para inscripciones.php */
+#vistaUsuario .table th,
+#vistaUsuario .table td,
+#vistaUsuario .table button,
+#vistaAdmin .table th,
+#vistaAdmin .table td,
+#vistaAdmin .table button {
+  text-transform: lowercase;
+}
+
+#vistaUsuario .table th::first-letter,
+#vistaUsuario .table td::first-letter,
+#vistaUsuario .table button::first-letter,
+#vistaAdmin .table th::first-letter,
+#vistaAdmin .table td::first-letter,
+#vistaAdmin .table button::first-letter {
+  text-transform: uppercase;
+}
+
+.custom-btn-rounded {
+  border-radius: 5px;
+  font-weight: 500;
+}
+
+.pd-step {
+  display: none;
+}
+
+#pd-step-1 {
+  display: block;
+}
+
+.inscripciones-table {
+  min-width: 900px;
+}
+
+.w-10 {
+  width: 10%;
+}
+
+.w-15 {
+  width: 15%;
+}
+.w-15 {
+  width: 15%;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.gap-15 {
+  gap: 15px;
+}
+.modal-high-z {
+  z-index: 1060 !important;
+}
+
+.modal-rounded {
+  border-radius: 10px;
+}
+
+.modal-rounded-large {
+  border-radius: 15px;
+}
+
+.modal-content-centered {
+  min-height: 350px;
+}
+
+.modal-close-top-right {
+  right: 15px;
+  top: 15px;
+  z-index: 10;
+}
+
+.modal-close-icon {
+  font-size: 1.5rem;
+}
+
+.close-no-shadow {
+  opacity: 1;
+  text-shadow: none;
+}
+
+.modal-body-upload {
+  padding: 40px 20px;
+}
+
+.modal-content-dark {
+  background-color: #1f2228;
+  color: #f8f9fa;
+}
+
+#modalSubirArchivo .modal-body {
+  background-color: transparent;
+}
+
+#modalSubirArchivo .icon-large {
+  color: #ffffff;
+}
+
+#modalSubirArchivo .upload-description {
+  color: #ced4da;
+}
+
+#modalSubirArchivo .btn-upload-square,
+#modalSubirArchivo .btn-upload {
+  background-color: #0069d9;
+  border-color: #0062cc;
+  color: #ffffff;
+}
+
+#modalSubirArchivo .btn-upload-square:hover,
+#modalSubirArchivo .btn-upload:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+}
+
+.upload-action-group {
+  gap: 15px;
+}
+
+.btn-upload {
+  background-color: #007bff;
+  border-color: #007bff;
+  border-radius: 20px;
+  padding: 6px 20px;
+}
+
+.btn-upload-square {
+  background-color: #007bff;
+  border-color: #007bff;
+  border-radius: 10px;
+}
+
+.btn-blue-solid {
+  background-color: #2852ff;
+  border-color: #2852ff;
+  border-radius: 8px;
+  padding: 8px 15px;
+}
+
+.box-dashed {
+  border: 1px dashed #6c757d;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.box-dashed-large {
+  border: 1px dashed #6c757d;
+  padding: 25px 20px;
+  border-radius: 5px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-label-normal {
+  font-weight: normal;
+  margin-bottom: 5px;
+}
+
+.input-group-text-no-border-right {
+  border-right: none;
+}
+
+.form-control-no-border-left {
+  border-left: none;
+  box-shadow: none;
+}
+
+.form-control-round-centered {
+  box-shadow: none;
+  text-align: center;
+  border-radius: 20px;
+}
+
+.form-control-large {
+  box-shadow: none;
+  border-radius: 8px;
+  width: 60%;
+  max-width: 350px;
+}
+
+.form-warning-text {
+  color: #dc3545;
+  font-size: 0.95rem;
+}
+
+.modal-title-sm {
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+}
+
+.text-large {
+  font-size: 1.1rem;
+}
+
+.text-white-important {
+  color: white !important;
+}
+
+.icon-large {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.icon-notification {
+  font-size: 2.5rem;
+  color: #fff;
+}
+
+.modal-content-lg-rounded {
+  border-radius: 15px;
+  padding: 20px;
+}
+
+.modal-notification-text {
+  font-size: 1.1rem;
+  line-height: 1.3;
+}
+
+.btn-pill-md {
+  border-radius: 8px;
+  padding: 6px 20px;
+}
+
+.btn-primary-emphasis {
+  background-color: #1565c0;
+  border-color: #1565c0;
+  border-radius: 8px;
+}
+
+.gap-5-flex-wrap {
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.modal-faq-body {
+  padding: 20px 40px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.faq-card {
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 8px;
+  background-color: transparent;
+}
+
+.faq-card-header {
+  background-color: transparent;
+  border-bottom: none;
+  border-radius: 8px;
+}
+
+.faq-collapse-btn {
+  box-shadow: none;
+}
+
+.icon-small {
+  font-size: 0.8rem;
+}
+
+.card-body-transparent {
+  background-color: transparent;
+}
+
+.scroll-section {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 15px;
+  margin-bottom: 20px;
+}
+
+.btn-group-gap {
+  gap: 15px;
+}
+
+.text-danger-note {
+  color: #dc3545;
+}
+
+.vertical-label-full {
+  text-align: left;
+  width: 100%;
+}
+
+.d-none {
+  display: none !important;
+}
