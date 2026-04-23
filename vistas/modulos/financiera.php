@@ -5,7 +5,7 @@
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1>Financiera</h1>
+        <h1>Apoyos</h1>
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
@@ -26,12 +26,50 @@
     <div class="container-header-financiera w-100">
       <div class="seleccion-apoyos">
         <!-- Iconos: fa-lock, fa-phone-alt, fa-utensils, fa-car-side -->
-        <button class="btn btn-app bg-success btn-sm btn-apoyo active" data-target="#tab-sostenimiento"><i class="fas fa-lock"></i> <span class="txt">sostenimiento</span></button>
-        <button class="btn btn-app bg-success btn-sm btn-apoyo" data-target="#tab-datos"><i class="fas fa-phone-alt"></i> <span class="txt">datos</span></button>
-        <button class="btn btn-app bg-success btn-sm btn-apoyo" data-target="#tab-alimentacion"><i class="fas fa-utensils"></i> <span class="txt">alimentación</span></button>
-        <button class="btn btn-app bg-success btn-sm btn-apoyo" data-target="#tab-transporte"><i class="fas fa-car-side"></i> <span class="txt">transporte</span></button>
+        <div class="row w-100">
+          <div class="col-auto mb-2" style="width: 220px;">
+            <div class="info-box bg-success btn-apoyo active" data-target="#tab-sostenimiento"
+              style="cursor:pointer; min-height: 50px; padding: 5px; margin-bottom: 0;">
+              <span class="info-box-icon" style="width: 50px; font-size: 1.5rem;"><i class="fas fa-lock"></i></span>
+              <div class="info-box-content" style="padding: 5px 10px;">
+                <span class="info-box-text text-wrap" style="font-size: 0.85rem; line-height: 1.1;">Apoyo de
+                  sostenimiento</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-auto mb-2" style="width: 220px;">
+            <div class="info-box bg-success btn-apoyo" data-target="#tab-datos"
+              style="cursor:pointer; min-height: 50px; padding: 5px; margin-bottom: 0;">
+              <span class="info-box-icon" style="width: 50px; font-size: 1.5rem;"><i
+                  class="fas fa-phone-alt"></i></span>
+              <div class="info-box-content" style="padding: 5px 10px;">
+                <span class="info-box-text text-wrap" style="font-size: 0.85rem; line-height: 1.1;">apoyo de
+                  datos</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-auto mb-2" style="width: 220px;">
+            <div class="info-box bg-success btn-apoyo" data-target="#tab-alimentacion"
+              style="cursor:pointer; min-height: 50px; padding: 5px; margin-bottom: 0;">
+              <span class="info-box-icon" style="width: 50px; font-size: 1.5rem;"><i class="fas fa-utensils"></i></span>
+              <div class="info-box-content" style="padding: 5px 10px;">
+                <span class="info-box-text text-wrap" style="font-size: 0.85rem; line-height: 1.1;">apoyo de
+                  alimentación</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-auto mb-2" style="width: 220px;">
+            <div class="info-box bg-success btn-apoyo" data-target="#tab-transporte"
+              style="cursor:pointer; min-height: 50px; padding: 5px; margin-bottom: 0;">
+              <span class="info-box-icon" style="width: 50px; font-size: 1.5rem;"><i class="fas fa-car-side"></i></span>
+              <div class="info-box-content" style="padding: 5px 10px;">
+                <span class="info-box-text text-wrap" style="font-size: 0.85rem; line-height: 1.1;">apoyo de
+                  transporte</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
     </div>
 
     <!-- Gran contenedor con borde (como en la imagen) -->
