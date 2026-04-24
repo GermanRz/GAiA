@@ -1,3 +1,9 @@
+<?php
+
+  session_start();
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -75,9 +81,15 @@
 
 <body class="hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed login-page">
 
-  <div class="login-box"> <!--Wrapper-->
     <?php
     if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok"){
+
+      echo "<script>
+        document.addEventListener('DOMContentLoaded', function(){
+          document.body.classList.remove('login-page');
+        });
+      </script>"; //Script para remover la clase de login al momento de haber iniciado sesion
+      echo '<div class="wrapper">'; //WRAPPER OPENED
 
       include 'modulos/encabezado.php';
       include 'modulos/menu.php';
@@ -97,7 +109,8 @@
           $_GET["ruta"] == "verificacion"||  
           $_GET["ruta"] == "reportes"||  
           $_GET["ruta"] == "inscripciones"||
-          $_GET["ruta"] == "Usuarios"
+          $_GET["ruta"] == "Usuarios"||
+          $_GET["ruta"] == "salir"
           ) {
             include "modulos/" . $_GET["ruta"] . ".php";
           } //Fin del enrutador
@@ -108,11 +121,11 @@
         echo '</div>'; //Content Wrapper closed
         include 'modulos/footer.php';
 
+        echo '</div>'; //WRAPPER CLOSED
     } else {
       include "modulos/login.php";
     }
     ?>
-  </div>
 
 
 

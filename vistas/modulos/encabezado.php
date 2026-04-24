@@ -41,6 +41,7 @@
           </a>
           <div class="dropdown-divider"></div>
           <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+          <a href="salir" class="dropdown-item"><i class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión</a>
         </div>
       </li>
       <li class="nav-item">

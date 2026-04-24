@@ -9,7 +9,7 @@
 
       <form method="post">
         <div class="input-group mb-3">
-          <input type="text" class="form-control" placeholder="Documento">
+          <input type="text" class="form-control" placeholder="Documento" name="ingDocumento">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-id-card"></span>
@@ -17,7 +17,7 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="Contraseña">
+          <input type="password" class="form-control" placeholder="Contraseña" name="ingPassword">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -25,12 +25,22 @@
           </div>
         </div>
         <div class="row">
+            <div class="col-8"></div>
           <!-- /.col -->
           <div class="col-4">
             <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
           </div>
           <!-- /.col -->
         </div>
+
+        <?php
+        
+            $login = new ControladorUsuarios();
+            $login->ctrIngresoUsuario();
+
+        ?>
+
+
       </form>
 
       <p class="mb-1">
