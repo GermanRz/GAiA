@@ -1,3 +1,10 @@
+<?php
+
+session_start();
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -9,13 +16,17 @@
     <title>GAiA</title>
 
     <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="vistas/plugins/fontawesome-free/css/all.min.css">
     <!-- overlayScrollbars -->
     <link rel="stylesheet" href="vistas/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="vistas/dist/css/adminlte.min.css">
+
+    <style>
+    </style>
 
     <!-- DataTables -->
     <link rel="stylesheet" href="vistas/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
@@ -69,53 +80,59 @@
 
   </head>
 
-<body class="hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+<body class="hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed
+ layout-footer-fixed  login-page">
 
-  <div class="wrapper">
-    <?php
+  <?php
+
+  if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
+    echo "<script>
+      document.addEventListener('DOMContentLoaded', function(){
+        document.body.classList.remove('login-page');
+      });
+        </script>";
+    echo '<div class="wrapper">';
     include 'modulos/encabezado.php';
     include 'modulos/menu.php';
-    ?>
+    echo '<div class="content-wrapper">';
 
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
+    if (isset($_GET["ruta"])) {
 
-
-      <?php
-      if (isset($_GET["ruta"])) {
-        if (
-          $_GET["ruta"] == "inicio" ||
-          $_GET["ruta"] == "puntuacion" ||
-          $_GET["ruta"] == "apoyos" ||
-          $_GET["ruta"] == "sedes" ||
-          $_GET["ruta"] == "fichas" ||
-          $_GET["ruta"] == "identificacion" ||
-          $_GET["ruta"] == "financiera" ||
-          $_GET["ruta"] == "verificacion" ||
-          $_GET["ruta"] == "reportes" ||
-          $_GET["ruta"] == "inscripciones" ||
-          $_GET["ruta"] == "Usuarios"
-        ) {
-          include "modulos/" . $_GET["ruta"] . ".php";
-        } //fin del enrutador
-        else {
-          include "modulos/error404.php";
-        } // si la ruta no existe
-      }
-
-      ?>
-
-    </div>
-    <!-- /.content-wrapper -->
-    <?php
+      if (
+        $_GET["ruta"] == "inicio" ||
+        $_GET["ruta"] == "puntuacion" ||
+        $_GET["ruta"] == "apoyos" ||
+        $_GET["ruta"] == "sedes" ||
+        $_GET["ruta"] == "fichas" ||
+        $_GET["ruta"] == "identificacion" ||
+        $_GET["ruta"] == "financiera" ||
+        $_GET["ruta"] == "verificacion" ||
+        $_GET["ruta"] == "reportes" ||
+        $_GET["ruta"] == "inscripciones" ||
+        $_GET["ruta"] == "Usuarios" ||
+        $_GET["ruta"] == "salir"
+      ) {
+        include "modulos/" . $_GET["ruta"] . ".php";
+      } //fin del enrutador
+      else {
+        include "modulos/error404.php";
+      } // si la ruta no existe
+    }
+    echo '</div>';
     include 'modulos/footer.php';
-    ?>
+    echo "</div>";
+  } else {
+    include 'modulos/login.php';
+
+  }
+
+  ?>
   </div>
 
-
-
   <script src="vistas/js/plantilla.js"></script>
-  <script src="vistas/js/financiera.js"></script>
+  <script src="vistas/js/styles.css"></script>
+
+
 
 </body>
 
