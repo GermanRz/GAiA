@@ -10,7 +10,15 @@ class ModeloUsuarios{
         $stmt->bindParam(":documento", $documento, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch();
+    }  //fin del metodo mdlIngresarUsuario
+
+    static public function mdlListarUsuarios(){
+        $stmt = Conexion::conectar()->prepare("SELECT * FROM usuarios");
+        $stmt->execute();
+        return $stmt->fetchAll();    
     }
+
+
 
 
 } // fin de la clase ModeloUsuarios

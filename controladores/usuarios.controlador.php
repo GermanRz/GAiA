@@ -27,4 +27,11 @@ class ControladorUsuarios{
         }
     } //fin del metodo de ingresar usuario
 
+
+
+    static public function ctrListarUsuarios(){
+        $respuesta= ModeloUsuarios::mdlListarUsuarios();
+        return $respuesta;
+    } //fin del metodo ctrListarUsuarios
+
 }//fin de la clase ControladorUsuarios
