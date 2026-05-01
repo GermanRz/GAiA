@@ -70,6 +70,11 @@
     <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
     <script src="vistas/dist/js/pages/dashboard2.js"></script>
 
+    <!-- SweetAlert2 -->
+    <script src="vistas/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <!-- Toastr -->
+    <script src="vistas/plugins/toastr/toastr.min.js"></script>
+
     <!-- AdminLTE App -->
     <script src="vistas/dist/js/adminlte.js"></script>
     <!-- AdminLTE for demo purposes -->

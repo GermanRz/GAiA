@@ -1,5 +1,17 @@
 $(document).ready(function () {
   $(function () {
+
+    $("#tblUsuarios")
+      .DataTable({
+        responsive: true,
+        lengthChange: false,
+        autoWidth: false,
+        buttons: ["excel", "pdf"],
+      })
+      .buttons()
+      .container()
+      .appendTo("#tblUsuarios_wrapper .col-md-6:eq(0)");    
+
     $("#tblApoyos")
       .DataTable({
         responsive: true,
