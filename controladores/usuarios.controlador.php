@@ -14,6 +14,8 @@ class ControladorUsuarios{
                 $documento = $_POST["ingDocumento"];
                 $respuesta = ModeloUsuarios::mdlIngresarUsuario($documento);
 
+                $passEncriptado=crypt($_POST["ingPassword"], '$2a$07$grgra34eggeGAiADeveloper$');
+
                 if (is_array($respuesta)){
                     if ($respuesta["password"] == $_POST["ingPassword"] && $respuesta["documento_id"]== $documento){
                         $_SESSION["iniciarSesion"] = "ok";
@@ -66,6 +68,10 @@ class ControladorUsuarios{
               ) {
 
                 $tabla="usuarios";
+                $passEncriptado = $_POST["nuevoDocumento"];
+
+                $passEncriptado = crypt($_POST["nuevoDocumento"], '$2a$07$grgra34eggeGAiADeveloper$');
+
                 $datos = array(
                   "tipoDocumento" => $_POST["nuevoTipoDocumento"],
                   "documentoId" => $_POST["nuevoDocumento"],
@@ -73,11 +79,9 @@ class ControladorUsuarios{
                   "apellidos" => $_POST["nuevoApellido"],
                   "correo" => $_POST["nuevoCorreo"],
                   "fechaNacimiento" => $_POST["nuevoFechaNacimiento"],
-                  "rol" => $_POST["nuevoRol"]
+                  "rol" => $_POST["nuevoRol"],
+                  "password" => $passEncriptado
                 );
-                error_log("arreglo de datos:" . $datos["tipoDocumento"]);
-                error_log("arreglo de datos:" . $datos["documentoId"]);
-                error_log("arreglo de datos:" . $datos["nombres"]);
                 $respuesta= ModeloUsuarios::mdlAgregarUsuario($tabla, $datos);
 
                 if($respuesta == "ok"){
