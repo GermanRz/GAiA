@@ -1,90 +1,91 @@
 <?php
 
-class ControladorUsuarios{
+class ControladorUsuarios
+{
 
     // ************************************
     // LOGIN DE USUARIO 
     // ************************************
-    public function ctrIngresarUsuario(){
-        if (isset($_POST["ingDocumento"])){
+    public function ctrIngresarUsuario()
+    {
+        if (isset($_POST["ingDocumento"])) {
             if (
                 preg_match('/^[0-9]+$/', $_POST["ingDocumento"]) &&
                 preg_match('/^[a-zA-Z0-9]+$/', $_POST["ingPassword"])
-            ){
+            ) {
                 $documento = $_POST["ingDocumento"];
                 $respuesta = ModeloUsuarios::mdlIngresarUsuario($documento);
 
-                $passEncriptado=crypt($_POST["ingPassword"], '$2a$07$grgra34eggeGAiADeveloper$');
+                $passEncriptado = crypt($_POST["ingPassword"], '$2a$07$grgra34eggeGAiADeveloper$');
 
-                if (is_array($respuesta)){
-                    if ($respuesta["password"] == $_POST["ingPassword"] && $respuesta["documento_id"]== $documento){
+                if (is_array($respuesta)) {
+                    if ($respuesta["password"] == $_POST["ingPassword"] && $respuesta["documento_id"] == $documento) {
                         $_SESSION["iniciarSesion"] = "ok";
                         echo "<script>window.location = 'inicio';</script>";
-                    } else{
-                    // var_dump($respuesta);
-                    echo  "<br><div class='alert alert-danger'>Usuario o contraseña incorrecto</div>";
-                    return;
-                    }                      
+                    } else {
+                        // var_dump($respuesta);
+                        echo "<br><div class='alert alert-danger'>Usuario o contraseña incorrecto</div>";
+                        return;
+                    }
                 }
 
-            }    
-            
+            }
+
         }
     } //fin del metodo de ingresar usuario
 
-    
-     // ************************************
+
+    // ************************************
     // LISA DE DE USUARIOS EN LA VENTANA PRINCIPAL
     // ************************************   
-    static public function ctrListarUsuarios(){
-        $respuesta= ModeloUsuarios::mdlListarUsuarios();
+    static public function ctrListarUsuarios()
+    {
+        $respuesta = ModeloUsuarios::mdlListarUsuarios();
         return $respuesta;
     } //fin del metodo ctrListarUsuarios
 
     // ************************************
     // AGREGAR USUARIO A LA BD
     // ************************************
-    public function ctrAgregarUsuario(){
-
-        
-        if (isset($_POST["nuevoTipoDocumento"])  && 
-        isset($_POST["nuevoDocumento"])  && 
-        isset($_POST["nuevoNombre"])  && 
-        isset($_POST["nuevoApellido"])  && 
-        isset($_POST["nuevoCorreo"])  && 
-        isset($_POST["nuevoFechaNacimiento"])  && 
-            isset($_POST["nuevoRol"]))
+    public function ctrAgregarUsuario()
+    {
 
 
-
-
-            {
-                // echo "entrando a agregar usuario";
-                // exit;
-                if (
+        if (
+            isset($_POST["nuevoTipoDocumento"]) &&
+            isset($_POST["nuevoDocumento"]) &&
+            isset($_POST["nuevoNombre"]) &&
+            isset($_POST["nuevoApellido"]) &&
+            isset($_POST["nuevoCorreo"]) &&
+            isset($_POST["nuevoFechaNacimiento"]) &&
+            isset($_POST["nuevoRol"])
+        ) {
+            // echo "entrando a agregar usuario";
+            // exit;
+            if (
                 preg_match('/^[0-9]+$/', $_POST["nuevoDocumento"]) &&
                 preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoNombre"]) &&
                 preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoApellido"])
-              ) {
+            ) {
 
-                $tabla="usuarios";
+                $tabla = "usuarios";
                 $passEncriptado = $_POST["nuevoDocumento"];
 
                 $passEncriptado = crypt($_POST["nuevoDocumento"], '$2a$07$grgra34eggeGAiADeveloper$');
 
                 $datos = array(
-                  "tipoDocumento" => $_POST["nuevoTipoDocumento"],
-                  "documentoId" => $_POST["nuevoDocumento"],
-                  "nombres" => $_POST["nuevoNombre"],
-                  "apellidos" => $_POST["nuevoApellido"],
-                  "correo" => $_POST["nuevoCorreo"],
-                  "fechaNacimiento" => $_POST["nuevoFechaNacimiento"],
-                  "rol" => $_POST["nuevoRol"],
-                  "password" => $passEncriptado
+                    "tipoDocumento" => $_POST["nuevoTipoDocumento"],
+                    "documentoId" => $_POST["nuevoDocumento"],
+                    "nombres" => $_POST["nuevoNombre"],
+                    "apellidos" => $_POST["nuevoApellido"],
+                    "correo" => $_POST["nuevoCorreo"],
+                    "fechaNacimiento" => $_POST["nuevoFechaNacimiento"],
+                    "rol" => $_POST["nuevoRol"],
+                    "password" => $passEncriptado
                 );
-                $respuesta= ModeloUsuarios::mdlAgregarUsuario($tabla, $datos);
+                $respuesta = ModeloUsuarios::mdlAgregarUsuario($tabla, $datos);
 
-                if($respuesta == "ok"){
+                if ($respuesta == "ok") {
                     echo "<script>
                         Swal.fire({
                             icon: 'success',
@@ -100,21 +101,22 @@ class ControladorUsuarios{
                         
                     </script>";
                     // echo "<br><div class='alert alert-success'>El usuario ha sido registrado correctamente</div>";
-                }else{
+                } else {
                     echo "<br><div class='alert alert-danger'>Error al agregar el usuario</div>";
                 }
 
-        
 
 
-              }
+
+            }
         }  // fin del isset
     }
 
     // ************************************
     // TRAER UN USUARIO ESPECIFICO DE LA BD
     // ************************************
-    static public function ctrMostrarUsuarios($item, $valor){
+    static public function ctrMostrarUsuarios($item, $valor)
+    {
         $tabla = "usuarios";
         $respuesta = ModeloUsuarios::mdlMostrarUsuarios($tabla, $item, $valor);
         return $respuesta;
