@@ -14,7 +14,7 @@ $("#nuevaDescripcion").change(function () {
     success: function (respuesta) {
       console.log(respuesta);
       if (respuesta) {
-        $("#nuevoNombre").val("");
+        $("#nuevaDescripcion").val("");
         Swal.fire({
           icon: "error",
           title: "¡La sede ya existe!",
