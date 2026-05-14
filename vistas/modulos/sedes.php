@@ -33,10 +33,8 @@
           <thead style="background-color: #198754; color: white;">
             <tr>
               <th>ID</th>
-              <th>Nombre</th>
               <th>Descripción</th>
               <th>Dirección</th>
-              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -47,17 +45,8 @@
             foreach ($respuesta as $sede) {
               echo "<tr>";
               echo "<td>" . $sede['id_sede'] . "</td>";
-              echo "<td>" . $sede['nombre'] . "</td>";
               echo "<td>" . $sede['descripcion_sede'] . "</td>";
               echo "<td>" . $sede['direccion_sede'] . "</td>";
-              echo "<td>";
-              if ($sede['estado'] == 'activo') {
-                echo "<button class='btn btn-xs btn-success'>activo</button>";
-              } else {
-                echo "<button class='btn btn-xs btn-danger'>inactivo</button>";
-              }
-              ;
-              echo "</td>";
               echo "<td>";
               echo '<div class="btn-group">
                             <button class="btn btn-sm btn-outline-light" data-toggle="modal" data-target="#modal-editarSede"><i class="fas fa-edit"></i></button>
@@ -99,17 +88,9 @@ AGREGAR SEDE   -->
 
           <div class="input-group mb-3">
             <div class="input-group-prepend">
-              <span class="input-group-text"><i class="fas fa-building"></i></span>
-            </div>
-            <input type="text" class="form-control" name="nuevoNombre" id="nuevoNombre" placeholder="Nombre" required>
-          </div>
-
-
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
               <span class="input-group-text"><i class="fas fa-align-left"></i></span>
             </div>
-            <input type="text" class="form-control" name="nuevaDescripcionSede" placeholder="Descripcion" required>
+            <input type="text" class="form-control" name="nuevaDescripcionSede" id="nuevaDescripcion" placeholder="Descripcion" required>
           </div>
 
           <div class="input-group mb-3">

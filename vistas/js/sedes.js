@@ -1,8 +1,8 @@
-$("#nuevoNombre").change(function () {
-  let nuevoNombre = $(this).val();
-  console.log("este es el Nombre a ingresar: " + nuevoNombre);
+$("#nuevaDescripcion").change(function () {
+  let nuevaDescripcionSede = $(this).val();
+  console.log("esta es la descripcion a ingresar: " + nuevaDescripcionSede);
   let datos = new FormData();
-  datos.append("nuevoNombre", nuevoNombre);
+  datos.append("nuevaDescripcion", nuevaDescripcionSede);
   $.ajax({
     url: "ajax/sedes.ajax.php",
     method: "POST",

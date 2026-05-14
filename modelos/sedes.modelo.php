@@ -19,8 +19,7 @@ class ModeloSedes{
     // ************************************    
     static public function mdlAgregarSede($tabla, $datos){
         
-        $stmt = Conexion::conectar()->prepare("INSERT INTO $tabla ( nombre, descripcion_sede, direccion_sede) VALUES ( :nombre, :descripcionSede, :direccionSede)");
-        $stmt->bindParam(":nombre", $datos["nombre"], PDO::PARAM_STR);
+        $stmt = Conexion::conectar()->prepare("INSERT INTO $tabla (descripcion_sede, direccion_sede) VALUES (:descripcionSede, :direccionSede)");
         $stmt->bindParam(":descripcionSede", $datos["descripcionSede"], PDO::PARAM_STR);
         $stmt->bindParam(":direccionSede", $datos["direccionSede"], PDO::PARAM_STR);
         if ($stmt->execute()){

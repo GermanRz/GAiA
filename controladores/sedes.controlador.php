@@ -19,8 +19,7 @@ class ControladorSedes
     {
 
 
-        if (
-            isset($_POST["nuevoNombre"]) &&
+        if (  
             isset($_POST["nuevaDireccionSede"]) &&
             isset($_POST["nuevaDescripcionSede"])
         ) {
@@ -31,7 +30,6 @@ class ControladorSedes
 
                 $tabla = "sedes";
                 $datos = array(
-                    "nombre" => $_POST["nuevoNombre"],
                     "descripcionSede" => $_POST["nuevaDescripcionSede"],
                     "direccionSede" => $_POST["nuevaDireccionSede"]
                 );

@@ -5,12 +5,12 @@ require_once "../modelos/sedes.modelo.php";
 
 class AjaxSedes{
 
-    public $nuevoNombre;
+    public $nuevaDescripcionSede;
 
-    public function ajaxValidarNombre(){
+    public function ajaxValidarDescripcion(){
 
-        $item = "nombre";
-        $valor = $this->nuevoNombre;
+        $item = "descripcion_sede";
+        $valor = $this->nuevaDescripcionSede;
 
         $respuesta = ControladorSedes::ctrMostrarSedes($item, $valor);
 
@@ -21,8 +21,8 @@ class AjaxSedes{
 
 }
 
-if (isset($_POST["nuevoNombre"])) {
-    $valNombre = new AjaxSedes();
-    $valNombre->nuevoNombre = $_POST["nuevoNombre"];
-    $valNombre->ajaxValidarNombre();
+if (isset($_POST["nuevaDescripcion"])) {
+    $valDescripcion = new AjaxSedes();
+    $valDescripcion->nuevaDescripcionSede = $_POST["nuevaDescripcion"];
+    $valDescripcion->ajaxValidarDescripcion();
 }
