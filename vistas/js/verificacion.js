@@ -202,7 +202,7 @@ $(document).ready(function() {
 
         // Obligatoriedad
         if (esCritico == 1) {
-            $("#eval-badge-obligatorio").removeClass("badge-secondary").addClass("badge-danger").text("OBLIGATORIO");
+            $("#eval-badge-obligatorio").removeClass("badge-secondary").addClass("badge-danger").text("CRÍTICO");
         } else {
             $("#eval-badge-obligatorio").removeClass("badge-danger").addClass("badge-secondary").text("OPCIONAL");
         }

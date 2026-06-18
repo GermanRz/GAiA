@@ -69,7 +69,7 @@ class ControladorConvocatorias {
                 echo "<script>
                     Swal.fire({
                         icon: 'error',
-                        title: '¡Los campos obligatorios no pueden ir vacíos!',
+                        title: '¡Los campos críticos no pueden ir vacíos!',
                         showConfirmButton: true,
                         confirmButtonText: 'Cerrar'
                     });

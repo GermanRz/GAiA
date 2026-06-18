@@ -32,7 +32,7 @@ $(document).ready(function() {
                 const meses = document.getElementById('swal-meses').value;
                 const fecha = document.getElementById('swal-fecha').value;
                 if (!meses || !fecha) {
-                    Swal.showValidationMessage('Ambos campos son obligatorios');
+                    Swal.showValidationMessage('Ambos campos son críticos');
                 }
                 return { meses: meses, fecha: fecha }
             }

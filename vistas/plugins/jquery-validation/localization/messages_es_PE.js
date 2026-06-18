@@ -14,7 +14,7 @@
  * Region: PE (Perú)
  */
 $.extend( $.validator.messages, {
-	required: "Este campo es obligatorio.",
+	required: "Este campo es crítico.",
 	remote: "Por favor, llene este campo.",
 	email: "Por favor, escriba un correo electrónico válido.",
 	url: "Por favor, escriba una URL válida.",
