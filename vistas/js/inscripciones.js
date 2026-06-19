@@ -11,6 +11,61 @@ $(document).ready(function() {
     }
 
     let activeConvocatoriaId = null;
+    let activeInscripcionId = null;
+    let inscripcionEstado = null;
+    let inscripcionSubsanacion = 0;
+
+    // --- FUNCIÓN: APLICAR BLOQUEO DE UI SEGÚN ESTADO ---
+    function aplicarBloqueoUI() {
+        const $enviarBtn = $("#btn-enviar-postulacion-sim");
+
+        if (!inscripcionEstado) {
+            $enviarBtn.prop("disabled", false).show();
+            return;
+        }
+
+        if (inscripcionEstado === "EN_REVISION") {
+            // Bloqueo total: ocultar zonas de subida, botones eliminar, ocultar botón enviar
+            $(".zona-subida-archivo").addClass("d-none");
+            $(".acciones-archivo-cargado .btn-eliminar-pdf-sim").addClass("d-none");
+            $enviarBtn.prop("disabled", true).hide();
+            return;
+        }
+
+        if (inscripcionEstado === "DEVUELTA" && inscripcionSubsanacion === 1) {
+            // Oportunidad consumida: bloqueo definitivo
+            $(".zona-subida-archivo").addClass("d-none");
+            $(".acciones-archivo-cargado .btn-eliminar-pdf-sim").addClass("d-none");
+            $enviarBtn.prop("disabled", true).hide();
+            return;
+        }
+
+        if (inscripcionEstado === "DEVUELTA" && inscripcionSubsanacion === 0) {
+            // Excepción por devolución: solo habilitar PARA_CORREGIR, bloquear eliminar
+            $(".btn-eliminar-pdf-sim").addClass("d-none");
+            $enviarBtn.prop("disabled", false).show();
+            $enviarBtn.text("Reenviar Postulación");
+
+            $("#contenedor-requisitos-carga .card-requisito").each(function() {
+                const $card = $(this);
+                const estadoDoc = $card.attr("data-estado");
+                const $zonaSubida = $card.find(".zona-subida-archivo");
+                const $accionesCargado = $card.find(".acciones-archivo-cargado");
+
+                if (estadoDoc !== "rechazado") {
+                    // Documentos no observados: no permitir modificación
+                    $zonaSubida.addClass("d-none");
+                    if ($accionesCargado.hasClass("d-none") === false) {
+                        $card.find(".btn-eliminar-pdf-sim").addClass("d-none");
+                    }
+                }
+            });
+            return;
+        }
+
+        // Estado PENDIENTE o sin restricción: habilitado normal
+        $enviarBtn.prop("disabled", false).show().text("Enviar Postulación");
+    }
 
     // --- ACCIÓN: CLIC EN "INICIAR POSTULACIÓN" O "CORREGIR POSTULACIÓN" (GRID CARDS) ---
     $(document).on("click", ".btn-iniciar-inscripcion", function() {
@@ -81,6 +136,17 @@ $(document).ready(function() {
                 if (respuesta.status == "success") {
                     const baremo = respuesta.baremo;
                     const documentosCargados = respuesta.documentos;
+
+                    // Guardar estado de inscripción para bloqueo UI
+                    if (respuesta.inscripcion) {
+                        activeInscripcionId = respuesta.inscripcion.id;
+                        inscripcionEstado = respuesta.inscripcion.estado;
+                        inscripcionSubsanacion = respuesta.inscripcion.subsanacion_consumida ? parseInt(respuesta.inscripcion.subsanacion_consumida) : 0;
+                    } else {
+                        activeInscripcionId = null;
+                        inscripcionEstado = null;
+                        inscripcionSubsanacion = 0;
+                    }
 
                     if (baremo.length === 0) {
                         $contenedor.html(`
@@ -167,6 +233,9 @@ $(document).ready(function() {
 
                         $contenedor.append($card);
                     });
+
+                    // Aplicar bloqueo de UI según estado de inscripción
+                    aplicarBloqueoUI();
 
                     // Cambiar visibilidad de paneles
                     $("#panel-listados").addClass("d-none");
@@ -346,6 +415,29 @@ $(document).ready(function() {
             return;
         }
 
+        // Validación frontend por estado
+        if (inscripcionEstado === "EN_REVISION") {
+            Swal.fire({
+                icon: 'error',
+                title: 'Acción no permitida',
+                text: 'No se pueden eliminar documentos mientras la postulación esté en revisión.',
+                background: '#343a40',
+                confirmButtonColor: '#dc3545'
+            });
+            return;
+        }
+
+        if (inscripcionEstado === "DEVUELTA") {
+            Swal.fire({
+                icon: 'error',
+                title: 'Acción no permitida',
+                text: 'No puedes eliminar documentos durante la subsanación. Debes reemplazar el archivo subiendo uno nuevo.',
+                background: '#343a40',
+                confirmButtonColor: '#dc3545'
+            });
+            return;
+        }
+
         Swal.fire({
             title: '¿Remover archivo?',
             text: "El archivo físico se eliminará del servidor y el estado volverá a pendiente.",
@@ -437,50 +529,66 @@ $(document).ready(function() {
 
     // --- ACCIÓN: ENVIAR POSTULACIÓN COMPLETA (FINALIZAR) ---
     $("#btn-enviar-postulacion-sim").on("click", function() {
-        let obligatoriosFaltantes = 0;
-
-        $("#contenedor-requisitos-carga .card-requisito").each(function() {
-            const estado = $(this).attr("data-estado");
-            const esObligatorio = $(this).find(".badge-obligatoriedad").hasClass("badge-danger");
-
-            if (esObligatorio && estado !== "cargado") {
-                obligatoriosFaltantes++;
-            }
-        });
-
-        if (obligatoriosFaltantes > 0) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Inscripción Incompleta',
-                text: `Faltan cargar ${obligatoriosFaltantes} documento(s) obligatorios requeridos por esta convocatoria.`,
-                background: '#343a40',
-                confirmButtonColor: '#dc3545'
-            });
+        if (!activeInscripcionId) {
+            toastr.error("No se ha encontrado una postulación activa.");
             return;
         }
 
+        const esReenvio = inscripcionEstado === "DEVUELTA";
+        const titulo = esReenvio ? "¿Confirmar reenvío de postulación?" : "¿Confirmar envío de postulación?";
+        const texto = esReenvio
+            ? "Tu oportunidad de subsanación se consumirá. No podrás volver a editar documentos después de este envío."
+            : "Tu solicitud se enviará a revisión. Se bloqueará la edición y borrado de documentos mientras dure la evaluación.";
+        const btnText = esReenvio ? "Sí, reenviar ahora" : "Sí, enviar ahora";
+
         Swal.fire({
-            title: '¿Confirmar envío de postulación?',
-            text: "Tu solicitud se enviará a revisión. Se bloqueará la edición y borrado de documentos mientras dure la evaluación.",
+            title: titulo,
+            text: texto,
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#28a745',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, enviar ahora',
+            confirmButtonText: btnText,
             cancelButtonText: 'Cancelar',
             background: '#343a40'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Como los archivos ya se subieron en tiempo real y el registro en la BD de inscripciones ya se creó, 
-                // el envío simplemente confirma el estado. Redirigimos a la tabla actualizando estados.
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Postulación Enviada!',
-                    text: 'Tu solicitud ha sido ingresada al flujo de evaluación del centro de formación.',
-                    background: '#343a40',
-                    confirmButtonColor: '#28a745'
-                }).then(() => {
-                    window.location = "inscripciones";
+                const datos = new FormData();
+                datos.append("action", "enviarPostulacion");
+                datos.append("inscripcionId", activeInscripcionId);
+
+                $.ajax({
+                    url: "ajax/inscripciones.ajax.php",
+                    method: "POST",
+                    data: datos,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    dataType: "json",
+                    success: function(respuesta) {
+                        if (respuesta.status === "success") {
+                            Swal.fire({
+                                icon: 'success',
+                                title: esReenvio ? '¡Postulación Reenviada!' : '¡Postulación Enviada!',
+                                text: respuesta.message,
+                                background: '#343a40',
+                                confirmButtonColor: '#28a745'
+                            }).then(() => {
+                                window.location = "inscripciones";
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error al enviar',
+                                text: respuesta.message,
+                                background: '#343a40',
+                                confirmButtonColor: '#dc3545'
+                            });
+                        }
+                    },
+                    error: function() {
+                        toastr.error("Error de comunicación con el servidor.");
+                    }
                 });
             }
         });

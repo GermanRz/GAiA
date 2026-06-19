@@ -93,6 +93,16 @@ class ModeloInscripciones {
     }
 
     // ==============================================
+    // OBTENER DOCUMENTO POR ID
+    // ==============================================
+    static public function mdlObtenerDocumentoPorId($idDoc) {
+        $stmt = Conexion::conectar()->prepare("SELECT * FROM inscripcion_documentos WHERE id = :id");
+        $stmt->bindParam(":id", $idDoc, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // ==============================================
     // OBTENER TODOS LOS DOCUMENTOS ASOCIADOS A UNA INSCRIPCION
     // ==============================================
     static public function mdlListarDocumentosInscripcion($tabla, $inscripcionId) {
@@ -113,6 +123,71 @@ class ModeloInscripciones {
         } else {
             return "error";
         }
+    }
+
+    // ==============================================
+    // OBTENER ESTADO Y SUBSANACION DE UNA INSCRIPCION
+    // ==============================================
+    static public function mdlObtenerEstadoYSubsanacion($inscripcionId) {
+        $stmt = Conexion::conectar()->prepare("SELECT id, estado, subsanacion_consumida, convocatoria_id FROM inscripciones WHERE id = :id");
+        $stmt->bindParam(":id", $inscripcionId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // ==============================================
+    // ACTUALIZAR ESTADO DE POSTULACION (CON SUBSANACION)
+    // ==============================================
+    static public function mdlActualizarEstadoPostulacion($inscripcionId, $estado, $subsanacionConsumida = null) {
+        if ($subsanacionConsumida !== null) {
+            $stmt = Conexion::conectar()->prepare("UPDATE inscripciones SET estado = :estado, subsanacion_consumida = :subsanacion, fecha_postulacion = NOW() WHERE id = :id");
+            $stmt->bindParam(":estado", $estado, PDO::PARAM_STR);
+            $stmt->bindParam(":subsanacion", $subsanacionConsumida, PDO::PARAM_INT);
+        } else {
+            $stmt = Conexion::conectar()->prepare("UPDATE inscripciones SET estado = :estado, fecha_postulacion = NOW() WHERE id = :id");
+            $stmt->bindParam(":estado", $estado, PDO::PARAM_STR);
+        }
+        $stmt->bindParam(":id", $inscripcionId, PDO::PARAM_INT);
+        if ($stmt->execute()) {
+            return "ok";
+        }
+        return "error";
+    }
+
+    // ==============================================
+    // VALIDAR DOCUMENTOS CRITICOS ANTES DEL ENVIO
+    // Retorna los nombres de items criticos faltantes o anomalos
+    // ==============================================
+    static public function mdlValidarDocumentosCriticos($inscripcionId, $convocatoriaId) {
+        $stmt = Conexion::conectar()->prepare("
+            SELECT b.nombre_item
+            FROM baremo_config b
+            LEFT JOIN inscripcion_documentos d 
+                   ON d.nombre_doc = b.nombre_item 
+                  AND d.inscripcion_id = :inscripcion_id
+            WHERE b.convocatoria_id = :convocatoria_id
+              AND b.es_critico = 1
+              AND (
+                    d.id IS NULL
+                    OR d.url_copia IS NULL
+                    OR d.estado = 'PARA_CORREGIR'
+                  )
+        ");
+        $stmt->bindParam(":inscripcion_id", $inscripcionId, PDO::PARAM_INT);
+        $stmt->bindParam(":convocatoria_id", $convocatoriaId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // ==============================================
+    // CONTAR DOCUMENTOS ANOMALOS (PARA_CORREGIR O NULL)
+    // ==============================================
+    static public function mdlContarDocumentosAnomalos($inscripcionId) {
+        $stmt = Conexion::conectar()->prepare("SELECT COUNT(*) as total FROM inscripcion_documentos WHERE inscripcion_id = :id AND (estado = 'PARA_CORREGIR' OR url_copia IS NULL)");
+        $stmt->bindParam(":id", $inscripcionId, PDO::PARAM_INT);
+        $stmt->execute();
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $res ? (int)$res["total"] : 0;
     }
 
     // ==============================================

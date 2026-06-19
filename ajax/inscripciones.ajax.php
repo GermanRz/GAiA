@@ -14,6 +14,7 @@ class AjaxInscripciones {
     public $nombreDoc;
     public $idDoc;
     public $rutaArchivo;
+    public $inscripcionId;
 
     // ==============================================
     // CARGAR REQUISITOS DEL BAREMO Y ARCHIVOS CARGADOS
@@ -71,6 +72,14 @@ class AjaxInscripciones {
         echo json_encode(["status" => $respuesta]);
     }
     // ==============================================
+    // ENVIAR POSTULACION AJAX
+    // ==============================================
+    public function ajaxEnviarPostulacion() {
+        $respuesta = ControladorInscripciones::ctrEnviarPostulacion($this->inscripcionId);
+        echo json_encode($respuesta);
+    }
+
+    // ==============================================
     // SUBIR CERTIFICACIÓN BANCARIA AJAX
     // ==============================================
     public function ajaxSubirCertificacionBancaria() {
@@ -114,6 +123,12 @@ if (isset($_POST["action"])) {
         $ajax->idDoc = $_POST["idDoc"];
         $ajax->rutaArchivo = $_POST["rutaArchivo"];
         $ajax->ajaxEliminarDocumento();
+    }
+
+    // Acción: Enviar postulación (cambia estado a EN_REVISION)
+    if ($_POST["action"] == "enviarPostulacion" && isset($_POST["inscripcionId"])) {
+        $ajax->inscripcionId = $_POST["inscripcionId"];
+        $ajax->ajaxEnviarPostulacion();
     }
 
     // Acción: Subir certificación bancaria

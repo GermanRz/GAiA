@@ -102,6 +102,31 @@ class ControladorInscripciones {
 
         if ($inscripcion) {
             $inscripcionId = $inscripcion["id"];
+
+            // --- VALIDACIÓN DE ESTADO ---
+            $estado = $inscripcion["estado"];
+            $subsanacion = isset($inscripcion["subsanacion_consumida"]) ? $inscripcion["subsanacion_consumida"] : 0;
+
+            if ($estado === "EN_REVISION") {
+                return array("status" => "error", "message" => "No se pueden modificar documentos mientras la postulación esté en revisión.");
+            }
+
+            if ($estado === "DEVUELTA" && $subsanacion == 1) {
+                return array("status" => "error", "message" => "La oportunidad de subsanación ya fue consumida. No puedes modificar documentos.");
+            }
+
+            if ($estado === "DEVUELTA" && $subsanacion == 0) {
+                // Solo permitir modificar documentos marcados como PARA_CORREGIR
+                $stmtDoc = Conexion::conectar()->prepare("SELECT id, estado FROM inscripcion_documentos WHERE inscripcion_id = :iid AND nombre_doc = :ndoc");
+                $stmtDoc->bindParam(":iid", $inscripcionId, PDO::PARAM_INT);
+                $stmtDoc->bindParam(":ndoc", $nombreDoc, PDO::PARAM_STR);
+                $stmtDoc->execute();
+                $docExistente = $stmtDoc->fetch(PDO::FETCH_ASSOC);
+
+                if ($docExistente && $docExistente["estado"] !== "PARA_CORREGIR") {
+                    return array("status" => "error", "message" => "Solo puedes reemplazar documentos marcados para corrección.");
+                }
+            }
         } else {
             // Crear inscripción inicial en estado PENDIENTE
             $datosInscripcion = array(
@@ -153,6 +178,37 @@ class ControladorInscripciones {
     // LIMPIAR DOCUMENTO (ELIMINACIÓN DE ARCHIVO)
     // ==============================================
     static public function ctrEliminarDocumento($idDoc, $rutaArchivo) {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION["id"])) {
+            return "error";
+        }
+
+        // Obtener inscripción asociada al documento para validar estado
+        $doc = ModeloInscripciones::mdlObtenerDocumentoPorId($idDoc);
+        if (!$doc) {
+            return "error";
+        }
+
+        $inscripcion = ModeloInscripciones::mdlMostrarInscripcionPorId("inscripciones", $doc["inscripcion_id"]);
+        if (!$inscripcion) {
+            return "error";
+        }
+
+        $estado = $inscripcion["estado"];
+
+        // Bloquear eliminación si la postulación está en revisión
+        if ($estado === "EN_REVISION") {
+            return "error";
+        }
+
+        // Bloquear eliminación si la postulación está devuelta (solo reemplazo permitido)
+        if ($estado === "DEVUELTA") {
+            return "error";
+        }
+
         $raizProyecto = dirname(__DIR__);
         $rutaFisica = $raizProyecto . "/" . $rutaArchivo;
 
@@ -164,6 +220,73 @@ class ControladorInscripciones {
         // 2. Limpiar registros en la base de datos (volver URL = NULL)
         $respuesta = ModeloInscripciones::mdlLimpiarDocumento("inscripcion_documentos", $idDoc);
         return $respuesta;
+    }
+
+    // ==============================================
+    // ENVIAR POSTULACION (PENDIENTE -> EN_REVISION / DEVUELTA -> EN_REVISION)
+    // ==============================================
+    static public function ctrEnviarPostulacion($inscripcionId) {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION["id"])) {
+            return array("status" => "error", "message" => "Sesión de usuario no válida.");
+        }
+
+        // 1. Obtener estado actual y convocatoria
+        $data = ModeloInscripciones::mdlObtenerEstadoYSubsanacion($inscripcionId);
+        if (!$data) {
+            return array("status" => "error", "message" => "La postulación no existe.");
+        }
+
+        $estadoActual = $data["estado"];
+        $convocatoriaId = $data["convocatoria_id"];
+        $subsanacionConsumida = (int)$data["subsanacion_consumida"];
+
+        // 2. Validar estado transitable
+        if ($estadoActual === "EN_REVISION") {
+            return array("status" => "error", "message" => "La postulación ya está en revisión.");
+        }
+
+        if ($estadoActual === "DEVUELTA" && $subsanacionConsumida === 1) {
+            return array("status" => "error", "message" => "La oportunidad de subsanación ya fue consumida.");
+        }
+
+        if ($estadoActual !== "PENDIENTE" && $estadoActual !== "DEVUELTA") {
+            return array("status" => "error", "message" => "No se puede enviar la postulación en el estado actual.");
+        }
+
+        // 3. Validar documentos críticos (siempre, tanto en envío inicial como en reenvío)
+        $criticosFaltantes = ModeloInscripciones::mdlValidarDocumentosCriticos($inscripcionId, $convocatoriaId);
+        if (count($criticosFaltantes) > 0) {
+            $nombres = array_column($criticosFaltantes, "nombre_item");
+            return array(
+                "status" => "error",
+                "message" => "No puedes enviar la postulación. Los siguientes documentos críticos están pendientes o requieren corrección: " . implode(", ", $nombres) . "."
+            );
+        }
+
+        // 4. Si es reenvío (DEVUELTA), validar que no queden documentos anómalos
+        if ($estadoActual === "DEVUELTA") {
+            $anomalos = ModeloInscripciones::mdlContarDocumentosAnomalos($inscripcionId);
+            if ($anomalos > 0) {
+                return array("status" => "error", "message" => "Aún tienes documentos sin archivo o marcados para corrección. Corrige todos antes de reenviar.");
+            }
+        }
+
+        // 5. Ejecutar transición de estado
+        $consumir = ($estadoActual === "DEVUELTA") ? 1 : null;
+        $resultado = ModeloInscripciones::mdlActualizarEstadoPostulacion($inscripcionId, "EN_REVISION", $consumir);
+
+        if ($resultado === "ok") {
+            $msg = ($estadoActual === "DEVUELTA")
+                ? "Postulación reenviada correctamente. Tu oportunidad de subsanación ha sido consumida."
+                : "Postulación enviada a revisión correctamente.";
+            return array("status" => "success", "message" => $msg, "subsanacion_consumida" => $consumir);
+        }
+
+        return array("status" => "error", "message" => "Error al actualizar el estado de la postulación.");
     }
 
     // ==============================================

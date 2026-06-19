@@ -8,7 +8,7 @@ class ModeloVerificacion {
     // LISTAR APRENDICES INSCRITOS A UNA CONVOCATORIA
     // ==============================================
     static public function mdlListarInscritosConvocatoria($convocatoriaId) {
-        $stmt = Conexion::conectar()->prepare("SELECT i.id as inscripcion_id, i.usuario_id, i.puntaje_total, i.estado as inscripcion_estado, i.fecha_postulacion,
+        $stmt = Conexion::conectar()->prepare("SELECT i.id as inscripcion_id, i.usuario_id, i.puntaje_total, i.estado as inscripcion_estado, i.subsanacion_consumida, i.fecha_postulacion,
                                                       u.documento_id, u.nombres, u.apellidos 
                                                FROM inscripciones i 
                                                INNER JOIN usuarios u ON i.usuario_id = u.id 
@@ -172,6 +172,19 @@ class ModeloVerificacion {
         $stmt->bindParam(":nombre_item", $nombreItem, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // ==============================================
+    // ACTUALIZAR ESTADO DE INSCRIPCION (AUTO-TRANSICIÓN)
+    // ==============================================
+    static public function mdlActualizarEstadoInscripcion($inscripcionId, $estado) {
+        $stmt = Conexion::conectar()->prepare("UPDATE inscripciones SET estado = :estado WHERE id = :id");
+        $stmt->bindParam(":estado", $estado, PDO::PARAM_STR);
+        $stmt->bindParam(":id", $inscripcionId, PDO::PARAM_INT);
+        if ($stmt->execute()) {
+            return "ok";
+        }
+        return "error";
     }
 
 }

@@ -285,6 +285,9 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                                 }
                                             }
 
+                                            // Obtener subsanacion_consumida
+                                            $subsanacionConsumida = isset($post["subsanacion_consumida"]) ? (int)$post["subsanacion_consumida"] : 0;
+
                                             // Definir Badge visual
                                             if ($tieneCorrecciones) {
                                                 $estadoVisualBadge = '<span class="badge badge-warning text-dark font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-exclamation-triangle mr-1"></i> Corrección Requerida</span>';
@@ -293,6 +296,19 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                                     case 'PENDIENTE':
                                                         $estadoVisualBadge = '<span class="badge badge-info font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-spinner fa-spin mr-1"></i> En Verificación</span>';
                                                         $obsTexto = "Documentos cargados. El gestor asignado está revisando tu baremo.";
+                                                        break;
+                                                    case 'EN_REVISION':
+                                                        $estadoVisualBadge = '<span class="badge badge-primary font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-search mr-1"></i> En Revisión</span>';
+                                                        $obsTexto = "Tu postulación está siendo evaluada por el equipo de bienestar.";
+                                                        break;
+                                                    case 'DEVUELTA':
+                                                        if ($subsanacionConsumida == 1) {
+                                                            $estadoVisualBadge = '<span class="badge badge-danger font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-times-circle mr-1"></i> Oportunidad Agotada</span>';
+                                                            $obsTexto = "Ya utilizaste tu única oportunidad de subsanación.";
+                                                        } else {
+                                                            $estadoVisualBadge = '<span class="badge badge-warning text-dark font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-exclamation-triangle mr-1"></i> Devuelta para Corrección</span>';
+                                                            $obsTexto = "Corrige los documentos observados y reenvía tu postulación.";
+                                                        }
                                                         break;
                                                     case 'SELECCIONADO':
                                                         $estadoVisualBadge = '<span class="badge badge-primary font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-user-check mr-1"></i> Seleccionado</span>';
@@ -347,13 +363,13 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                                     <?php echo $obsTexto; ?>
                                                 </td>
                                                 <td class="text-center">
-                                                    <?php if ($tieneCorrecciones || $post["estado"] == 'PENDIENTE'): ?>
-                                                        <button class="btn btn-sm <?php echo $tieneCorrecciones ? 'btn-outline-warning text-warning' : 'btn-outline-info text-info'; ?> btn-editar-postulacion-tabla" 
+                                                    <?php if ($tieneCorrecciones || $post["estado"] == 'PENDIENTE' || ($post["estado"] == 'DEVUELTA' && $subsanacionConsumida == 0)): ?>
+                                                        <button class="btn btn-sm <?php echo ($tieneCorrecciones || $post["estado"] == 'DEVUELTA') ? 'btn-outline-warning text-warning' : 'btn-outline-info text-info'; ?> btn-editar-postulacion-tabla" 
                                                                 data-id-convocatoria="<?php echo $post["convocatoria_id"]; ?>"
                                                                 data-apoyo="<?php echo $post["descripcion_apoyo"]; ?>" 
                                                                 data-fechas="<?php echo $rangoConvocatoria; ?>"
                                                                 title="Subir / Corregir Archivos">
-                                                            <i class="fas fa-upload mr-1"></i> <?php echo $tieneCorrecciones ? 'Corregir' : 'Ver / Cargar'; ?>
+                                                            <i class="fas fa-upload mr-1"></i> <?php echo ($tieneCorrecciones || $post["estado"] == 'DEVUELTA') ? 'Corregir' : 'Ver / Cargar'; ?>
                                                         </button>
                                                     <?php elseif ($post["estado"] == 'BENEFICIADO_PENDIENTE_DOC'): ?>
                                                         <button class="btn btn-sm btn-outline-warning text-warning btn-cargar-banco" 

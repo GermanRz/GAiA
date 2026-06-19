@@ -118,7 +118,7 @@ $(document).ready(function() {
                             let btnIcon = "fas fa-exclamation-triangle text-muted";
                             let disabled = "disabled"; // Por defecto deshabilitado si no se ha subido
 
-                            if (doc.documento_id_db) {
+                            if (doc.documento_id_db && post.inscripcion_estado !== "PENDIENTE") {
                                 disabled = ""; // Habilitado para evaluar
 
                                 if (doc.estado === "APROBADO") {
@@ -154,6 +154,7 @@ $(document).ready(function() {
                                             data-intentos="${doc.intentos_fallidos}"
                                             data-historial="${historialStr}"
                                             data-aprendiz-nombre="${post.apellidos} ${post.nombres}"
+                                            data-sub-sanacion="${post.subsanacion_consumida}"
                                             style="border-radius: 4px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;"
                                             title="${disabled ? 'Sin archivo cargado' : 'Revisar Requisito'}"
                                     >
@@ -190,6 +191,7 @@ $(document).ready(function() {
         const intentos = $(this).data("intentos");
         const aprendiz = $(this).data("aprendiz-nombre");
         const historial = $(this).data("historial");
+        const subsanacionConsumida = $(this).data("sub-sanacion");
 
         // Cargar campos ocultos
         $("#eval-documento-id").val(docId);
@@ -263,6 +265,11 @@ $(document).ready(function() {
             // Regla de un solo intento: Deshabilitar el botón "Devolver para corrección"
             $("#eval-btn-corregir").prop("disabled", true).addClass("opacity-50").attr("title", "El aprendiz ya gastó su oportunidad de corrección.");
             // Habilitar la opción de rechazar permanentemente
+            $("#eval-btn-rechazar").prop("disabled", false).removeClass("opacity-50").attr("title", "Rechazar permanentemente el documento.");
+        } else if (subsanacionConsumida === 1) {
+            // Oportunidad de subsanación global consumida: no más devoluciones
+            $cardHistorial.addClass("d-none");
+            $("#eval-btn-corregir").prop("disabled", true).addClass("opacity-50").attr("title", "La postulación ya consumió su única oportunidad de subsanación.");
             $("#eval-btn-rechazar").prop("disabled", false).removeClass("opacity-50").attr("title", "Rechazar permanentemente el documento.");
         } else {
             $cardHistorial.addClass("d-none");

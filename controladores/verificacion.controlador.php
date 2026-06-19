@@ -23,6 +23,7 @@ class ControladorVerificacion {
                 "apellidos" => $ins["apellidos"],
                 "puntaje_total" => parseFloat($ins["puntaje_total"]),
                 "inscripcion_estado" => $ins["inscripcion_estado"],
+                "subsanacion_consumida" => isset($ins["subsanacion_consumida"]) ? (int)$ins["subsanacion_consumida"] : 0,
                 "fecha_postulacion" => $ins["fecha_postulacion"],
                 "documentos" => array()
             );
@@ -109,7 +110,7 @@ class ControladorVerificacion {
         $baremoId = $baremo["id"];
         $puntajeValor = $baremo["puntaje_valor"];
 
-        // 4. Validar reglas de "un intento de corrección"
+        // 4. Validar reglas de "un intento de corrección" por documento
         $historial = ModeloVerificacion::mdlObtenerHistorialDocumento($documentoId);
         $intentosPrevios = count($historial);
 
@@ -117,7 +118,19 @@ class ControladorVerificacion {
             return array("status" => "error", "message" => "El aprendiz ya utilizó su intento de corrección para este documento. Debe ser aprobado o rechazado permanentemente.");
         }
 
-        // 5. Procesar según el nuevo estado de evaluación
+        // 5. Validar bloqueo definitivo por subsanacion_consumida (a nivel de inscripción)
+        $subsanacionConsumida = isset($inscripcion["subsanacion_consumida"]) ? (int)$inscripcion["subsanacion_consumida"] : 0;
+        if ($estado === "PARA_CORREGIR" && $subsanacionConsumida === 1) {
+            return array("status" => "error", "message" => "La postulación ya consumió su única oportunidad de subsanación. No puede devolverse nuevamente.");
+        }
+
+        // 6. Validar que no se evalúen documentos de postulaciones no enviadas
+        $estadoInscripcion = $inscripcion["estado"];
+        if ($estadoInscripcion === "PENDIENTE") {
+            return array("status" => "error", "message" => "No se puede evaluar documentos de una postulación que aún no ha sido enviada por el aprendiz.");
+        }
+
+        // 7. Procesar según el nuevo estado de evaluación
         if ($estado === "APROBADO") {
             // Guardar puntaje en la tabla de evaluación
             $evalRes = ModeloVerificacion::mdlRegistrarEvaluacion($inscripcionId, $baremoId, $puntajeValor);
@@ -137,6 +150,11 @@ class ControladorVerificacion {
 
             // Actualizar estado del documento
             $docRes = ModeloVerificacion::mdlActualizarEstadoDocumento($documentoId, "PARA_CORREGIR", $observacion, $evaluadorId);
+
+            // Auto-transición: si la inscripción estaba EN_REVISION, pasar a DEVUELTA
+            if ($estadoInscripcion === "EN_REVISION") {
+                ModeloVerificacion::mdlActualizarEstadoInscripcion($inscripcionId, "DEVUELTA");
+            }
         } 
         else if ($estado === "RECHAZADO") {
             // Eliminar puntaje si existía
