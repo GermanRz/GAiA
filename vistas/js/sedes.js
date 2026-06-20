@@ -147,3 +147,65 @@ $('[name="nuevaDireccionSede"], [name="editarDireccionSede"]').change(function()
         }
     });
 });
+
+//===========================================
+// INACTIVACIÓN RECURSIVA: SEDE → FICHAS → APRENDICES
+//===========================================
+$(document).on("click", ".btnInactivarSedeRecursiva", function(){
+    let boton = $(this);
+    let idSede = boton.attr("data-idSede");
+    
+    // 1. Calcular impacto antes de confirmar
+    $.ajax({
+        url: "ajax/sedes.ajax.php",
+        method: "POST",
+        data: { idSedeImpacto: idSede },
+        dataType: "json",
+        success: function(impacto) {
+            // 2. Mostrar SweetAlert2 con detalle del impacto
+            Swal.fire({
+                title: '¿Inactivar sede recursivamente?',
+                html: `Esta acción inactivará en cascada:<br>
+                       <b>${impacto.fichas}</b> ficha(s)<br>
+                       <b>${impacto.aprendices}</b> aprendiz(es)<br><br>
+                       <span class="text-danger"><i class="fas fa-exclamation-triangle"></i> Los aprendices afectados NO podrán iniciar sesión.</span>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, inactivar todo',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#dc3545',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // 3. Ejecutar inactivación recursiva
+                    $.ajax({
+                        url: "ajax/sedes.ajax.php",
+                        method: "POST",
+                        data: { idSedeInactivar: idSede },
+                        success: function(respuesta) {
+                            if (respuesta.trim() === "ok") {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Inactivación completada',
+                                    text: 'Sede, fichas y aprendices inactivados correctamente',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'Aceptar'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error en la inactivación',
+                                    text: respuesta,
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'Cerrar'
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    });
+});

@@ -119,4 +119,14 @@ class ControladorSedes{
         $respuesta = ModeloSedes::mdlCambiarEstadoSede($tabla, $idSede, $estado);
         return $respuesta;
     }
+
+    static public function ctrInactivarSedeRecursiva($idSede){
+        $respuesta = ModeloSedes::mdlInactivarSedeRecursiva($idSede);
+        return $respuesta;
+    }
+
+    static public function ctrCalcularImpactoInactivacion($idSede){
+        $respuesta = ModeloSedes::mdlCalcularImpactoInactivacion($idSede);
+        return $respuesta;
+    }
 }

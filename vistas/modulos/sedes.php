@@ -46,13 +46,13 @@
                                     echo "<td>" . $sede['id_sede'] . "</td>";
                                     echo "<td>" . $sede['descripcion_sede'] . "</td>";
                                     echo "<td>" . $sede['direccion_sede'] . "</td>";
-                                    echo "<td>";
-                                    if ($sede['estado'] == 'activo') {
-                                        echo "<button class='btn btn-xs btn-success btnActivarSede' data-estadoSede='inactivo' data-idSede='" . $sede['id_sede'] . "'>activo</button>";
-                                    } else {
-                                        echo "<button class='btn btn-xs btn-danger btnActivarSede' data-estadoSede='activo' data-idSede='" . $sede['id_sede'] . "'>inactivo</button>";
-                                    };
-                                    echo "</td>";
+echo "<td>";
+                                     if ($sede['estado'] == 'activo') {
+                                         echo "<button class='btn btn-xs btn-success btnInactivarSedeRecursiva' data-idSede='" . $sede['id_sede'] . "' title='Inactivar sede, fichas y aprendices'>activo</button>";
+                                     } else {
+                                         echo "<button class='btn btn-xs btn-danger btnActivarSede' data-estadoSede='activo' data-idSede='" . $sede['id_sede'] . "'>inactivo</button>";
+                                     };
+                                     echo "</td>";
                                     echo "<td>";
                                     echo '<div class="btn-group">
                                 <button class="btn btn-sm btn-outline-light btnEditarSede" data-idSede="' . $sede["id_sede"] . '" data-toggle="modal" data-target="#modal-editarSede"><i class="fas fa-edit"></i></button>

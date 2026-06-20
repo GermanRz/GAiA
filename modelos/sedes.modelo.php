@@ -70,4 +70,61 @@ class ModeloSedes
         }
     }
 
+    // INACTIVACIÓN RECURSIVA: SEDE → FICHAS → APRENDICES
+    static public function mdlInactivarSedeRecursiva($idSede)
+    {
+        $conexion = Conexion::conectar();
+        try {
+            $conexion->beginTransaction();
+
+            // 1. Inactivar sede
+            $stmt = $conexion->prepare("UPDATE sedes SET estado = 'inactivo' WHERE id_sede = :id");
+            $stmt->execute([':id' => $idSede]);
+
+            // 2. Inactivar fichas de la sede
+            $stmt = $conexion->prepare("UPDATE fichas SET estado = 'inactivo' WHERE sede_id = :idSede");
+            $stmt->execute([':idSede' => $idSede]);
+
+            // 3. Inactivar aprendices de esas fichas (solo rol APRENDIZ)
+            $stmt = $conexion->prepare("
+                UPDATE usuarios u 
+                INNER JOIN fichas f ON u.ficha_id = f.id_ficha 
+                SET u.estado = 'inactivo' 
+                WHERE f.sede_id = :idSede AND u.rol = 'APRENDIZ'
+            ");
+            $stmt->execute([':idSede' => $idSede]);
+
+            $conexion->commit();
+            return "ok";
+        } catch (Exception $e) {
+            $conexion->rollBack();
+            return "error: " . $e->getMessage();
+        }
+    }
+
+    // CALCULAR IMPACTO ANTES DE INACTIVAR
+    static public function mdlCalcularImpactoInactivacion($idSede)
+    {
+        $conexion = Conexion::conectar();
+        
+        // Fichas activas afectadas
+        $stmt = $conexion->prepare("SELECT COUNT(*) as total FROM fichas WHERE sede_id = :id AND estado = 'activo'");
+        $stmt->execute([':id' => $idSede]);
+        $fichas = $stmt->fetch()['total'];
+        
+        // Aprendices activos afectados
+        $stmt = $conexion->prepare("
+            SELECT COUNT(*) as total FROM usuarios u 
+            INNER JOIN fichas f ON u.ficha_id = f.id_ficha 
+            WHERE f.sede_id = :idSede AND u.rol = 'APRENDIZ' AND u.estado = 'activo'
+        ");
+        $stmt->execute([':idSede' => $idSede]);
+        $aprendices = $stmt->fetch()['total'];
+        
+        return [
+            'fichas' => (int)$fichas,
+            'aprendices' => (int)$aprendices
+        ];
+    }
+
 }
