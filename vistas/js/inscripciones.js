@@ -25,10 +25,14 @@ $(document).ready(function() {
         }
 
         if (inscripcionEstado === "EN_REVISION") {
-            // Bloqueo total: ocultar zonas de subida, botones eliminar, ocultar botón enviar
+            // Bloqueo total: ocultar zonas de subida, botones eliminar, mostrar botón deshabilitado
             $(".zona-subida-archivo").addClass("d-none");
             $(".acciones-archivo-cargado .btn-eliminar-pdf-sim").addClass("d-none");
-            $enviarBtn.prop("disabled", true).hide();
+            $enviarBtn.prop("disabled", true)
+                .removeClass("btn-success")
+                .addClass("btn-secondary")
+                .html('<i class="fas fa-check-circle mr-1"></i> Postulación Realizada')
+                .show();
             return;
         }
 
@@ -529,8 +533,14 @@ $(document).ready(function() {
 
     // --- ACCIÓN: ENVIAR POSTULACIÓN COMPLETA (FINALIZAR) ---
     $("#btn-enviar-postulacion-sim").on("click", function() {
+        const $btn = $(this);
+
+        // Prevención de doble clic: deshabilitar inmediatamente con spinner
+        $btn.prop("disabled", true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Procesando...');
+
         if (!activeInscripcionId) {
             toastr.error("No se ha encontrado una postulación activa.");
+            $btn.prop("disabled", false).html('<i class="fas fa-rocket mr-1"></i> Enviar Postulación');
             return;
         }
 
@@ -577,6 +587,7 @@ $(document).ready(function() {
                                 window.location = "inscripciones";
                             });
                         } else {
+                            $btn.prop("disabled", false).html('<i class="fas fa-rocket mr-1"></i> Enviar Postulación');
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error al enviar',
@@ -587,9 +598,14 @@ $(document).ready(function() {
                         }
                     },
                     error: function() {
+                        $btn.prop("disabled", false).html('<i class="fas fa-rocket mr-1"></i> Enviar Postulación');
                         toastr.error("Error de comunicación con el servidor.");
                     }
                 });
+            } else {
+                // Canceló - restaurar botón
+                const textoBoton = esReenvio ? 'Reenviar Postulación' : 'Enviar Postulación';
+                $btn.prop("disabled", false).html('<i class="fas fa-rocket mr-1"></i> ' + textoBoton);
             }
         });
     });

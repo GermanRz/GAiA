@@ -687,4 +687,10 @@ ESTILOS ADICIONALES LOCALES PARA LA MAQUETACIÓN PREMIUM
         font-size: 0.9rem;
         margin-top: 10px;
     }
+
+    #btn-enviar-postulacion-sim:disabled {
+        cursor: not-allowed;
+        opacity: 0.65;
+        pointer-events: none;
+    }
 </style>
