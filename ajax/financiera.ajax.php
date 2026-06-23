@@ -26,11 +26,25 @@ class AjaxFinanciera {
         echo json_encode(["status" => $respuesta]);
     }
 
+    // ==============================================
+    // OBTENER BENEFICIARIO INDIVIDUAL AJAX
+    // ==============================================
+    public function ajaxMostrarBeneficiario() {
+        $respuesta = ControladorFinanciera::ctrMostrarBeneficiario($this->idInscripcion);
+        echo json_encode($respuesta);
+    }
+
 }
 
 // ==============================================
 // MANEJO DE PETICIONES
 // ==============================================
+
+if (isset($_POST["idInscripcion"])) {
+    $ajax = new AjaxFinanciera();
+    $ajax->idInscripcion = $_POST["idInscripcion"];
+    $ajax->ajaxMostrarBeneficiario();
+}
 
 if (isset($_POST["action"])) {
 
@@ -52,3 +66,4 @@ if (isset($_POST["action"])) {
     }
 
 }
+

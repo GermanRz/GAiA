@@ -133,4 +133,56 @@ class ModeloUsuarios
         }
     }  // fin del metodo mdlCambiarEstadoUsuario
 
+    // ************************************
+    // OBTENER DEPARTAMENTOS
+    // ************************************
+    static public function mdlObtenerDepartamentos()
+    {
+        $stmt = Conexion::conectar()->prepare("SELECT * FROM departamentos ORDER BY nombre ASC");
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    // ************************************
+    // OBTENER CIUDADES
+    // ************************************
+    static public function mdlObtenerCiudades($codigo_dep)
+    {
+        $stmt = Conexion::conectar()->prepare("SELECT * FROM ciudades WHERE codigo_dep = :codigo_dep ORDER BY nombre ASC");
+        $stmt->bindParam(":codigo_dep", $codigo_dep, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    // ************************************
+    // OBTENER CONTACTO DE USUARIO
+    // ************************************
+    static public function mdlObtenerContactoUsuario($usuario_id)
+    {
+        $stmt = Conexion::conectar()->prepare("SELECT * FROM usuarios_contacto WHERE usuario_id = :usuario_id");
+        $stmt->bindParam(":usuario_id", $usuario_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch();
+    }
+
+    // ************************************
+    // GUARDAR O ACTUALIZAR CONTACTO (1:1)
+    // ************************************
+    static public function mdlGuardarContacto($usuario_id, $datos)
+    {
+        $stmt = Conexion::conectar()->prepare("INSERT INTO usuarios_contacto (usuario_id, direccion, telefono, codigo_dep, codigo_ciu) VALUES (:usuario_id, :direccion, :telefono, :codigo_dep, :codigo_ciu) ON DUPLICATE KEY UPDATE direccion = :direccion, telefono = :telefono, codigo_dep = :codigo_dep, codigo_ciu = :codigo_ciu");
+        
+        $stmt->bindParam(":usuario_id", $usuario_id, PDO::PARAM_INT);
+        $stmt->bindParam(":direccion", $datos["direccion"], PDO::PARAM_STR);
+        $stmt->bindParam(":telefono", $datos["telefono"], PDO::PARAM_STR);
+        $stmt->bindParam(":codigo_dep", $datos["codigo_dep"], PDO::PARAM_STR);
+        $stmt->bindParam(":codigo_ciu", $datos["codigo_ciu"], PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            return "ok";
+        } else {
+            return "error";
+        }
+    }
+
 } // fin de la clase ModeloUsuarios

@@ -32,7 +32,7 @@ class ControladorUsuarios{
                             $_SESSION["rol"] = $respuesta["rol"];
                             $_SESSION["ficha_id"] = $respuesta["ficha_id"];
                             $_SESSION["foto"] = $respuesta["foto"];
-                            echo "<script>window.location = 'inicio';</script>";
+                            echo "<script>window.location = 'identificacion';</script>";
                         } else{
                         // var_dump($respuesta);
                         echo  "<br><div class='alert alert-danger'>Usuario o contraseña incorrecto</div>";
@@ -135,6 +135,19 @@ class ControladorUsuarios{
                 $respuesta= ModeloUsuarios::mdlAgregarUsuario($tabla, $datos);
 
                 if($respuesta == "ok"){
+                    $usuarioCreado = ModeloUsuarios::mdlMostrarUsuarios("usuarios", "documento_id", $_POST["nuevoDocumento"]);
+                    if ($usuarioCreado) {
+                        $contacto = array(
+                            "direccion" => isset($_POST["nuevaDireccion"]) ? $_POST["nuevaDireccion"] : "",
+                            "telefono" => isset($_POST["nuevoTelefono"]) ? $_POST["nuevoTelefono"] : "",
+                            "codigo_dep" => isset($_POST["nuevoDepartamento"]) ? $_POST["nuevoDepartamento"] : "",
+                            "codigo_ciu" => isset($_POST["nuevaCiudad"]) ? $_POST["nuevaCiudad"] : ""
+                        );
+                        if(strtoupper($_POST["nuevoRol"]) == "APRENDIZ" || (!empty($contacto["direccion"]) && !empty($contacto["codigo_dep"]))) {
+                            ModeloUsuarios::mdlGuardarContacto($usuarioCreado["id"], $contacto);
+                        }
+                    }
+
                     echo "<script>
                         Swal.fire({
                             icon: 'success',
@@ -209,6 +222,19 @@ class ControladorUsuarios{
                 $respuesta= ModeloUsuarios::mdlAgregarUsuario($tabla, $datos);
 
                 if($respuesta == "ok"){
+                    $usuarioCreado = ModeloUsuarios::mdlMostrarUsuarios("usuarios", "documento_id", $_POST["nuevoDocumento"]);
+                    if ($usuarioCreado) {
+                        $contacto = array(
+                            "direccion" => isset($_POST["nuevaDireccion"]) ? $_POST["nuevaDireccion"] : "",
+                            "telefono" => isset($_POST["nuevoTelefono"]) ? $_POST["nuevoTelefono"] : "",
+                            "codigo_dep" => isset($_POST["nuevoDepartamento"]) ? $_POST["nuevoDepartamento"] : "",
+                            "codigo_ciu" => isset($_POST["nuevaCiudad"]) ? $_POST["nuevaCiudad"] : ""
+                        );
+                        if(strtoupper($_POST["nuevoRol"]) == "APRENDIZ" || (!empty($contacto["direccion"]) && !empty($contacto["codigo_dep"]))) {
+                            ModeloUsuarios::mdlGuardarContacto($usuarioCreado["id"], $contacto);
+                        }
+                    }
+
                     echo "<script>
                         Swal.fire({
                             icon: 'success',
@@ -307,6 +333,16 @@ class ControladorUsuarios{
                 $respuesta = ModeloUsuarios::mdlEditarUsuario($tabla, $datos);
 
                 if ($respuesta == "ok") {
+                    $contacto = array(
+                        "direccion" => isset($_POST["editarDireccion"]) ? $_POST["editarDireccion"] : "",
+                        "telefono" => isset($_POST["editarTelefono"]) ? $_POST["editarTelefono"] : "",
+                        "codigo_dep" => isset($_POST["editarDepartamento"]) ? $_POST["editarDepartamento"] : "",
+                        "codigo_ciu" => isset($_POST["editarCiudad"]) ? $_POST["editarCiudad"] : ""
+                    );
+                    if(strtoupper($_POST["editarRol"]) == "APRENDIZ" || (!empty($contacto["direccion"]) && !empty($contacto["codigo_dep"]))) {
+                        ModeloUsuarios::mdlGuardarContacto($_POST["idUsuarioEditar"], $contacto);
+                    }
+
                     echo "<script>
                         Swal.fire({
                             icon: 'success',
@@ -393,6 +429,16 @@ class ControladorUsuarios{
 
                 if ($respuesta == "ok") {
                     
+                    $contacto = array(
+                        "direccion" => isset($_POST["editarDireccionPerfil"]) ? $_POST["editarDireccionPerfil"] : "",
+                        "telefono" => isset($_POST["editarTelefonoPerfil"]) ? $_POST["editarTelefonoPerfil"] : "",
+                        "codigo_dep" => isset($_POST["editarDepartamentoPerfil"]) ? $_POST["editarDepartamentoPerfil"] : "",
+                        "codigo_ciu" => isset($_POST["editarCiudadPerfil"]) ? $_POST["editarCiudadPerfil"] : ""
+                    );
+                    if(!empty($contacto["direccion"]) && !empty($contacto["codigo_dep"])) {
+                        ModeloUsuarios::mdlGuardarContacto($_POST["idPerfil"], $contacto);
+                    }
+
                     // Actualizar variables de sesion
                     $_SESSION["nombres"] = $_POST["editarNombrePerfil"];
                     $_SESSION["apellidos"] = $_POST["editarApellidoPerfil"];

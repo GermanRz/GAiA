@@ -70,6 +70,10 @@ $('#nuevoRol').change(function() {
     if (rol === "Aprendiz") {
         $('#divFicha').show();
         $('#inputFicha').attr('required', true);
+        $('#nuevaDireccion').attr('required', true);
+        $('#nuevoTelefono').attr('required', true);
+        $('#nuevoDepartamento').attr('required', true);
+        $('#nuevaCiudad').attr('required', true);
     } else {
         $('#divFicha').hide();
         $('#inputFicha').val('');
@@ -77,6 +81,10 @@ $('#nuevoRol').change(function() {
         $('#inputFicha').removeAttr('required');
         $('#divDescripcionFicha').hide();
         $('#descripcionFicha').val('');
+        $('#nuevaDireccion').removeAttr('required');
+        $('#nuevoTelefono').removeAttr('required');
+        $('#nuevoDepartamento').removeAttr('required');
+        $('#nuevaCiudad').removeAttr('required');
     }
 });
 
@@ -142,6 +150,18 @@ $(document).on("click", ".btnEditarUsuario", function() {
                 $(".previsualizarEditar").attr("src", "documentos/anonimo/anonimo.png");
             }
 
+            if(respuesta["contacto"]) {
+                $("#editarDireccion").val(respuesta["contacto"]["direccion"]);
+                $("#editarTelefono").val(respuesta["contacto"]["telefono"]);
+                $("#editarDepartamento").val(respuesta["contacto"]["codigo_dep"]);
+                cargarCiudades(respuesta["contacto"]["codigo_dep"], "#editarCiudad", respuesta["contacto"]["codigo_ciu"]);
+            } else {
+                $("#editarDireccion").val("");
+                $("#editarTelefono").val("");
+                $("#editarDepartamento").val("");
+                $("#editarCiudad").html('<option value="">Seleccionar Municipio/Ciudad</option>');
+            }
+
             // Mostrar opcion de eliminar foto si no es la por defecto
             if(respuesta["foto"] != "" && respuesta["foto"] != "documentos/anonimo/anonimo.png" && respuesta["foto"] != null){
                 $("#divEliminarFoto").show();
@@ -184,6 +204,10 @@ $('#editarRol').change(function() {
     if (rol === "Aprendiz" || rol === "APRENDIZ") {
         $('#divEditarFicha').show();
         $('#inputEditarFicha').attr('required', true);
+        $('#editarDireccion').attr('required', true);
+        $('#editarTelefono').attr('required', true);
+        $('#editarDepartamento').attr('required', true);
+        $('#editarCiudad').attr('required', true);
     } else {
         $('#divEditarFicha').hide();
         $('#inputEditarFicha').val('');
@@ -191,6 +215,10 @@ $('#editarRol').change(function() {
         $('#inputEditarFicha').removeAttr('required');
         $('#divDescripcionEditarFicha').hide();
         $('#descripcionEditarFicha').val('');
+        $('#editarDireccion').removeAttr('required');
+        $('#editarTelefono').removeAttr('required');
+        $('#editarDepartamento').removeAttr('required');
+        $('#editarCiudad').removeAttr('required');
     }
 });
 
@@ -313,4 +341,83 @@ $(document).on("change", ".nuevaFoto", function() {
             inputElement.closest(".form-group").find(".previsualizarEditar").attr("src", rutaImagen);
         });
     }
+});
+
+/*=============================================
+CARGAR CIUDADES POR DEPARTAMENTO
+=============================================*/
+function cargarCiudades(codigo_dep, selectorCiudad, ciudadSeleccionada = null) {
+    if (!codigo_dep) {
+        $(selectorCiudad).html('<option value="">Seleccionar Municipio/Ciudad</option>');
+        return;
+    }
+    let datos = new FormData();
+    datos.append("codigo_dep", codigo_dep);
+
+    $.ajax({
+        url: "ajax/usuarios.ajax.php",
+        method: "POST",
+        data: datos,
+        cache: false,
+        contentType: false,
+        processData: false,
+        dataType: "json",
+        success: function(respuesta) {
+            $(selectorCiudad).html('<option value="">Seleccionar Municipio/Ciudad</option>');
+            if(respuesta && respuesta.length > 0) {
+                respuesta.forEach(function(ciudad) {
+                    let selected = (ciudadSeleccionada == ciudad.codigo_ciu) ? "selected" : "";
+                    $(selectorCiudad).append('<option value="'+ciudad.codigo_ciu+'" '+selected+'>'+ciudad.nombre+'</option>');
+                });
+            }
+        }
+    });
+}
+
+$("#nuevoDepartamentoLogin").change(function(){
+    cargarCiudades($(this).val(), "#nuevaCiudadLogin");
+});
+
+$("#nuevoDepartamento").change(function(){
+    cargarCiudades($(this).val(), "#nuevaCiudad");
+});
+
+$("#editarDepartamento").change(function(){
+    cargarCiudades($(this).val(), "#editarCiudad");
+});
+
+$("#editarDepartamentoPerfil").change(function(){
+    cargarCiudades($(this).val(), "#editarCiudadPerfil");
+});
+
+/*=============================================
+CARGAR DATOS DE CONTACTO AL ABRIR PERFIL
+=============================================*/
+$('[data-target="#modal-miPerfil"]').click(function() {
+    let idPerfil = $("input[name='idPerfil']").val();
+    let datos = new FormData();
+    datos.append("idUsuario", idPerfil);
+
+    $.ajax({
+        url: "ajax/usuarios.ajax.php",
+        method: "POST",
+        data: datos,
+        cache: false,
+        contentType: false,
+        processData: false,
+        dataType: "json",
+        success: function(respuesta) {
+            if(respuesta && respuesta["contacto"]) {
+                $("#editarDireccionPerfil").val(respuesta["contacto"]["direccion"]);
+                $("#editarTelefonoPerfil").val(respuesta["contacto"]["telefono"]);
+                $("#editarDepartamentoPerfil").val(respuesta["contacto"]["codigo_dep"]);
+                cargarCiudades(respuesta["contacto"]["codigo_dep"], "#editarCiudadPerfil", respuesta["contacto"]["codigo_ciu"]);
+            } else {
+                $("#editarDireccionPerfil").val("");
+                $("#editarTelefonoPerfil").val("");
+                $("#editarDepartamentoPerfil").val("");
+                $("#editarCiudadPerfil").html('<option value="">Seleccionar Municipio/Ciudad</option>');
+            }
+        }
+    });
 });
