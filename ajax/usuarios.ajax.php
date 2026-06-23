@@ -36,6 +36,19 @@ class AjaxUsuarios
         $item = "id";
         $valor = $this->idUsuario;
         $respuesta = ControladorUsuarios::ctrMostrarUsuarios($item, $valor);
+        
+        $contacto = ModeloUsuarios::mdlObtenerContactoUsuario($valor);
+        if ($contacto) {
+            $respuesta["contacto"] = $contacto;
+        }
+
+        echo json_encode($respuesta);
+    }
+
+    public $codigo_dep;
+    public function ajaxObtenerCiudades()
+    {
+        $respuesta = ModeloUsuarios::mdlObtenerCiudades($this->codigo_dep);
         echo json_encode($respuesta);
     }
 }
@@ -57,4 +70,10 @@ if (isset($_POST["idUsuario"])) {
     $editar = new AjaxUsuarios();
     $editar->idUsuario = $_POST["idUsuario"];
     $editar->ajaxEditarUsuario();
+}
+
+if (isset($_POST["codigo_dep"])) {
+    $ciudades = new AjaxUsuarios();
+    $ciudades->codigo_dep = $_POST["codigo_dep"];
+    $ciudades->ajaxObtenerCiudades();
 }

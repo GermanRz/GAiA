@@ -200,6 +200,48 @@ AGREGAR USUARIO   -->
                           <input type="text" class="form-control" id="descripcionFicha" placeholder="Programa de formación" readonly>
                       </div>
 
+                      <!-- CONTACTO: DIRECCION -->
+                      <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                          </div>
+                          <input type="text" class="form-control" id="nuevaDireccion" name="nuevaDireccion" placeholder="Dirección de residencia (Obligatorio para Aprendiz)">
+                      </div>
+
+                      <!-- CONTACTO: TELEFONO -->
+                      <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                          </div>
+                          <input type="text" class="form-control" id="nuevoTelefono" name="nuevoTelefono" placeholder="Teléfono de contacto (Obligatorio para Aprendiz)">
+                      </div>
+
+                      <!-- CONTACTO: DEPARTAMENTO -->
+                      <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="fas fa-map"></i></span>
+                          </div>
+                          <select class="form-control" name="nuevoDepartamento" id="nuevoDepartamento">
+                              <option value="">Seleccionar Departamento</option>
+                              <?php
+                              $departamentos = ModeloUsuarios::mdlObtenerDepartamentos();
+                              foreach ($departamentos as $dep) {
+                                  echo '<option value="' . $dep["codigo_dep"] . '">' . $dep["nombre"] . '</option>';
+                              }
+                              ?>
+                          </select>
+                      </div>
+
+                      <!-- CONTACTO: CIUDAD -->
+                      <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="fas fa-city"></i></span>
+                          </div>
+                          <select class="form-control" name="nuevaCiudad" id="nuevaCiudad">
+                              <option value="">Seleccionar Municipio/Ciudad</option>
+                          </select>
+                      </div>
+
               </div>
               <div class="modal-footer justify-content-between">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
@@ -329,6 +371,48 @@ EDITAR USUARIO   -->
                               <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
                           </div>
                           <input type="text" class="form-control" id="descripcionEditarFicha" placeholder="Programa de formación" readonly>
+                      </div>
+
+                      <!-- CONTACTO: DIRECCION -->
+                      <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                          </div>
+                          <input type="text" class="form-control" id="editarDireccion" name="editarDireccion" placeholder="Dirección de residencia (Obligatorio para Aprendiz)">
+                      </div>
+
+                      <!-- CONTACTO: TELEFONO -->
+                      <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                          </div>
+                          <input type="text" class="form-control" id="editarTelefono" name="editarTelefono" placeholder="Teléfono de contacto (Obligatorio para Aprendiz)">
+                      </div>
+
+                      <!-- CONTACTO: DEPARTAMENTO -->
+                      <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="fas fa-map"></i></span>
+                          </div>
+                          <select class="form-control" name="editarDepartamento" id="editarDepartamento">
+                              <option value="">Seleccionar Departamento</option>
+                              <?php
+                              $departamentos = ModeloUsuarios::mdlObtenerDepartamentos();
+                              foreach ($departamentos as $dep) {
+                                  echo '<option value="' . $dep["codigo_dep"] . '">' . $dep["nombre"] . '</option>';
+                              }
+                              ?>
+                          </select>
+                      </div>
+
+                      <!-- CONTACTO: CIUDAD -->
+                      <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="fas fa-city"></i></span>
+                          </div>
+                          <select class="form-control" name="editarCiudad" id="editarCiudad">
+                              <option value="">Seleccionar Municipio/Ciudad</option>
+                          </select>
                       </div>
 
                       <div class="form-group">
