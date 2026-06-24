@@ -2,6 +2,48 @@
 
 class ControladorUsuarios{
 
+    private static function validarComplejidadPassword($password){
+        return is_string($password) &&
+            strlen($password) >= 8 &&
+            preg_match('/[A-Z]/', $password) &&
+            preg_match('/[a-z]/', $password) &&
+            preg_match('/[0-9]/', $password) &&
+            preg_match('/[^A-Za-z0-9]/', $password);
+    }
+
+    private static function mostrarErrorPassword(){
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Contraseña insegura',
+                text: 'La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.',
+                showConfirmButton: true,
+                confirmButtonText: 'Cerrar'
+            });
+        </script>";
+    }
+
+    private static function mostrarErrorConfirmacionPassword(){
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Las contraseñas no coinciden',
+                text: 'Verifique la contraseña y su confirmación antes de continuar.',
+                showConfirmButton: true,
+                confirmButtonText: 'Cerrar'
+            });
+        </script>";
+    }
+
+    private static function verificarPassword($passwordPlano, $passwordAlmacenado){
+        if (password_verify($passwordPlano, $passwordAlmacenado)) {
+            return true;
+        }
+
+        $passwordLegacy = crypt($passwordPlano, '$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
+        return hash_equals($passwordAlmacenado, $passwordLegacy);
+    }
+
     // ************************************
     // LOGIN DE USUARIO 
     // ************************************
@@ -9,7 +51,8 @@ class ControladorUsuarios{
         if (isset($_POST["ingDocumento"])){
             if (
                 preg_match('/^[0-9]+$/', $_POST["ingDocumento"]) &&
-                preg_match('/^[a-zA-Z0-9]+$/', $_POST["ingPassword"])
+                isset($_POST["ingPassword"]) &&
+                $_POST["ingPassword"] !== ""
             ){
                 $documento = $_POST["ingDocumento"];
                 $respuesta = ModeloUsuarios::mdlIngresarUsuario($documento);
@@ -18,12 +61,10 @@ class ControladorUsuarios{
                 // var_dump($tempo);
                 // exit;
 
-                $passEncriptado=crypt($_POST["ingPassword"],'$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
-
                 if (is_array($respuesta)){
                     //preguntar si el usuario esta activo
                     if ($respuesta["estado"]== "activo"){
-                        if ($respuesta["password"] == $passEncriptado && $respuesta["documento_id"]== $documento){
+                        if (self::verificarPassword($_POST["ingPassword"], $respuesta["password"]) && $respuesta["documento_id"]== $documento){
                             $_SESSION["iniciarSesion"] = "ok";
                             $_SESSION["id"] = $respuesta["id"];
                             $_SESSION["documento"] = $respuesta["documento_id"];
@@ -93,6 +134,7 @@ class ControladorUsuarios{
             isset($_POST["nuevoNombre"])  && 
             isset($_POST["nuevoApellido"])  && 
             isset($_POST["nuevoCorreo"])  && 
+            isset($_POST["nuevoPassword"])  &&
             isset($_POST["nuevoFechaNacimiento"])  && 
             isset($_POST["nuevoRol"]))
 
@@ -106,12 +148,20 @@ class ControladorUsuarios{
               ) {
 
                 $tabla="usuarios";
-                // $passEncriptado=$_POST["nuevoDocumento"];
 
-                $passEncriptado=crypt($_POST["nuevoDocumento"],'$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
+                if (!self::validarComplejidadPassword($_POST["nuevoPassword"])) {
+                    self::mostrarErrorPassword();
+                    return;
+                }
+                if (!isset($_POST["confirmarPassword"]) || $_POST["nuevoPassword"] !== $_POST["confirmarPassword"]) {
+                    self::mostrarErrorConfirmacionPassword();
+                    return;
+                }
+
+                $passEncriptado = password_hash($_POST["nuevoPassword"], PASSWORD_DEFAULT);
 
                 $fichaId = null;
-                if ($_POST["nuevoRol"] == "Aprendiz" && isset($_POST["nuevaFicha"])) {
+                if ($_POST["nuevoRol"] == "Aprendiz" && isset($_POST["nuevaFicha"]) && $_POST["nuevaFicha"] !== "") {
                     $fichaId = $_POST["nuevaFicha"];
                 }
 
@@ -148,20 +198,18 @@ class ControladorUsuarios{
                         }
                     }
 
-                    echo "<script>
+                     echo '<script>
                         Swal.fire({
-                            icon: 'success',
-                            title: 'El usuario ha sido registrado correctamente',
+                            icon: "success",
+                            title: "¡El usuario ha sido registrado correctamente!",
                             showConfirmButton: true,
-                            confirmButtonText: 'Aceptar'
+                            confirmButtonText: "Cerrar"
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location = 'Usuarios';
+                                window.location = "Usuarios";
                             }
-                        });
-                                
-                        
-                    </script>";
+                        })
+                    </script>';
                     // echo "<br><div class='alert alert-success'>El usuario ha sido registrado correctamente</div>";
                 }else{
                     echo "<br><div class='alert alert-danger'>Error al agregar el usuario</div>";
@@ -184,6 +232,7 @@ class ControladorUsuarios{
             isset($_POST["nuevoNombre"])  && 
             isset($_POST["nuevoApellido"])  && 
             isset($_POST["nuevoCorreo"])  && 
+            isset($_POST["nuevoPassword"])  &&
             isset($_POST["nuevoFechaNacimiento"])  && 
             isset($_POST["nuevoRol"]))
             {
@@ -195,10 +244,19 @@ class ControladorUsuarios{
 
                 $tabla="usuarios";
 
-                $passEncriptado=crypt($_POST["nuevoDocumento"],'$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
+                if (!self::validarComplejidadPassword($_POST["nuevoPassword"])) {
+                    self::mostrarErrorPassword();
+                    return;
+                }
+                if (!isset($_POST["confirmarPassword"]) || $_POST["nuevoPassword"] !== $_POST["confirmarPassword"]) {
+                    self::mostrarErrorConfirmacionPassword();
+                    return;
+                }
+
+                $passEncriptado = password_hash($_POST["nuevoPassword"], PASSWORD_DEFAULT);
 
                 $fichaId = null;
-                if ($_POST["nuevoRol"] == "Aprendiz" && isset($_POST["nuevaFicha"])) {
+                if ($_POST["nuevoRol"] == "Aprendiz" && isset($_POST["nuevaFicha"]) && $_POST["nuevaFicha"] !== "") {
                     $fichaId = $_POST["nuevaFicha"];
                 }
 
@@ -235,19 +293,18 @@ class ControladorUsuarios{
                         }
                     }
 
-                    echo "<script>
+                    echo '<script>
                         Swal.fire({
-                            icon: 'success',
-                            title: '¡Registro exitoso!',
-                            text: 'Se ha registrado correctamente. Ya puede iniciar sesión.',
+                            icon: "success",
+                            title: "¡El usuario ha sido registrado correctamente! Ya puede iniciar sesión.",
                             showConfirmButton: true,
-                            confirmButtonText: 'Aceptar'
+                            confirmButtonText: "Cerrar"
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location = 'inicio';
+                                window.location = "inicio";
                             }
-                        });
-                    </script>";
+                        })
+                    </script>';
                 }else{
                     echo "<br><div class='alert alert-danger'>Error al agregar el usuario</div>";
                 }
@@ -277,13 +334,14 @@ class ControladorUsuarios{
                 $tabla = "usuarios";
 
                 if ($_POST["editarPassword"] != "") {
-                    if (preg_match('/^[a-zA-Z0-9]+$/', $_POST["editarPassword"])) {
-                        $passEncriptado = crypt($_POST["editarPassword"], '$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
+                    if (self::validarComplejidadPassword($_POST["editarPassword"])) {
+                        $passEncriptado = password_hash($_POST["editarPassword"], PASSWORD_DEFAULT);
                     } else {
                         echo "<script>
                             Swal.fire({
                                 icon: 'error',
-                                title: '¡La contraseña no puede ir vacía o llevar caracteres especiales!',
+                                title: 'Contraseña insegura',
+                                text: 'La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.',
                                 showConfirmButton: true,
                                 confirmButtonText: 'Cerrar'
                             }).then((result) => {
@@ -390,13 +448,14 @@ class ControladorUsuarios{
                 $tabla = "usuarios";
 
                 if ($_POST["editarPasswordPerfil"] != "") {
-                    if (preg_match('/^[a-zA-Z0-9]+$/', $_POST["editarPasswordPerfil"])) {
-                        $passEncriptado = crypt($_POST["editarPasswordPerfil"], '$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
+                    if (self::validarComplejidadPassword($_POST["editarPasswordPerfil"])) {
+                        $passEncriptado = password_hash($_POST["editarPasswordPerfil"], PASSWORD_DEFAULT);
                     } else {
                         echo "<script>
                             Swal.fire({
                                 icon: 'error',
-                                title: '¡La contraseña no puede llevar caracteres especiales!',
+                                title: 'Contraseña insegura',
+                                text: 'La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.',
                                 showConfirmButton: true,
                                 confirmButtonText: 'Cerrar'
                             });

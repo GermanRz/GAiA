@@ -1,7 +1,157 @@
-$('#nuevoDocumento').change(function() {
+function validarComplejidadPassword(password) {
+    return {
+        longitud: password.length >= 8,
+        mayuscula: /[A-Z]/.test(password),
+        minuscula: /[a-z]/.test(password),
+        numero: /[0-9]/.test(password),
+        especial: /[^A-Za-z0-9]/.test(password)
+    };
+}
+
+function passwordCumplePolitica(validaciones) {
+    return Object.keys(validaciones).every(function (clave) {
+        return validaciones[clave];
+    });
+}
+
+function pintarFeedbackPassword(input) {
+    let password = input.val();
+    let feedback = input.closest("form").find(".password-feedback").first();
+
+    if (!password) {
+        feedback.empty();
+        input.removeClass("is-valid is-invalid");
+        return null;
+    }
+
+    let validaciones = validarComplejidadPassword(password);
+    let mensajes = [
+        { clave: "longitud", texto: "Mínimo 8 caracteres" },
+        { clave: "mayuscula", texto: "Al menos 1 mayúscula" },
+        { clave: "minuscula", texto: "Al menos 1 minúscula" },
+        { clave: "numero", texto: "Al menos 1 número" },
+        { clave: "especial", texto: "Al menos 1 carácter especial" }
+    ];
+    let contenido = mensajes.map(function (mensaje) {
+        let icono = validaciones[mensaje.clave] ? "fa-check" : "fa-times";
+        let estilo = validaciones[mensaje.clave]
+            ? 'color:#28a745;'
+            : 'color:#dc3545;';
+        return '<div class="d-flex align-items-center mb-1" style="font-weight:600;' + estilo + '"><i class="fas ' + icono + ' mr-2"></i><span>' + mensaje.texto + '</span></div>';
+    }).join("");
+
+    input.attr("type", "password");
+    feedback.html('<div class="p-2 border rounded" style="background:#343a40;color:#ffffff;border-color:#454d55 !important;">' + contenido + '</div>');
+    input.toggleClass("is-valid", password !== "" && passwordCumplePolitica(validaciones));
+    input.toggleClass("is-invalid", password !== "" && !passwordCumplePolitica(validaciones));
+
+    return passwordCumplePolitica(validaciones);
+}
+
+function pintarFeedbackConfirmacion(inputPassword, inputConfirmacion) {
+    let feedback = inputConfirmacion.closest("form").find(".password-confirm-feedback").first();
+    let password = inputPassword.val();
+    let confirmacion = inputConfirmacion.val();
+
+    if (!password || !confirmacion) {
+        feedback.empty();
+        inputConfirmacion.removeClass("is-valid is-invalid");
+        return null;
+    }
+
+    let coincide = password === confirmacion;
+
+    feedback.html(
+        coincide
+            ? '<div class="p-2 border rounded" style="background:#343a40;color:#28a745;border-color:#454d55 !important;font-weight:600;">Las contraseñas coinciden.</div>'
+            : '<div class="p-2 border rounded" style="background:#343a40;color:#dc3545;border-color:#454d55 !important;font-weight:600;">Las contraseñas no coinciden.</div>'
+    );
+
+    inputConfirmacion.toggleClass("is-valid", coincide);
+    inputConfirmacion.toggleClass("is-invalid", confirmacion !== "" && !coincide);
+
+    return coincide;
+}
+
+$(document).on("click", ".js-toggle-password", function () {
+    let targetName = $(this).attr("data-target");
+    let input = $(this).closest("form").find('[name="' + targetName + '"]').first();
+    let icon = $(this).find("i");
+
+    if (!input.length) {
+        return;
+    }
+
+    if (input.attr("type") === "password") {
+        input.attr("type", "text");
+        icon.removeClass("fa-eye").addClass("fa-eye-slash");
+    } else {
+        input.attr("type", "password");
+        icon.removeClass("fa-eye-slash").addClass("fa-eye");
+    }
+});
+
+$(document).on("input", ".js-password-segura", function () {
+    let input = $(this);
+    pintarFeedbackPassword(input);
+    let inputConfirmacion = input.closest("form").find(".js-password-confirmacion").first();
+    if (inputConfirmacion.length && inputConfirmacion.val()) {
+        pintarFeedbackConfirmacion(input, inputConfirmacion);
+    } else if (inputConfirmacion.length && !input.val()) {
+        inputConfirmacion.closest("form").find(".password-confirm-feedback").first().empty();
+        inputConfirmacion.removeClass("is-valid is-invalid");
+    }
+});
+
+$(document).on("input", ".js-password-confirmacion", function () {
+    let inputConfirmacion = $(this);
+    let inputPassword = inputConfirmacion.closest("form").find(".js-password-segura").first();
+
+    if (inputPassword.length) {
+        pintarFeedbackConfirmacion(inputPassword, inputConfirmacion);
+    }
+});
+
+$(document).on("submit", "form", function (event) {
+    let passwordInput = $(this).find(".js-password-segura");
+    let confirmacionInput = $(this).find(".js-password-confirmacion");
+    let passwordOk = true;
+    let confirmacionOk = true;
+
+    if (passwordInput.length) {
+        passwordOk = pintarFeedbackPassword(passwordInput.first());
+    }
+
+    if (confirmacionInput.length && passwordInput.length) {
+        confirmacionOk = pintarFeedbackConfirmacion(passwordInput.first(), confirmacionInput.first());
+    }
+
+    if (passwordInput.length && passwordInput.val() && confirmacionInput.length && confirmacionInput.val() && (!passwordOk || !confirmacionOk)) {
+        event.preventDefault();
+        Swal.fire({
+            icon: "error",
+            title: "Contraseña insegura",
+            html: '<div style="font-size:1.1rem;line-height:1.5;color:#212529;">La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.<br><strong style="color:#dc3545;">Las contraseñas deben coincidir.</strong></div>',
+            confirmButtonText: "Cerrar"
+        });
+    }
+});
+
+$(document).on("hidden.bs.modal", "#modal-agregarUsuario, #modal-registroAprendiz", function () {
+    let form = $(this).find("form").first();
+    if (!form.length) {
+        return;
+    }
+
+    form.find(".js-password-segura, .js-password-confirmacion").val("").removeClass("is-valid is-invalid").attr("type", "password");
+    form.find(".password-feedback, .password-confirm-feedback").empty();
+    form.find(".js-toggle-password i").removeClass("fa-eye-slash").addClass("fa-eye");
+});
+
+$('#nuevoDocumento').change(function () {
 
     let nuevoDocumento = $(this).val();
-    console.log("este es el documento a ingresar: " +nuevoDocumento);
+    console.log("este es el documento a ingresar: " + nuevoDocumento);
     let datos = new FormData();
     datos.append("nuevoDocumento", nuevoDocumento);
     $.ajax({
@@ -12,7 +162,7 @@ $('#nuevoDocumento').change(function() {
         contentType: false,
         processData: false,
         dataType: "json",
-        success: function(respuesta) {
+        success: function (respuesta) {
             console.log(respuesta);
             if (respuesta) {
                 $("#nuevoDocumento").val("");
@@ -29,7 +179,7 @@ $('#nuevoDocumento').change(function() {
 
 }); //fin de nuevoDocumento.change
 
-$(document).on("click", ".btnActivarUsuario", function(){
+$(document).on("click", ".btnActivarUsuario", function () {
     let boton = $(this);
     let estadoActual = boton.attr("data-estadoUsuario");
     let idUsuario = boton.attr("data-idUsuario");
@@ -46,17 +196,17 @@ $(document).on("click", ".btnActivarUsuario", function(){
         success: function (respuesta) {
             // console.log(respuesta);
 
-            if (respuesta.trim()==="ok"){
+            if (respuesta.trim() === "ok") {
                 if (estadoActual === "activo") {
                     boton.removeClass("btn-danger");
                     boton.addClass("btn-success");
                     boton.html("activo");
-                    boton.attr("data-estadoUsuario","inactivo");
+                    boton.attr("data-estadoUsuario", "inactivo");
                 } else {
                     boton.removeClass("btn-success");
                     boton.addClass("btn-danger");
                     boton.html("inactivo");
-                    boton.attr("data-estadoUsuario","activo");
+                    boton.attr("data-estadoUsuario", "activo");
                 }
             }
         }
@@ -65,7 +215,7 @@ $(document).on("click", ".btnActivarUsuario", function(){
 });
 
 // Mostrar ocultar ficha según rol
-$('#nuevoRol').change(function() {
+$('#nuevoRol').change(function () {
     let rol = $(this).val();
     if (rol === "Aprendiz") {
         $('#divFicha').show();
@@ -89,9 +239,9 @@ $('#nuevoRol').change(function() {
 });
 
 // Autocompletar descripcion ficha
-$('#inputFicha').on('input', function() {
+$('#inputFicha').on('input', function () {
     let val = $(this).val();
-    let option = $('#listaFichas option').filter(function() {
+    let option = $('#listaFichas option').filter(function () {
         return this.value === val;
     });
 
@@ -111,7 +261,7 @@ $('#inputFicha').on('input', function() {
 //===========================================
 // EDITAR USUARIO
 //===========================================
-$(document).on("click", ".btnEditarUsuario", function() {
+$(document).on("click", ".btnEditarUsuario", function () {
     let idUsuario = $(this).attr("data-idUsuario");
     let datos = new FormData();
     datos.append("idUsuario", idUsuario);
@@ -124,7 +274,7 @@ $(document).on("click", ".btnEditarUsuario", function() {
         contentType: false,
         processData: false,
         dataType: "json",
-        success: function(respuesta) {
+        success: function (respuesta) {
             $("#idUsuarioEditar").val(respuesta["id"]);
             $("#editarTipoDocumento").val(respuesta["tipo_documento"]);
             $("#editarDocumento").val(respuesta["documento_id"]);
@@ -132,11 +282,11 @@ $(document).on("click", ".btnEditarUsuario", function() {
             $("#editarApellido").val(respuesta["apellidos"]);
             $("#editarFechaNacimiento").val(respuesta["fecha_nacimiento"]);
             $("#editarCorreo").val(respuesta["correo"]);
-            
+
             // Seleccionar el rol (ignorando mayúsculas/minúsculas)
             let rolDB = respuesta["rol"].toUpperCase();
-            $("#editarRol option").each(function() {
-                if($(this).val().toUpperCase() === rolDB) {
+            $("#editarRol option").each(function () {
+                if ($(this).val().toUpperCase() === rolDB) {
                     $(this).prop("selected", true);
                 }
             });
@@ -144,13 +294,13 @@ $(document).on("click", ".btnEditarUsuario", function() {
             $("#passwordActual").val(respuesta["password"]);
             $("#fotoActualEditar").val(respuesta["foto"]);
 
-            if(respuesta["foto"] != "" && respuesta["foto"] != null){
+            if (respuesta["foto"] != "" && respuesta["foto"] != null) {
                 $(".previsualizarEditar").attr("src", respuesta["foto"]);
             } else {
                 $(".previsualizarEditar").attr("src", "documentos/anonimo/anonimo.png");
             }
 
-            if(respuesta["contacto"]) {
+            if (respuesta["contacto"]) {
                 $("#editarDireccion").val(respuesta["contacto"]["direccion"]);
                 $("#editarTelefono").val(respuesta["contacto"]["telefono"]);
                 $("#editarDepartamento").val(respuesta["contacto"]["codigo_dep"]);
@@ -163,7 +313,7 @@ $(document).on("click", ".btnEditarUsuario", function() {
             }
 
             // Mostrar opcion de eliminar foto si no es la por defecto
-            if(respuesta["foto"] != "" && respuesta["foto"] != "documentos/anonimo/anonimo.png" && respuesta["foto"] != null){
+            if (respuesta["foto"] != "" && respuesta["foto"] != "documentos/anonimo/anonimo.png" && respuesta["foto"] != null) {
                 $("#divEliminarFoto").show();
                 $("#eliminarFotoUsuario").prop("checked", false);
             } else {
@@ -172,21 +322,21 @@ $(document).on("click", ".btnEditarUsuario", function() {
             }
 
             // Lógica para Aprendiz
-            if(respuesta["rol"] === "Aprendiz" || respuesta["rol"] === "APRENDIZ"){
+            if (respuesta["rol"] === "Aprendiz" || respuesta["rol"] === "APRENDIZ") {
                 $("#divEditarFicha").show();
                 $("#inputEditarFicha").attr('required', true);
-                
+
                 // Si trae ficha guardada, pre-cargar el input
-                if(respuesta["ficha_id"]){
-                    let fichaOption = $('#listaFichas option[data-id="'+respuesta["ficha_id"]+'"]');
-                    if(fichaOption.length > 0){
+                if (respuesta["ficha_id"]) {
+                    let fichaOption = $('#listaFichas option[data-id="' + respuesta["ficha_id"] + '"]');
+                    if (fichaOption.length > 0) {
                         $("#inputEditarFicha").val(fichaOption.attr('value'));
                         $("#editarFicha").val(respuesta["ficha_id"]);
                         $("#descripcionEditarFicha").val(fichaOption.attr('data-programa'));
                         $("#divDescripcionEditarFicha").show();
                     }
                 }
-            }else{
+            } else {
                 $("#divEditarFicha").hide();
                 $("#inputEditarFicha").removeAttr('required');
                 $("#inputEditarFicha").val('');
@@ -199,7 +349,7 @@ $(document).on("click", ".btnEditarUsuario", function() {
 });
 
 // Mostrar ocultar ficha según rol en EDICIÓN
-$('#editarRol').change(function() {
+$('#editarRol').change(function () {
     let rol = $(this).val();
     if (rol === "Aprendiz" || rol === "APRENDIZ") {
         $('#divEditarFicha').show();
@@ -223,9 +373,9 @@ $('#editarRol').change(function() {
 });
 
 // Autocompletar descripcion ficha en EDICIÓN
-$('#inputEditarFicha').on('input', function() {
+$('#inputEditarFicha').on('input', function () {
     let val = $(this).val();
-    let option = $('#listaFichas option').filter(function() {
+    let option = $('#listaFichas option').filter(function () {
         return this.value === val;
     });
 
@@ -245,7 +395,7 @@ $('#inputEditarFicha').on('input', function() {
 //===========================================
 // CONSULTAR USUARIO
 //===========================================
-$(document).on("click", ".btnConsultarUsuario", function() {
+$(document).on("click", ".btnConsultarUsuario", function () {
     let idUsuario = $(this).attr("data-idUsuario");
     let datos = new FormData();
     datos.append("idUsuario", idUsuario);
@@ -258,7 +408,7 @@ $(document).on("click", ".btnConsultarUsuario", function() {
         contentType: false,
         processData: false,
         dataType: "json",
-        success: function(respuesta) {
+        success: function (respuesta) {
             $("#consultarTipoDocumento").val(respuesta["tipo_documento"]);
             $("#consultarDocumento").val(respuesta["documento_id"]);
             $("#consultarNombre").val(respuesta["nombres"]);
@@ -268,13 +418,13 @@ $(document).on("click", ".btnConsultarUsuario", function() {
             $("#consultarRol").val(respuesta["rol"]);
 
             // Lógica para Aprendiz (Ficha)
-            if(respuesta["rol"] === "Aprendiz" || respuesta["rol"] === "APRENDIZ"){
+            if (respuesta["rol"] === "Aprendiz" || respuesta["rol"] === "APRENDIZ") {
                 $("#divConsultarFicha").show();
-                
+
                 // Buscar ficha en el datalist para mostrar el programa
-                if(respuesta["ficha_id"]){
-                    let fichaOption = $('#listaFichas option[data-id="'+respuesta["ficha_id"]+'"]');
-                    if(fichaOption.length > 0){
+                if (respuesta["ficha_id"]) {
+                    let fichaOption = $('#listaFichas option[data-id="' + respuesta["ficha_id"] + '"]');
+                    if (fichaOption.length > 0) {
                         $("#inputConsultarFicha").val(fichaOption.attr('value')); // código
                         $("#descripcionConsultarFicha").val(fichaOption.attr('data-programa'));
                         $("#divDescripcionConsultarFicha").show();
@@ -299,7 +449,7 @@ $(document).on("click", ".btnConsultarUsuario", function() {
 /*=============================================
 SUBIENDO LA FOTO DEL USUARIO (PREVISUALIZACIÓN Y VALIDACIÓN)
 =============================================*/
-$(document).on("change", ".nuevaFoto", function() {
+$(document).on("change", ".nuevaFoto", function () {
     let imagen = this.files[0];
     if (!imagen) {
         $(this).next('.custom-file-label').html('Seleccionar imagen');
@@ -334,7 +484,7 @@ $(document).on("change", ".nuevaFoto", function() {
         datosImagen.readAsDataURL(imagen);
 
         let inputElement = $(this);
-        $(datosImagen).on("load", function(event) {
+        $(datosImagen).on("load", function (event) {
             let rutaImagen = event.target.result;
             // Busca la imagen previsualizar correspondiente dentro del mismo form-group
             inputElement.closest(".form-group").find(".previsualizar").attr("src", rutaImagen);
@@ -362,38 +512,38 @@ function cargarCiudades(codigo_dep, selectorCiudad, ciudadSeleccionada = null) {
         contentType: false,
         processData: false,
         dataType: "json",
-        success: function(respuesta) {
+        success: function (respuesta) {
             $(selectorCiudad).html('<option value="">Seleccionar Municipio/Ciudad</option>');
-            if(respuesta && respuesta.length > 0) {
-                respuesta.forEach(function(ciudad) {
+            if (respuesta && respuesta.length > 0) {
+                respuesta.forEach(function (ciudad) {
                     let selected = (ciudadSeleccionada == ciudad.codigo_ciu) ? "selected" : "";
-                    $(selectorCiudad).append('<option value="'+ciudad.codigo_ciu+'" '+selected+'>'+ciudad.nombre+'</option>');
+                    $(selectorCiudad).append('<option value="' + ciudad.codigo_ciu + '" ' + selected + '>' + ciudad.nombre + '</option>');
                 });
             }
         }
     });
 }
 
-$("#nuevoDepartamentoLogin").change(function(){
+$("#nuevoDepartamentoLogin").change(function () {
     cargarCiudades($(this).val(), "#nuevaCiudadLogin");
 });
 
-$("#nuevoDepartamento").change(function(){
+$("#nuevoDepartamento").change(function () {
     cargarCiudades($(this).val(), "#nuevaCiudad");
 });
 
-$("#editarDepartamento").change(function(){
+$("#editarDepartamento").change(function () {
     cargarCiudades($(this).val(), "#editarCiudad");
 });
 
-$("#editarDepartamentoPerfil").change(function(){
+$("#editarDepartamentoPerfil").change(function () {
     cargarCiudades($(this).val(), "#editarCiudadPerfil");
 });
 
 /*=============================================
 CARGAR DATOS DE CONTACTO AL ABRIR PERFIL
 =============================================*/
-$('[data-target="#modal-miPerfil"]').click(function() {
+$('[data-target="#modal-miPerfil"]').click(function () {
     let idPerfil = $("input[name='idPerfil']").val();
     let datos = new FormData();
     datos.append("idUsuario", idPerfil);
@@ -406,8 +556,8 @@ $('[data-target="#modal-miPerfil"]').click(function() {
         contentType: false,
         processData: false,
         dataType: "json",
-        success: function(respuesta) {
-            if(respuesta && respuesta["contacto"]) {
+        success: function (respuesta) {
+            if (respuesta && respuesta["contacto"]) {
                 $("#editarDireccionPerfil").val(respuesta["contacto"]["direccion"]);
                 $("#editarTelefonoPerfil").val(respuesta["contacto"]["telefono"]);
                 $("#editarDepartamentoPerfil").val(respuesta["contacto"]["codigo_dep"]);
