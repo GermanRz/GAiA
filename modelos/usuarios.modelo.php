@@ -42,23 +42,61 @@ class ModeloUsuarios
     // ************************************
     // AGREGAR USUARIO A LA BD
     // ************************************    
-    static public function mdlAgregarUsuario($tabla, $datos)
+    static public function mdlAgregarUsuario($tabla, $datos, $contacto = null)
     {
+        $conexion = Conexion::conectar();
 
-        $stmt = Conexion::conectar()->prepare("INSERT INTO $tabla (tipo_documento, documento_id, nombres, apellidos, correo, fecha_nacimiento, rol, password, ficha_id, foto) VALUES (:tipoDocumento, :documentoId, :nombres, :apellidos, :correo, :fechaNacimiento, :rol, :password, :ficha_id, :foto)");
-        $stmt->bindParam(":tipoDocumento", $datos["tipoDocumento"], PDO::PARAM_STR);
-        $stmt->bindParam(":documentoId", $datos["documentoId"], PDO::PARAM_STR);
-        $stmt->bindParam(":nombres", $datos["nombres"], PDO::PARAM_STR);
-        $stmt->bindParam(":apellidos", $datos["apellidos"], PDO::PARAM_STR);
-        $stmt->bindParam(":correo", $datos["correo"], PDO::PARAM_STR);
-        $stmt->bindParam(":fechaNacimiento", $datos["fechaNacimiento"], PDO::PARAM_STR);
-        $stmt->bindParam(":rol", $datos["rol"], PDO::PARAM_STR);
-        $stmt->bindParam(":password", $datos["password"], PDO::PARAM_STR);
-        $stmt->bindParam(":ficha_id", $datos["ficha_id"], PDO::PARAM_INT);
-        $stmt->bindParam(":foto", $datos["foto"], PDO::PARAM_STR);
-        if ($stmt->execute()) {
-            return "ok";
-        } else {
+        try {
+            $conexion->beginTransaction();
+
+            $stmt = $conexion->prepare("INSERT INTO $tabla (tipo_documento, documento_id, nombres, apellidos, correo, fecha_nacimiento, rol, password, ficha_id, foto) VALUES (:tipoDocumento, :documentoId, :nombres, :apellidos, :correo, :fechaNacimiento, :rol, :password, :ficha_id, :foto)");
+            $stmt->bindParam(":tipoDocumento", $datos["tipoDocumento"], PDO::PARAM_STR);
+            $stmt->bindParam(":documentoId", $datos["documentoId"], PDO::PARAM_STR);
+            $stmt->bindParam(":nombres", $datos["nombres"], PDO::PARAM_STR);
+            $stmt->bindParam(":apellidos", $datos["apellidos"], PDO::PARAM_STR);
+            $stmt->bindParam(":correo", $datos["correo"], PDO::PARAM_STR);
+            $stmt->bindParam(":fechaNacimiento", $datos["fechaNacimiento"], PDO::PARAM_STR);
+            $stmt->bindParam(":rol", $datos["rol"], PDO::PARAM_STR);
+            $stmt->bindParam(":password", $datos["password"], PDO::PARAM_STR);
+            $stmt->bindParam(":ficha_id", $datos["ficha_id"], PDO::PARAM_INT);
+            $stmt->bindParam(":foto", $datos["foto"], PDO::PARAM_STR);
+            
+            if ($stmt->execute()) {
+                $idUsuario = $conexion->lastInsertId();
+
+                if ($contacto != null) {
+                    $stmtContacto = $conexion->prepare("INSERT INTO usuarios_contacto (usuario_id, direccion, telefono, codigo_dep, codigo_ciu) VALUES (:usuario_id, :direccion, :telefono, :codigo_dep, :codigo_ciu)");
+                    
+                    $direccion = isset($contacto["direccion"]) ? $contacto["direccion"] : "";
+                    $telefono = isset($contacto["telefono"]) ? $contacto["telefono"] : "";
+                    $codigo_dep = !empty($contacto["codigo_dep"]) ? $contacto["codigo_dep"] : null;
+                    $codigo_ciu = !empty($contacto["codigo_ciu"]) ? $contacto["codigo_ciu"] : null;
+
+                    $stmtContacto->bindParam(":usuario_id", $idUsuario, PDO::PARAM_INT);
+                    $stmtContacto->bindParam(":direccion", $direccion, PDO::PARAM_STR);
+                    $stmtContacto->bindParam(":telefono", $telefono, PDO::PARAM_STR);
+                    $stmtContacto->bindParam(":codigo_dep", $codigo_dep, PDO::PARAM_STR);
+                    $stmtContacto->bindParam(":codigo_ciu", $codigo_ciu, PDO::PARAM_STR);
+
+                    if (!$stmtContacto->execute()) {
+                        $conexion->rollBack();
+                        return "error";
+                    }
+                }
+
+                $conexion->commit();
+                return "ok";
+            } else {
+                $conexion->rollBack();
+                return "error";
+            }
+        } catch (PDOException $e) {
+            if ($conexion->inTransaction()) {
+                $conexion->rollBack();
+            }
+            if ($e->getCode() == 23000) {
+                return "duplicate";
+            }
             return "error";
         }
     }
@@ -91,9 +129,16 @@ class ModeloUsuarios
         $stmt->bindParam(":foto", $datos["foto"], PDO::PARAM_STR);
         $stmt->bindParam(":id", $datos["id"], PDO::PARAM_INT);
 
-        if ($stmt->execute()) {
-            return "ok";
-        } else {
+        try {
+            if ($stmt->execute()) {
+                return "ok";
+            } else {
+                return "error";
+            }
+        } catch (PDOException $e) {
+            if ($e->getCode() == 23000) {
+                return "duplicate";
+            }
             return "error";
         }
     }
@@ -172,15 +217,22 @@ class ModeloUsuarios
     {
         $stmt = Conexion::conectar()->prepare("INSERT INTO usuarios_contacto (usuario_id, direccion, telefono, codigo_dep, codigo_ciu) VALUES (:usuario_id, :direccion, :telefono, :codigo_dep, :codigo_ciu) ON DUPLICATE KEY UPDATE direccion = :direccion, telefono = :telefono, codigo_dep = :codigo_dep, codigo_ciu = :codigo_ciu");
         
+        $direccion = isset($datos["direccion"]) ? $datos["direccion"] : "";
+        $telefono = isset($datos["telefono"]) ? $datos["telefono"] : "";
+        $codigo_dep = !empty($datos["codigo_dep"]) ? $datos["codigo_dep"] : null;
+        $codigo_ciu = !empty($datos["codigo_ciu"]) ? $datos["codigo_ciu"] : null;
+
         $stmt->bindParam(":usuario_id", $usuario_id, PDO::PARAM_INT);
-        $stmt->bindParam(":direccion", $datos["direccion"], PDO::PARAM_STR);
-        $stmt->bindParam(":telefono", $datos["telefono"], PDO::PARAM_STR);
-        $stmt->bindParam(":codigo_dep", $datos["codigo_dep"], PDO::PARAM_STR);
-        $stmt->bindParam(":codigo_ciu", $datos["codigo_ciu"], PDO::PARAM_STR);
+        $stmt->bindParam(":direccion", $direccion, PDO::PARAM_STR);
+        $stmt->bindParam(":telefono", $telefono, PDO::PARAM_STR);
+        $stmt->bindParam(":codigo_dep", $codigo_dep, PDO::PARAM_STR);
+        $stmt->bindParam(":codigo_ciu", $codigo_ciu, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
             return "ok";
         } else {
+            // Uncomment to debug if needed
+            // error_log(print_r($stmt->errorInfo(), true));
             return "error";
         }
     }
