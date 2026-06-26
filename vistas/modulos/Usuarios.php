@@ -154,6 +154,32 @@ AGREGAR USUARIO   -->
                           <input type="email" class="form-control" name="nuevoCorreo" placeholder="Correo" required>
                       </div>
 
+                      <div class="input-group mb-1">
+                          <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                          </div>
+                          <input type="password" class="form-control js-password-segura" name="nuevoPassword" placeholder="Contraseña" required autocomplete="new-password">
+                          <div class="input-group-append">
+                              <button class="btn btn-outline-secondary js-toggle-password" type="button" data-target="nuevoPassword" aria-label="Mostrar u ocultar contraseña">
+                                  <i class="fas fa-eye"></i>
+                              </button>
+                          </div>
+                      </div>
+                      <div class="password-feedback mb-2 small" aria-live="polite"></div>
+
+                      <div class="input-group mb-1">
+                          <div class="input-group-prepend">
+                              <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                          </div>
+                          <input type="password" class="form-control js-password-confirmacion" name="confirmarPassword" placeholder="Confirmar contraseña" required autocomplete="new-password">
+                          <div class="input-group-append">
+                              <button class="btn btn-outline-secondary js-toggle-password" type="button" data-target="confirmarPassword" aria-label="Mostrar u ocultar confirmación de contraseña">
+                                  <i class="fas fa-eye"></i>
+                              </button>
+                          </div>
+                      </div>
+                      <div class="password-confirm-feedback mb-3 small" aria-live="polite"></div>
+
                       <div class="input-group mb-3">
                           <div class="input-group-prepend">
                               <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
