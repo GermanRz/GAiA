@@ -1,6 +1,18 @@
 /*=============================================
 VISTA INSCRIPCIONES
 =============================================*/
+/* Botones amarillos del módulo de inscripciones */
+#tab-convocatorias .btn-warning,
+#tab-postulaciones .btn-outline-warning,
+#tab-postulaciones .btn-warning,
+.btn-iniciar-inscripcion.btn-warning,
+.btn-editar-postulacion-tabla.btn-outline-warning,
+.btn-cargar-banco.btn-outline-warning {
+    font-family: 'Source Sans Pro', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px;
+}
+
       #pd-pagination {
         display: inline-flex;
         flex-wrap: wrap;
