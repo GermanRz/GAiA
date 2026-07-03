@@ -314,6 +314,14 @@ class ModeloFinanciera
                 throw new Exception("No se encontró la asignación del aprendiz saliente.");
             }
 
+            // 1.5 Validar si el aprendiz entrante ya tiene una asignación registrada
+            $stmtCheckEntrante = $conexion->prepare("SELECT id FROM asignaciones WHERE inscripcion_id = :idEntrante");
+            $stmtCheckEntrante->bindParam(":idEntrante", $idEntrante, PDO::PARAM_INT);
+            $stmtCheckEntrante->execute();
+            if ($stmtCheckEntrante->fetch()) {
+                throw new Exception("El aprendiz entrante ya cuenta con una asignación registrada en el sistema.");
+            }
+
             // 2. Calcular meses consumidos y restantes
             $fechaInicio = new DateTime($asignacionSaliente["fecha_inicio_real"]);
             $fechaHoy = new DateTime(); // fecha actual
@@ -371,11 +379,13 @@ class ModeloFinanciera
             $stmtHist->execute();
 
             $conexion->commit();
-            return "ok";
+            return array("status" => "ok");
 
         } catch (Exception $e) {
-            $conexion->rollBack();
-            return "error";
+            if ($conexion->inTransaction()) {
+                $conexion->rollBack();
+            }
+            return array("status" => "error", "message" => $e->getMessage());
         }
     }
 

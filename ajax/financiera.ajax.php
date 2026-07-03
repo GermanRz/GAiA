@@ -75,7 +75,7 @@ class AjaxFinanciera {
             $this->observacion,
             $idGestor
         );
-        echo json_encode(["status" => $respuesta]);
+        echo json_encode($respuesta);
     }
 
 }
