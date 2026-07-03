@@ -781,10 +781,11 @@ $(document).ready(function () {
                                 window.location = "financiera";
                             });
                         } else {
+                            let mensajeError = respuesta.message || "No se pudo procesar el relevo en el sistema.";
                             Swal.fire({
                                 icon: "error",
                                 title: "Error",
-                                text: "No se pudo procesar el relevo en el sistema.",
+                                text: mensajeError,
                                 background: "#343a40",
                                 confirmButtonColor: "#dc3545"
                             });
