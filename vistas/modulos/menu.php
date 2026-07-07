@@ -131,41 +131,31 @@
  
               </ul>
             </li>
-            
- <li class="nav-item menu-open">
-              <a href="#" class="nav-link">
-                <i class="nav-icon fas fa-handshake"></i>
-                <p>
-                  Financiera
-                  <i class="right fas fa-angle-left"></i>
-                </p>
-              </a>
-              
-              <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="financiera" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Beneficiarios</p>
-                  </a>
-                </li>
-                
-                <li class="nav-item">
-                  <a href="historialRelevos" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Historial de relevos</p>
-                  </a>
-                </li>
-                
-              </ul>
-            </li>
-            
             <?php endif; ?>
+
+           <li class="nav-item">
+             <a href="index.php?ruta=financiera" class="nav-link">
+               <i class="fas fa-money-bill-wave"></i>
+               <p>
+                 Financiera
+               </p>
+             </a>
+           </li>
 
            <li class="nav-item">
              <a href="reportes" class="nav-link">
                <i class="fas fa-chart-bar"></i>
                <p>
                  Reportes
+               </p>
+             </a>
+           </li>
+
+           <li class="nav-item">
+             <a href="index.php?ruta=notificaciones" class="nav-link">
+               <i class="fas fa-bell"></i>
+               <p>
+                 Notificaciones
                </p>
              </a>
            </li>
