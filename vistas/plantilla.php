@@ -152,7 +152,7 @@
   <script src="vistas/js/convocatorias.js"></script>
   <script src="vistas/js/inscripciones.js"></script>
   <script src="vistas/js/inscripciones2.js"></script>
-  <script src="vistas/js/verificacion.js"></script>
+  <script src="vistas/js/verificacion.js?v=2"></script>
   <script src="vistas/js/financiera.js"></script>
   <!-- <script src="vistas/js/styles.css"></script> -->
 

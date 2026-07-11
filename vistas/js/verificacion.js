@@ -72,22 +72,9 @@ $(document).ready(function() {
                         return;
                     }
 
-                    requisitos.forEach(req => {
-                        // Crear abreviación para coincidir con la vista del mockup
-                        let abrev = req.nombre_item;
-                        const lowerName = req.nombre_item.toLowerCase();
-                        
-                        if (lowerName === 'cedula' || lowerName === 'cédula') {
-                            abrev = 'C';
-                        } else if (lowerName === 'desplazados' || lowerName === 'desplazado') {
-                            abrev = 'D';
-                        } else if (lowerName === 'negritudes' || lowerName === 'negritud') {
-                            abrev = 'C. E';
-                        } else if (lowerName === 'juventud vulnerable') {
-                            abrev = 'A. M';
-                        } else {
-                            abrev = req.nombre_item.split(" ").map(w => w[0].toUpperCase()).join(".");
-                        }
+                    requisitos.forEach((req, index) => {
+                        // Usar letras del alfabeto para los encabezados (A, B, C...)
+                        let abrev = String.fromCharCode(65 + index);
 
                         $headerRow.append(`<th class="text-center" title="${req.nombre_item}" style="cursor:help;">${abrev} <i class="fas fa-sort text-muted" style="font-size:0.7rem; margin-left:3px;"></i></th>`);
                     });

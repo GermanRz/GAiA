@@ -465,27 +465,8 @@ $(document).ready(function() {
 
     // --- ACCIÓN: ENVIAR POSTULACIÓN COMPLETA (FINALIZAR) ---
     $("#btn-enviar-postulacion-sim").on("click", function() {
-        let obligatoriosFaltantes = 0;
-
-        $("#contenedor-requisitos-carga .card-requisito").each(function() {
-            const estado = $(this).attr("data-estado");
-            const esObligatorio = $(this).find(".badge-obligatoriedad").hasClass("badge-danger");
-
-            if (esObligatorio && estado !== "cargado") {
-                obligatoriosFaltantes++;
-            }
-        });
-
-        if (obligatoriosFaltantes > 0) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Inscripción Incompleta',
-                text: `Faltan cargar ${obligatoriosFaltantes} documento(s) obligatorios requeridos por esta convocatoria.`,
-                background: '#343a40',
-                confirmButtonColor: '#dc3545'
-            });
-            return;
-        }
+        // Se ha removido la validación de documentos obligatorios,
+        // ya que la subida de los mismos es opcional y solo suma puntos.
 
         Swal.fire({
             title: '¿Confirmar envío de documentos?',

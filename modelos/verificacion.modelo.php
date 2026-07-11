@@ -13,6 +13,7 @@ class ModeloVerificacion {
                                                FROM inscripciones i 
                                                INNER JOIN usuarios u ON i.usuario_id = u.id 
                                                WHERE i.convocatoria_id = :convocatoria_id
+                                               AND i.estado != 'PENDIENTE'
                                                ORDER BY u.apellidos ASC, u.nombres ASC");
         $stmt->bindParam(":convocatoria_id", $convocatoriaId, PDO::PARAM_INT);
         $stmt->execute();

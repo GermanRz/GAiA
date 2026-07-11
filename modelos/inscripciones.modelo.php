@@ -72,12 +72,12 @@ class ModeloInscripciones {
 
         if ($existe) {
             // Si ya existe, actualiza la URL de la copia, y restablece el estado a PENDIENTE y las observaciones a NULL
-            $stmt = Conexion::conectar()->prepare("UPDATE $tabla SET url_copia = :url_copia, estado = 'EN_REVISION', observacion_gestora = NULL WHERE id = :id");
+            $stmt = Conexion::conectar()->prepare("UPDATE $tabla SET url_copia = :url_copia, estado = 'PENDIENTE', observacion_gestora = NULL WHERE id = :id");
             $stmt->bindParam(":url_copia", $datos["url_copia"], PDO::PARAM_STR);
             $stmt->bindParam(":id", $existe["id"], PDO::PARAM_INT);
         } else {
             // Si no existe, inserta un nuevo registro de documento asociado
-            $stmt = Conexion::conectar()->prepare("INSERT INTO $tabla (inscripcion_id, nombre_doc, url_copia, estado, observacion_gestora) VALUES (:inscripcion_id, :nombre_doc, :url_copia, 'EN_REVISION', NULL)");
+            $stmt = Conexion::conectar()->prepare("INSERT INTO $tabla (inscripcion_id, nombre_doc, url_copia, estado, observacion_gestora) VALUES (:inscripcion_id, :nombre_doc, :url_copia, 'PENDIENTE', NULL)");
             $stmt->bindParam(":inscripcion_id", $datos["inscripcion_id"], PDO::PARAM_INT);
             $stmt->bindParam(":nombre_doc", $datos["nombre_doc"], PDO::PARAM_STR);
             $stmt->bindParam(":url_copia", $datos["url_copia"], PDO::PARAM_STR);
@@ -138,14 +138,19 @@ class ModeloInscripciones {
     }
 
     // ==============================================
-    // ACTUALIZAR ESTADO DE LA INSCRIPCION
+    // ACTUALIZAR ESTADO DE INSCRIPCIÓN (GENERAL)
     // ==============================================
     static public function mdlActualizarEstado($tabla, $datos) {
-        $stmt = Conexion::conectar()->prepare("UPDATE $tabla SET estado = :estado WHERE id = :id");
+        $stmt = Conexion::conectar()->prepare("UPDATE $tabla SET estado = :estado WHERE id = :id_inscripcion");
         $stmt->bindParam(":estado", $datos["estado"], PDO::PARAM_STR);
-        $stmt->bindParam(":id", $datos["id_inscripcion"], PDO::PARAM_INT);
-
+        $stmt->bindParam(":id_inscripcion", $datos["id_inscripcion"], PDO::PARAM_INT);
+        
         if ($stmt->execute()) {
+            if ($datos["estado"] == "EN_REVISION") {
+                $stmtDocs = Conexion::conectar()->prepare("UPDATE inscripcion_documentos SET estado = 'EN_REVISION' WHERE inscripcion_id = :id AND estado = 'PENDIENTE'");
+                $stmtDocs->bindParam(":id", $datos["id_inscripcion"], PDO::PARAM_INT);
+                $stmtDocs->execute();
+            }
             return "ok";
         } else {
             return "error";

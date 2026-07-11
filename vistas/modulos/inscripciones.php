@@ -292,8 +292,12 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                             } else {
                                                 switch ($post["estado"]) {
                                                     case 'PENDIENTE':
-                                                        $estadoVisualBadge = '<span class="badge badge-info font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-spinner fa-spin mr-1"></i> En Verificación</span>';
-                                                        $obsTexto = "Documentos cargados. El gestor asignado está revisando tu baremo.";
+                                                        $estadoVisualBadge = '<span class="badge badge-secondary font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-clock mr-1"></i> Pendiente de Envío</span>';
+                                                        $obsTexto = "Aún no has enviado tu postulación. Sube tus documentos y haz clic en Enviar Postulación.";
+                                                        break;
+                                                    case 'EN_REVISION':
+                                                        $estadoVisualBadge = '<span class="badge badge-info font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-spinner fa-spin mr-1"></i> En Revisión</span>';
+                                                        $obsTexto = "Documentos enviados. El gestor asignado está revisando tu postulación.";
                                                         break;
                                                     case 'REVISADO':
                                                         $estadoVisualBadge = '<span class="badge badge-primary font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-user-check mr-1"></i> Revisado</span>';

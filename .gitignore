@@ -3,3 +3,9 @@ AdminLTE/
 modelos/conexion.php
 documentos/*
 !documentos/anonimo/
+
+# Archivos de prueba y desarrollo
+fix*.php
+test*.php
+reset*.php
+update*.php
