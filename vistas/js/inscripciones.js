@@ -81,6 +81,34 @@ $(document).ready(function() {
                 if (respuesta.status == "success") {
                     const baremo = respuesta.baremo;
                     const documentosCargados = respuesta.documentos;
+                    const inscripcion = respuesta.inscripcion;
+
+                    // Evaluar el estado de la inscripción para el botón de envío
+                    const $btnEnviar = $("#btn-enviar-postulacion-sim");
+                    const $textoBtnEnviar = $("#texto-btn-enviar");
+                    let tieneCorrecciones = false;
+
+                    if (documentosCargados && documentosCargados.length > 0) {
+                        tieneCorrecciones = documentosCargados.some(doc => doc.estado === 'PARA_CORREGIR');
+                    }
+
+                    if (!inscripcion || inscripcion.estado === 'PENDIENTE') {
+                        // Primera vez o sin enviar aún a revisión
+                        $btnEnviar.removeClass("btn-warning btn-secondary").addClass("btn-success").prop("disabled", false);
+                        $textoBtnEnviar.text("Enviar Postulación");
+                    } else if (inscripcion.estado === 'DEVUELTA' && tieneCorrecciones) {
+                        // Devuelta con correcciones pendientes
+                        $btnEnviar.removeClass("btn-success btn-secondary").addClass("btn-warning").prop("disabled", false);
+                        $textoBtnEnviar.text("Enviar correcciones");
+                    } else if (inscripcion.estado === 'EN_REVISION') {
+                        // Ya se envió a revisión
+                        $btnEnviar.removeClass("btn-success btn-warning").addClass("btn-secondary").prop("disabled", true);
+                        $textoBtnEnviar.text("En Revisión");
+                    } else {
+                        // Otros estados (ej. REVISADO, BENEFICIADO)
+                        $btnEnviar.removeClass("btn-success btn-warning").addClass("btn-secondary").prop("disabled", true);
+                        $textoBtnEnviar.text("Enviado");
+                    }
 
                     if (baremo.length === 0) {
                         $contenedor.html(`
@@ -460,7 +488,7 @@ $(document).ready(function() {
         }
 
         Swal.fire({
-            title: '¿Confirmar envío de postulación?',
+            title: '¿Confirmar envío de documentos?',
             text: "Tu solicitud se enviará a revisión. Se bloqueará la edición y borrado de documentos mientras dure la evaluación.",
             icon: 'question',
             showCancelButton: true,
@@ -471,16 +499,47 @@ $(document).ready(function() {
             background: '#343a40'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Como los archivos ya se subieron en tiempo real y el registro en la BD de inscripciones ya se creó, 
-                // el envío simplemente confirma el estado. Redirigimos a la tabla actualizando estados.
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Postulación Enviada!',
-                    text: 'Tu solicitud ha sido ingresada al flujo de evaluación del centro de formación.',
-                    background: '#343a40',
-                    confirmButtonColor: '#28a745'
-                }).then(() => {
-                    window.location = "inscripciones";
+                
+                const datos = new FormData();
+                datos.append("action", "confirmarPostulacion");
+                datos.append("idConvocatoria", activeConvocatoriaId);
+
+                $.ajax({
+                    url: "ajax/inscripciones.ajax.php",
+                    method: "POST",
+                    data: datos,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    dataType: "json",
+                    success: function(respuesta) {
+                        if (respuesta.status === "success") {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Documentos Enviados!',
+                                text: respuesta.message,
+                                background: '#343a40',
+                                confirmButtonColor: '#28a745'
+                            }).then(() => {
+                                window.location = "inscripciones";
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: respuesta.message,
+                                background: '#343a40'
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de Red',
+                            text: 'No se pudo contactar con el servidor.',
+                            background: '#343a40'
+                        });
+                    }
                 });
             }
         });

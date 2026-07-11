@@ -263,5 +263,42 @@ class ControladorInscripciones {
             return array("status" => "error", "message" => "Error al mover el archivo al servidor.");
         }
     }
+    // ==============================================
+    // CONFIRMAR POSTULACIÓN (CAMBIAR ESTADO A EN_REVISION)
+    // ==============================================
+    static public function ctrConfirmarPostulacion($idConvocatoria) {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION["id"])) {
+            return array("status" => "error", "message" => "Sesión de usuario no válida.");
+        }
+
+        $usuarioId = $_SESSION["id"];
+
+        // Obtener la inscripción
+        $inscripcion = ModeloInscripciones::mdlMostrarInscripcionUsuario("inscripciones", $usuarioId, $idConvocatoria);
+
+        if (!$inscripcion) {
+            return array("status" => "error", "message" => "No se encontró una inscripción para esta convocatoria.");
+        }
+
+        // Solo permitir si el estado es PENDIENTE o DEVUELTA
+        if ($inscripcion["estado"] == "PENDIENTE" || $inscripcion["estado"] == "DEVUELTA") {
+            $datosBD = array(
+                "id_inscripcion" => $inscripcion["id"],
+                "estado" => "EN_REVISION"
+            );
+            $respuesta = ModeloInscripciones::mdlActualizarEstado("inscripciones", $datosBD);
+            if ($respuesta == "ok") {
+                return array("status" => "success", "message" => "La postulación ha sido enviada a revisión.");
+            } else {
+                return array("status" => "error", "message" => "Error al actualizar el estado de la postulación.");
+            }
+        } else {
+            return array("status" => "error", "message" => "El estado actual de la postulación no permite enviarla a revisión.");
+        }
+    }
 
 }

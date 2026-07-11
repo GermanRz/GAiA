@@ -156,6 +156,9 @@ class ControladorVerificacion {
             // 6. Recalcular y actualizar puntaje total de la postulación
             ModeloVerificacion::mdlActualizarPuntajeInscripcion($inscripcionId);
 
+            // 7. Evaluar el estado global de la inscripción basado en todos sus documentos
+            self::actualizarEstadoGlobalInscripcion($inscripcionId);
+
             return array(
                 "status" => "success", 
                 "message" => "Documento evaluado correctamente y puntaje actualizado."
@@ -163,6 +166,44 @@ class ControladorVerificacion {
         } else {
             return array("status" => "error", "message" => "Error al guardar el estado del documento.");
         }
+    }
+
+    // ==============================================
+    // EVALUAR ESTADO GLOBAL DE LA INSCRIPCION
+    // ==============================================
+    static private function actualizarEstadoGlobalInscripcion($inscripcionId) {
+        $docs = ModeloInscripciones::mdlListarDocumentosInscripcion("inscripcion_documentos", $inscripcionId);
+        
+        $todosEvaluados = true;
+        $tieneParaCorregir = false;
+
+        foreach ($docs as $doc) {
+            if ($doc["estado"] === "PARA_CORREGIR") {
+                $tieneParaCorregir = true;
+            }
+            if ($doc["estado"] === "PENDIENTE" || $doc["estado"] === "EN_REVISION") {
+                $todosEvaluados = false;
+            }
+        }
+
+        // Si hay al menos un documento para corregir, la inscripción pasa a DEVUELTA
+        if ($tieneParaCorregir) {
+            $nuevoEstado = "DEVUELTA";
+        } 
+        // Si todos los documentos están evaluados (APROBADO o RECHAZADO, y no hay pendientes ni en revisión ni para corregir)
+        else if ($todosEvaluados) {
+            $nuevoEstado = "REVISADO";
+        } 
+        // En caso contrario, sigue EN_REVISION (mientras se revisan otros docs)
+        else {
+            $nuevoEstado = "EN_REVISION";
+        }
+
+        $datosBD = array(
+            "id_inscripcion" => $inscripcionId,
+            "estado" => $nuevoEstado
+        );
+        ModeloInscripciones::mdlActualizarEstado("inscripciones", $datosBD);
     }
 
 }

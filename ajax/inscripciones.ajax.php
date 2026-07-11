@@ -121,4 +121,10 @@ if (isset($_POST["action"])) {
         $ajax->ajaxSubirCertificacionBancaria();
     }
 
+    // Acción: Confirmar postulación y enviarla a revisión
+    if ($_POST["action"] == "confirmarPostulacion" && isset($_POST["idConvocatoria"])) {
+        $respuesta = ControladorInscripciones::ctrConfirmarPostulacion($_POST["idConvocatoria"]);
+        echo json_encode($respuesta);
+    }
+
 }

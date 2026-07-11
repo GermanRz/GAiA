@@ -17,7 +17,7 @@ foreach ($misPostulaciones as $post) {
             $totalCorreccionesRequeridas++;
             break; // Siguiente postulación
         }
-    }   
+    }
 }
 
 // Obtener estado real de cuenta del aprendiz
@@ -61,7 +61,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                     </div>
                 </div>
             </div>
-            
+
             <!-- Mis Postulaciones -->
             <div class="col-12 col-sm-6 col-md-3">
                 <div class="info-box bg-dark shadow-sm border border-secondary">
@@ -109,19 +109,19 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                     </li>
                     <li class="nav-item">
                         <a class="nav-link font-weight-bold text-uppercase" id="tab-postulaciones-tab" data-toggle="pill" href="#tab-postulaciones" role="tab" aria-controls="tab-postulaciones" aria-selected="false" style="padding: 12px 20px;">
-                            <i class="fas fa-history mr-2 text-info"></i> Mis Postulaciones 
+                            <i class="fas fa-history mr-2 text-info"></i> Mis Postulaciones
                             <span class="badge badge-warning ml-2 px-2 py-1 font-weight-bold" id="badge-contador-postulaciones" style="border-radius: 10px;"><?php echo $totalMisPostulaciones; ?></span>
                         </a>
                     </li>
                 </ul>
             </div>
-            
+
             <div class="card-body" style="background-color: #2b3035;">
                 <div class="tab-content" id="tabInscripcionesContent">
-                    
+
                     <!-- TAB 1: CONVOCATORIAS DISPONIBLES (RENDERIZADAS DESDE BD) -->
                     <div class="tab-pane fade show active" id="tab-convocatorias" role="tabpanel" aria-labelledby="tab-convocatorias-tab">
-                        
+
                         <!-- Mensaje de bienvenida / guía rápida -->
                         <div class="alert alert-dismissible bg-dark border border-secondary text-light mb-4 shadow-sm" style="border-left: 5px solid #198754 !important;">
                             <button type="button" class="close text-white" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -133,7 +133,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
 
                         <!-- Grid de Convocatorias -->
                         <div class="row" id="contenedor-grid-convocatorias">
-                            
+
                             <?php if (count($convocatoriasActivas) === 0): ?>
                                 <div class="col-12 text-center py-5 text-muted">
                                     <i class="fas fa-folder-open fa-4x mb-3 text-secondary"></i>
@@ -141,8 +141,8 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                     <p>Por favor revise más tarde o consulte con bienestar de su sede.</p>
                                 </div>
                             <?php else: ?>
-                                <?php foreach ($convocatoriasActivas as $conv): 
-                                    
+                                <?php foreach ($convocatoriasActivas as $conv):
+
                                     // Formatear fechas
                                     $fechaInicio = date('d/M/Y', strtotime($conv["fecha_inicio"]));
                                     $fechaFin = date('d/M/Y', strtotime($conv["fecha_fin"]));
@@ -154,7 +154,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
 
                                     // Verificar si tiene postulación en base de datos
                                     $postulacion = ModeloInscripciones::mdlMostrarInscripcionUsuario("inscripciones", $_SESSION["id"], $conv["id"]);
-                                    
+
                                     // Determinar estados y estilo de botones
                                     $btnClass = "btn-success";
                                     $btnText = "Iniciar Postulación";
@@ -205,7 +205,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                                     </div>
                                                     <span class="badge px-2 py-1 shadow-sm font-weight-bold text-uppercase text-white" style="background-color: <?php echo $borderColor; ?>; font-size: 0.75rem;">Abierta</span>
                                                 </div>
-                                                
+
                                                 <p class="card-text text-muted mb-4" style="font-size: 0.9rem; line-height: 1.5; height: 55px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
                                                     <?php echo $conv["informacion_apoyo"] ? $conv["informacion_apoyo"] : "Apoyo institucional regulado por el baremo y requisitos establecidos."; ?>
                                                 </p>
@@ -226,13 +226,13 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="card-footer bg-transparent border-top border-secondary p-3">
-                                                <button class="btn <?php echo $btnClass; ?> btn-block font-weight-bold btn-iniciar-inscripcion" 
-                                                        data-id-convocatoria="<?php echo $conv["id"]; ?>"
-                                                        data-apoyo="<?php echo $conv["descripcion_apoyo"]; ?>" 
-                                                        data-fechas="<?php echo $rangoFechas; ?>"
-                                                        data-is-nuevo="<?php echo $isNuevo; ?>">
+                                                <button class="btn <?php echo $btnClass; ?> btn-block font-weight-bold btn-iniciar-inscripcion"
+                                                    data-id-convocatoria="<?php echo $conv["id"]; ?>"
+                                                    data-apoyo="<?php echo $conv["descripcion_apoyo"]; ?>"
+                                                    data-fechas="<?php echo $rangoFechas; ?>"
+                                                    data-is-nuevo="<?php echo $isNuevo; ?>">
                                                     <i class="<?php echo $btnIcon; ?> mr-2"></i> <?php echo $btnText; ?>
                                                 </button>
                                             </div>
@@ -246,7 +246,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
 
                     <!-- TAB 2: MIS POSTULACIONES (TRAÍDAS DESDE LA BASE DE DATOS) -->
                     <div class="tab-pane fade" id="tab-postulaciones" role="tabpanel" aria-labelledby="tab-postulaciones-tab">
-                        
+
                         <div class="table-responsive">
                             <table id="tblMisPostulaciones" class="table table-dark table-striped table-bordered dt-responsive nowrap" style="width:100%">
                                 <thead style="background-color: #198754; color: white;">
@@ -268,16 +268,16 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                             </td>
                                         </tr>
                                     <?php else: ?>
-                                        <?php foreach ($misPostulaciones as $key => $post): 
-                                            
+                                        <?php foreach ($misPostulaciones as $key => $post):
+
                                             $fechaPost = date('d/M/Y', strtotime($post["fecha_postulacion"]));
-                                            
+
                                             // Recopilar documentos cargados para ver si hay errores de validación en curso
                                             $docs = ModeloInscripciones::mdlListarDocumentosInscripcion("inscripcion_documentos", $post["id"]);
                                             $estadoVisualBadge = "";
                                             $obsTexto = "En espera de validación de documentos.";
                                             $tieneCorrecciones = false;
-                                            
+
                                             foreach ($docs as $d) {
                                                 if ($d["estado"] == 'PARA_CORREGIR') {
                                                     $tieneCorrecciones = true;
@@ -295,9 +295,13 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                                         $estadoVisualBadge = '<span class="badge badge-info font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-spinner fa-spin mr-1"></i> En Verificación</span>';
                                                         $obsTexto = "Documentos cargados. El gestor asignado está revisando tu baremo.";
                                                         break;
-                                                    case 'SELECCIONADO':
-                                                        $estadoVisualBadge = '<span class="badge badge-primary font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-user-check mr-1"></i> Seleccionado</span>';
-                                                        $obsTexto = "¡Felicidades! Has sido seleccionado en el baremo preliminar.";
+                                                    case 'REVISADO':
+                                                        $estadoVisualBadge = '<span class="badge badge-primary font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-user-check mr-1"></i> Revisado</span>';
+                                                        $obsTexto = "Documentos revisados satisfactoriamente.";
+                                                        break;
+                                                    case 'DEVUELTA':
+                                                        $estadoVisualBadge = '<span class="badge badge-warning font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-exclamation-circle mr-1"></i> Correcciones Pendientes de Envío</span>';
+                                                        $obsTexto = "Has subido las correcciones, recuerda hacer clic en Enviar Correcciones.";
                                                         break;
                                                     case 'BENEFICIADO':
                                                         $estadoVisualBadge = '<span class="badge badge-success font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-check-double mr-1"></i> Beneficiado</span>';
@@ -348,20 +352,20 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                                     <?php echo $obsTexto; ?>
                                                 </td>
                                                 <td class="text-center">
-                                                    <?php if ($tieneCorrecciones || $post["estado"] == 'PENDIENTE'): ?>
-                                                        <button class="btn btn-sm <?php echo $tieneCorrecciones ? 'btn-outline-warning text-warning' : 'btn-outline-info text-info'; ?> btn-editar-postulacion-tabla" 
-                                                                data-id-convocatoria="<?php echo $post["convocatoria_id"]; ?>"
-                                                                data-apoyo="<?php echo $post["descripcion_apoyo"]; ?>" 
-                                                                data-fechas="<?php echo $rangoConvocatoria; ?>"
-                                                                title="Subir / Corregir Archivos">
+                                                    <?php if ($tieneCorrecciones || in_array($post["estado"], ['PENDIENTE', 'DEVUELTA'])): ?>
+                                                        <button class="btn btn-sm <?php echo $tieneCorrecciones || $post["estado"] == 'DEVUELTA' ? 'btn-outline-warning text-warning' : 'btn-outline-info text-info'; ?> btn-editar-postulacion-tabla"
+                                                            data-id-convocatoria="<?php echo $post["convocatoria_id"]; ?>"
+                                                            data-apoyo="<?php echo $post["descripcion_apoyo"]; ?>"
+                                                            data-fechas="<?php echo $rangoConvocatoria; ?>"
+                                                            title="Subir / Corregir Archivos">
                                                             <i class="fas fa-upload mr-1"></i> <?php echo $tieneCorrecciones ? 'Corregir' : 'Ver / Cargar'; ?>
                                                         </button>
                                                     <?php elseif ($post["estado"] == 'BENEFICIADO_PENDIENTE_DOC'): ?>
-                                                        <button class="btn btn-sm btn-outline-warning text-warning btn-cargar-banco" 
-                                                                data-id-inscripcion="<?php echo $post["id"]; ?>"
-                                                                data-apoyo="<?php echo $post["descripcion_apoyo"]; ?>"
-                                                                title="Cargar Certificación Bancaria"
-                                                                data-toggle="modal" data-target="#modalCargarBanco">
+                                                        <button class="btn btn-sm btn-outline-warning text-warning btn-cargar-banco"
+                                                            data-id-inscripcion="<?php echo $post["id"]; ?>"
+                                                            data-apoyo="<?php echo $post["descripcion_apoyo"]; ?>"
+                                                            title="Cargar Certificación Bancaria"
+                                                            data-toggle="modal" data-target="#modalCargarBanco">
                                                             <i class="fas fa-upload mr-1"></i> Cargar Doc
                                                         </button>
                                                     <?php else: ?>
@@ -393,7 +397,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
             </div>
 
             <div class="card-body bg-dark p-4">
-                
+
                 <!-- Resumen de Convocatoria Seleccionada -->
                 <div class="bg-secondary rounded p-3 mb-4 border border-secondary shadow-sm" style="background-color: #2b3035 !important;">
                     <div class="row align-items-center">
@@ -424,8 +428,8 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                     <button type="button" class="btn btn-secondary mr-2 font-weight-bold" id="btn-guardar-borrador-sim">
                         <i class="fas fa-save mr-1"></i> Guardar Borrador
                     </button>
-                    <button type="button" class="btn btn-success font-weight-bold" id="btn-enviar-postulacion-sim">
-                        <i class="fas fa-rocket mr-1"></i> Enviar Postulación
+                    <button type="button" class="btn btn-success font-weight-bold" id="btn-enviar-postulacion-sim" disabled>
+                        <i class="fas fa-rocket mr-1"></i> <span id="texto-btn-enviar">Enviar Postulación</span>
                     </button>
                 </div>
             </div>
@@ -451,7 +455,7 @@ MODAL CARGA CERTIFICACIÓN BANCARIA
                 </div>
                 <div class="modal-body p-4" style="background-color: #2b3035;">
                     <input type="hidden" id="id_inscripcion_banco" name="id_inscripcion_banco">
-                    
+
                     <div class="alert alert-info border border-info p-2 mb-4" style="font-size: 0.85rem; border-radius: 8px;">
                         <i class="fas fa-info-circle mr-1"></i> Recuerde que la cuenta bancaria debe estar a su nombre y el archivo PDF no puede pesar más de 2MB.
                     </div>
@@ -512,7 +516,7 @@ TEMPLATES HTML
     <div class="card border border-secondary bg-dark mb-3 card-requisito" data-estado="pendiente" style="border-radius: 6px; transition: border 0.3s ease;">
         <div class="card-body p-3">
             <div class="row align-items-center">
-                
+
                 <!-- Info del Requisito -->
                 <div class="col-md-5 mb-3 mb-md-0">
                     <div class="d-flex align-items-start">
@@ -566,7 +570,7 @@ TEMPLATES HTML
 
                 <!-- Widget de Subida / Acciones -->
                 <div class="col-md-3 text-right">
-                    
+
                     <!-- Formulario de carga de archivo -->
                     <div class="zona-subida-archivo">
                         <div class="dropzone-mock">
@@ -575,7 +579,7 @@ TEMPLATES HTML
                             <small class="text-muted" style="font-size: 0.65rem;">PDF menor a 5MB</small>
                             <input type="file" class="file-uploader-input" accept="application/pdf">
                         </div>
-                        
+
                         <!-- Barra de progreso (Funciona con XHR real en ajax) -->
                         <div class="progress progress-xxs mt-2 d-none progress-simulada" style="height: 6px; border-radius: 3px;">
                             <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
@@ -593,9 +597,9 @@ TEMPLATES HTML
                             </button>
                         </div>
                     </div>
-                    
+
                 </div>
-                
+
             </div>
         </div>
     </div>
@@ -615,13 +619,13 @@ ESTILOS ADICIONALES LOCALES PARA LA MAQUETACIÓN PREMIUM
         transition: all 0.3s ease;
         position: relative;
     }
-    
+
     .dropzone-mock:hover {
         border-color: #28a745;
         background-color: #3d454d;
         box-shadow: 0 0 8px rgba(40, 167, 69, 0.2);
     }
-    
+
     .dropzone-mock input[type="file"] {
         position: absolute;
         top: 0;
@@ -642,7 +646,7 @@ ESTILOS ADICIONALES LOCALES PARA LA MAQUETACIÓN PREMIUM
     .card-requisito {
         transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
-    
+
     .card-requisito:hover {
         border-color: #4f5962 !important;
     }
@@ -652,7 +656,7 @@ ESTILOS ADICIONALES LOCALES PARA LA MAQUETACIÓN PREMIUM
         border-color: #6c757d #6c757d transparent !important;
         color: #fff !important;
     }
-    
+
     .card-dark.card-tabs .nav-tabs .nav-link {
         color: #adb5bd;
         border-top: 3px solid transparent;
@@ -663,9 +667,9 @@ ESTILOS ADICIONALES LOCALES PARA LA MAQUETACIÓN PREMIUM
         border-top-color: #6c757d;
         background-color: #343a40;
     }
-    
-    #tblMisPostulaciones_wrapper .dataTables_length, 
-    #tblMisPostulaciones_wrapper .dataTables_filter, 
+
+    #tblMisPostulaciones_wrapper .dataTables_length,
+    #tblMisPostulaciones_wrapper .dataTables_filter,
     #tblMisPostulaciones_wrapper .dataTables_info,
     #tblMisPostulaciones_wrapper .dataTables_paginate {
         color: #adb5bd !important;
