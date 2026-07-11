@@ -17,7 +17,7 @@ foreach ($misPostulaciones as $post) {
             $totalCorreccionesRequeridas++;
             break; // Siguiente postulación
         }
-    }
+    }   
 }
 
 // Obtener estado real de cuenta del aprendiz
@@ -54,7 +54,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
             <!-- Convocatorias Abiertas -->
             <div class="col-12 col-sm-6 col-md-3">
                 <div class="info-box bg-dark shadow-sm border border-secondary">
-                    <span class="info-box-icon bg-success elevation-1"><i class="fas fa-bullhorn"></i></span>
+                    <span class="info-box-icon bg-success "><i class="fas fa-bullhorn"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text text-muted font-weight-bold text-uppercase" style="font-size: 0.75rem;">Convocatorias Abiertas</span>
                         <span class="info-box-number h4 font-weight-bold mb-0 text-white" id="kpi-abiertas"><?php echo $totalConvocatoriasAbiertas; ?></span>
@@ -65,7 +65,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
             <!-- Mis Postulaciones -->
             <div class="col-12 col-sm-6 col-md-3">
                 <div class="info-box bg-dark shadow-sm border border-secondary">
-                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-file-signature"></i></span>
+                    <span class="info-box-icon bg-info "><i class="fas fa-file-signature"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text text-muted font-weight-bold text-uppercase" style="font-size: 0.75rem;">Mis Postulaciones</span>
                         <span class="info-box-number h4 font-weight-bold mb-0 text-white" id="kpi-postulaciones"><?php echo $totalMisPostulaciones; ?></span>
@@ -76,7 +76,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
             <!-- Correcciones Requeridas -->
             <div class="col-12 col-sm-6 col-md-3">
                 <div class="info-box bg-dark shadow-sm border border-secondary">
-                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-exclamation-triangle text-dark"></i></span>
+                    <span class="info-box-icon bg-warning "><i class="fas fa-exclamation-triangle text-dark"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text text-muted font-weight-bold text-uppercase" style="font-size: 0.75rem;">Acciones Requeridas</span>
                         <span class="info-box-number h4 font-weight-bold mb-0 <?php echo $totalCorreccionesRequeridas > 0 ? 'text-warning' : 'text-white'; ?>" id="kpi-correcciones"><?php echo $totalCorreccionesRequeridas; ?></span>
@@ -87,7 +87,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
             <!-- Estado de Aprendiz -->
             <div class="col-12 col-sm-6 col-md-3">
                 <div class="info-box bg-dark shadow-sm border border-secondary">
-                    <span class="info-box-icon bg-primary elevation-1"><i class="fas fa-user-graduate"></i></span>
+                    <span class="info-box-icon bg-primary "><i class="fas fa-user-graduate"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text text-muted font-weight-bold text-uppercase" style="font-size: 0.75rem;">Estado de Aprendiz</span>
                         <span class="info-box-number h4 font-weight-bold mb-0 <?php echo $estadoUsuarioStr == 'ACTIVO' ? 'text-success' : 'text-danger'; ?>" id="kpi-estado"><?php echo $estadoUsuarioStr; ?></span>
@@ -110,7 +110,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                     <li class="nav-item">
                         <a class="nav-link font-weight-bold text-uppercase" id="tab-postulaciones-tab" data-toggle="pill" href="#tab-postulaciones" role="tab" aria-controls="tab-postulaciones" aria-selected="false" style="padding: 12px 20px;">
                             <i class="fas fa-history mr-2 text-info"></i> Mis Postulaciones 
-                            <span class="badge badge-warning text-dark ml-2 px-2 py-1 font-weight-bold" id="badge-contador-postulaciones" style="border-radius: 10px;"><?php echo $totalMisPostulaciones; ?></span>
+                            <span class="badge badge-warning ml-2 px-2 py-1 font-weight-bold" id="badge-contador-postulaciones" style="border-radius: 10px;"><?php echo $totalMisPostulaciones; ?></span>
                         </a>
                     </li>
                 </ul>
@@ -174,7 +174,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                         }
 
                                         if ($tieneCorreccion) {
-                                            $btnClass = "btn-warning text-dark";
+                                            $btnClass = "btn-warning";
                                             $btnText = "Corregir Postulación";
                                             $btnIcon = "fas fa-exclamation-triangle";
                                         } else {
@@ -221,7 +221,8 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                                     </div>
                                                     <div class="d-flex justify-content-between">
                                                         <span class="text-muted"><i class="fas fa-clipboard-check mr-2"></i>Requisitos Baremo:</span>
-                                                        <span class="badge badge-warning text-dark font-weight-bold px-2"><?php echo $totalRequisitos; ?> Criterios</span>
+                                                        <button class="btn btn-xs btn-warning"><?php echo $totalRequisitos; ?> Criterios</button>
+                                                        <!-- <span class="badge rounded-pill text-bg-warning"><?php echo $totalRequisitos; ?> Criterios</span> -->
                                                     </div>
                                                 </div>
                                             </div>
@@ -287,7 +288,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
 
                                             // Definir Badge visual
                                             if ($tieneCorrecciones) {
-                                                $estadoVisualBadge = '<span class="badge badge-warning text-dark font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-exclamation-triangle mr-1"></i> Corrección Requerida</span>';
+                                                $estadoVisualBadge = '<span class="badge badge-warning font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-exclamation-triangle mr-1"></i> Corrección Requerida</span>';
                                             } else {
                                                 switch ($post["estado"]) {
                                                     case 'PENDIENTE':
@@ -303,7 +304,7 @@ $estadoUsuarioStr = ($datosUsuarioLogueado && isset($datosUsuarioLogueado["estad
                                                         $obsTexto = "¡Asignado! El beneficio ha sido aprobado de manera oficial.";
                                                         break;
                                                     case 'BENEFICIADO_PENDIENTE_DOC':
-                                                        $estadoVisualBadge = '<span class="badge badge-warning text-dark font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-file-invoice-dollar mr-1"></i> Falta Doc Bancario</span>';
+                                                        $estadoVisualBadge = '<span class="badge badge-warning font-weight-bold px-2 py-1" style="border-radius:4px;"><i class="fas fa-file-invoice-dollar mr-1"></i> Falta Doc Bancario</span>';
                                                         // Si hay observación de rechazo, mostrarla
                                                         if (!empty($post["observacion_rechazo_financiera"])) {
                                                             $obsTexto = "<strong>Rechazado por Financiera:</strong> " . $post["observacion_rechazo_financiera"];
@@ -542,7 +543,7 @@ TEMPLATES HTML
 
                     <!-- Estado 2: Archivo Cargado -->
                     <div class="estado-cargado d-none">
-                        <div class="alert alert-success border border-success p-2 mb-0 d-inline-flex align-items-center shadow-sm text-left" style="border-radius: 8px; font-size: 0.85rem; max-width: 100%;">
+                        <div class="alert alert-success border border-success p-2 mb-0 d-inline-flex align-items-center shadow-sm text-left " style="border-radius: 8px; font-size: 0.85rem; max-width: 100%;">
                             <i class="fas fa-check-circle fa-lg mr-2 text-success"></i>
                             <div class="text-truncate" style="max-width: 250px;">
                                 <strong class="text-white d-block text-truncate nombre-archivo-cargado">mi_documento.pdf</strong>

@@ -316,19 +316,30 @@ $(document).ready(function() {
         Swal.fire({
             target: '#modal-evaluarDocumento',
             title: titulo,
-            text: texto,
+            html: '<span style="color: #ffffff !important;">' + texto + '</span>',
+            text: texto,   
             icon: 'warning',
             input: 'textarea',
+            background: '#343a40',            
             inputPlaceholder: 'Escribe aquí la razón del rechazo o instrucciones claras para el aprendiz...',
+            
+            // Estilos para el campo de texto
             inputAttributes: {
-                'aria-label': 'Escribe la razón del rechazo'
+                'aria-label': 'Escribe la razón del rechazo',
+                'style': 'color: #ffffff !important; background-color: #2b3035 !important; border: 1px solid #495057 !important; padding: 10px;'
             },
+            
+            // Integración con AdminLTE/Bootstrap
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: estado === 'RECHAZADO' ? 'btn btn-danger mr-2' : 'btn btn-warning mr-2',
+                cancelButton: 'btn btn-secondary'
+            },
+            
             showCancelButton: true,
-            confirmButtonColor: estado === 'RECHAZADO' ? '#dc3545' : '#ffc107',
-            cancelButtonColor: '#6c757d',
             confirmButtonText: estado === 'RECHAZADO' ? 'Sí, Rechazar Permanente' : 'Sí, Devolver a Corrección',
             cancelButtonText: 'Cancelar',
-            background: '#343a40',
+            
             preConfirm: (value) => {
                 if (!value || value.trim() === "") {
                     Swal.showValidationMessage('¡Debes especificar el motivo obligatoriamente para informar al aprendiz!');
@@ -379,6 +390,7 @@ $(document).ready(function() {
                 } else {
                     Swal.fire({
                         target: '#modal-evaluarDocumento',
+                        theme: 'dark',
                         icon: 'error',
                         title: 'Error de Evaluación',
                         text: respuesta.message,
