@@ -521,10 +521,10 @@ TEMPLATES HTML
                         <div>
                             <h6 class="font-weight-bold text-white mb-1 doc-nombre">Nombre del Documento</h6>
                             <p class="text-muted mb-0 doc-desc" style="font-size: 0.8rem; line-height: 1.3;">
-                                Requisito documental obligatorio según el baremo de la convocatoria seleccionada.
+                                Requisito documental crítico según el baremo de la convocatoria seleccionada.
                             </p>
                             <div class="mt-2">
-                                <span class="badge badge-danger font-weight-bold mr-1 badge-obligatoriedad" style="font-size: 0.7rem; padding: 4px 6px;">OBLIGATORIO</span>
+                                <span class="badge badge-danger font-weight-bold mr-1 badge-obligatoriedad" style="font-size: 0.7rem; padding: 4px 6px;">CRÍTICO</span>
                                 <span class="badge badge-dark text-muted border border-secondary font-weight-bold badge-puntaje" style="font-size: 0.7rem; padding: 3px 5px;">Puntaje</span>
                             </div>
                         </div>

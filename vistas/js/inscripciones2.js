@@ -188,7 +188,7 @@ $(document).ready(function() {
 
         // Configurar obligatoriedad
         if (esCritico == 1) {
-            $("#modal-badge-obligatorio").removeClass("badge-secondary").addClass("badge-danger").text("OBLIGATORIO");
+            $("#modal-badge-obligatorio").removeClass("badge-secondary").addClass("badge-danger").text("CRÍTICO");
         } else {
             $("#modal-badge-obligatorio").removeClass("badge-danger").addClass("badge-secondary").text("OPCIONAL");
         }

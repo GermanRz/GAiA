@@ -452,7 +452,7 @@ $(document).ready(function() {
             Swal.fire({
                 icon: 'error',
                 title: 'Inscripción Incompleta',
-                text: `Faltan cargar ${obligatoriosFaltantes} documento(s) obligatorios requeridos por esta convocatoria.`,
+                text: `Faltan cargar ${obligatoriosFaltantes} documento(s) críticos requeridos por esta convocatoria.`,
                 background: '#343a40',
                 confirmButtonColor: '#dc3545'
             });

@@ -133,7 +133,7 @@ VENTANA MODAL - EVALUACIÓN / REVISIÓN DEL DOCUMENTO POR GESTORA
           </div>
 
           <div class="d-flex justify-content-between mb-4">
-              <span class="badge badge-danger font-weight-bold px-3 py-2" id="eval-badge-obligatorio" style="border-radius: 4px;">OBLIGATORIO</span>
+              <span class="badge badge-danger font-weight-bold px-3 py-2" id="eval-badge-obligatorio" style="border-radius: 4px;">CRÍTICO</span>
               <span class="badge badge-dark border border-secondary text-success font-weight-bold px-3 py-2" id="eval-badge-puntaje" style="border-radius: 4px;">Asigna: 15 pts</span>
           </div>
 
