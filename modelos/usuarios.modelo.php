@@ -20,11 +20,11 @@ class ModeloUsuarios
 
 
     // ************************************
-    // LISA DE DE USUARIOS EN LA VENTANA PRINCIPAL
+    // LISTA DE USUARIOS EN LA VENTANA PRINCIPAL
     // ************************************    
     static public function mdlListarUsuarios()
     {
-        $stmt = Conexion::conectar()->prepare("SELECT u.*, f.codigo FROM usuarios u LEFT JOIN fichas f ON f.id_ficha = u.ficha_id WHERE u.rol<>'Administrador';");
+        $stmt = Conexion::conectar()->prepare("SELECT u.*, f.codigo FROM usuarios u LEFT JOIN fichas f ON f.id_ficha = u.ficha_id ORDER BY u.id DESC;");
         $stmt->execute();
         return $stmt->fetchAll();
     }

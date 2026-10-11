@@ -102,6 +102,7 @@ AGREGAR USUARIO   -->
               </div>
               <div class="modal-body">
                   <form id="formAgregarUsuario" action="" method="post" enctype="multipart/form-data">
+                      <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION["csrf_token"] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
 
                       <div class="form-group">
                           <div class="row">
@@ -274,6 +275,7 @@ EDITAR USUARIO   -->
               </div>
               <div class="modal-body">
                   <form id="formEditarUsuario" action="" method="post" enctype="multipart/form-data">
+                      <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION["csrf_token"] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                       <input type="hidden" name="idUsuarioEditar" id="idUsuarioEditar">
                       <input type="hidden" name="fotoActualEditar" id="fotoActualEditar">
 

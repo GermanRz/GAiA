@@ -33,8 +33,6 @@ $(document).on("click", ".btnActivarUsuario", function(){
     let boton = $(this);
     let estadoActual = boton.attr("data-estadoUsuario");
     let idUsuario = boton.attr("data-idUsuario");
-    // console.log("estadoUsuario", estadoActual);
-    // console.log("idUsuario", idUsuario);
 
     $.ajax({
         url: "ajax/usuarios.ajax.php",
@@ -44,19 +42,43 @@ $(document).on("click", ".btnActivarUsuario", function(){
             estado: estadoActual
         },
         success: function (respuesta) {
-            // console.log(respuesta);
+            let res = (respuesta || "").trim();
 
-            if (respuesta.trim()==="ok"){
+            if (res === "ok") {
                 if (estadoActual === "activo") {
                     boton.removeClass("btn-danger");
                     boton.addClass("btn-success");
                     boton.html("activo");
                     boton.attr("data-estadoUsuario","inactivo");
+                    if (typeof toastr !== "undefined") {
+                        toastr.success("El usuario ha sido activado correctamente.");
+                    }
                 } else {
                     boton.removeClass("btn-success");
                     boton.addClass("btn-danger");
                     boton.html("inactivo");
                     boton.attr("data-estadoUsuario","activo");
+                    if (typeof toastr !== "undefined") {
+                        toastr.warning("El usuario ha sido desactivado.");
+                    }
+                }
+            } else if (res === "self") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Acción no permitida',
+                    text: 'No puede desactivar su propia cuenta mientras está en sesión.',
+                    confirmButtonText: 'Entendido'
+                });
+            } else if (res === "forbidden") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Permiso insuficiente',
+                    text: 'No tiene permisos para cambiar el estado de este usuario.',
+                    confirmButtonText: 'Cerrar'
+                });
+            } else {
+                if (typeof toastr !== "undefined") {
+                    toastr.error("No se pudo actualizar el estado del usuario.");
                 }
             }
         }

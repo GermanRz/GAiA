@@ -32,22 +32,32 @@ class AjaxUsuarios
 
     public function ajaxCambiarEstado()
     {
+        $rolSesion = strtoupper($_SESSION["rol"] ?? "");
         if (
             !isset($_SESSION["iniciarSesion"]) ||
             $_SESSION["iniciarSesion"] !== "ok" ||
-            strtoupper($_SESSION["rol"] ?? "") !== "ADMIN"
+            !in_array($rolSesion, array("ADMIN", "GESTORA"), true)
         ) {
-            echo "error";
+            echo "forbidden";
             return;
         }
 
         $idUsuario = (int)$this->idUsuarioEstado;
         $estado = ($this->estado === "activo") ? "activo" : "inactivo";
 
-        // Impedir que el administrador se desactive a sí mismo por accidente
+        // Impedir que el usuario en sesión se desactive a sí mismo por accidente
         if ($idUsuario === (int)$_SESSION["id"] && $estado === "inactivo") {
-            echo "error";
+            echo "self";
             return;
+        }
+
+        // Impedir que una GESTORA modifique el estado de un ADMIN
+        if ($rolSesion === "GESTORA") {
+            $usuarioObjetivo = ControladorUsuarios::ctrMostrarUsuarios("id", $idUsuario);
+            if (!$usuarioObjetivo || strtoupper($usuarioObjetivo["rol"] ?? "") === "ADMIN") {
+                echo "forbidden";
+                return;
+            }
         }
 
         $respuesta = ControladorUsuarios::ctrCambiarEstadoUsuario($idUsuario, $estado);

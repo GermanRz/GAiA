@@ -186,21 +186,62 @@ class ControladorUsuarios
             isset($_POST["nuevoFechaNacimiento"])  &&
             isset($_POST["nuevoRol"])
         ) {
+            $rolSesion = strtoupper($_SESSION["rol"] ?? "");
+            if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] !== "ok" || !in_array($rolSesion, array("ADMIN", "GESTORA"), true)) {
+                echo "<script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Acceso denegado',
+                        text: 'No tiene permisos para registrar usuarios.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Cerrar'
+                    });
+                </script>";
+                return;
+            }
+
+            if (!self::validarTokenCsrf()) {
+                echo "<script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Sesión expirada',
+                        text: 'Por favor recargue la página e intente nuevamente.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar'
+                    });
+                </script>";
+                return;
+            }
+
             $tiposPermitidos = array("TI", "CC", "CE", "PEP", "PPT");
             $rolesPermitidos = array("APRENDIZ", "GESTORA", "ADMIN");
             $rolNormalizado = strtoupper(trim($_POST["nuevoRol"]));
 
+            // Impedir que una GESTORA cree un usuario con rol ADMIN
+            if ($rolSesion === "GESTORA" && $rolNormalizado === "ADMIN") {
+                echo "<script>
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Permiso insuficiente',
+                        text: 'Solo un Administrador puede asignar el rol ADMIN.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Cerrar'
+                    });
+                </script>";
+                return;
+            }
+
             if (
                 in_array($_POST["nuevoTipoDocumento"], $tiposPermitidos, true) &&
                 in_array($rolNormalizado, $rolesPermitidos, true) &&
-                preg_match('/^[0-9]+$/', $_POST["nuevoDocumento"]) &&
-                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoNombre"]) &&
-                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoApellido"]) &&
-                filter_var($_POST["nuevoCorreo"], FILTER_VALIDATE_EMAIL)
+                preg_match('/^[0-9]{5,20}$/', trim($_POST["nuevoDocumento"])) &&
+                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', trim($_POST["nuevoNombre"])) &&
+                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', trim($_POST["nuevoApellido"])) &&
+                filter_var(trim($_POST["nuevoCorreo"]), FILTER_VALIDATE_EMAIL)
             ) {
 
                 $tabla = "usuarios";
-                $passEncriptado = self::generarHashPassword($_POST["nuevoDocumento"]);
+                $passEncriptado = self::generarHashPassword(trim($_POST["nuevoDocumento"]));
 
                 $fichaId = null;
                 if ($rolNormalizado === "APRENDIZ") {
@@ -270,8 +311,26 @@ class ControladorUsuarios
                         });
                     </script>";
                 } else {
-                    echo "<br><div class='alert alert-danger'>Error al agregar el usuario</div>";
+                    echo "<script>
+                        Swal.fire({
+                            icon: 'error',
+                            title: '¡Error al agregar el usuario!',
+                            text: 'Ocurrió un problema al guardar el registro en la base de datos.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Cerrar'
+                        });
+                    </script>";
                 }
+            } else {
+                echo "<script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Datos inválidos',
+                        text: 'Verifique que el documento tenga entre 5 y 20 dígitos numéricos, que nombres y apellidos solo contengan letras y que el correo sea válido.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Cerrar'
+                    });
+                </script>";
             }
         }  // fin del isset
     }
@@ -308,10 +367,10 @@ class ControladorUsuarios
 
             if (
                 in_array($_POST["nuevoTipoDocumento"], $tiposPermitidos, true) &&
-                preg_match('/^[0-9]{5,20}$/', $_POST["nuevoDocumento"]) &&
-                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoNombre"]) &&
-                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoApellido"]) &&
-                filter_var($_POST["nuevoCorreo"], FILTER_VALIDATE_EMAIL)
+                preg_match('/^[0-9]{5,20}$/', trim($_POST["nuevoDocumento"])) &&
+                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', trim($_POST["nuevoNombre"])) &&
+                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', trim($_POST["nuevoApellido"])) &&
+                filter_var(trim($_POST["nuevoCorreo"]), FILTER_VALIDATE_EMAIL)
             ) {
 
                 if (empty($_POST["nuevaFicha"]) || !preg_match('/^[0-9]+$/', (string)$_POST["nuevaFicha"]) || !ModeloUsuarios::mdlExisteFicha((int)$_POST["nuevaFicha"])) {
@@ -330,7 +389,7 @@ class ControladorUsuarios
                 $tabla = "usuarios";
 
                 // Hash seguro con sal aleatoria; rol forzado estrictamente a APRENDIZ
-                $passEncriptado = self::generarHashPassword($_POST["nuevoDocumento"]);
+                $passEncriptado = self::generarHashPassword(trim($_POST["nuevoDocumento"]));
                 $rolForzado = "APRENDIZ";
                 $fichaId = (int)$_POST["nuevaFicha"];
 
@@ -341,7 +400,7 @@ class ControladorUsuarios
 
                 $datos = array(
                     "tipoDocumento" => $_POST["nuevoTipoDocumento"],
-                    "documentoId" => $_POST["nuevoDocumento"],
+                    "documentoId" => trim($_POST["nuevoDocumento"]),
                     "nombres" => trim($_POST["nuevoNombre"]),
                     "apellidos" => trim($_POST["nuevoApellido"]),
                     "correo" => trim($_POST["nuevoCorreo"]),
@@ -386,8 +445,26 @@ class ControladorUsuarios
                         });
                     </script>";
                 } else {
-                    echo "<br><div class='alert alert-danger'>Error al agregar el usuario</div>";
+                    echo "<script>
+                        Swal.fire({
+                            icon: 'error',
+                            title: '¡Error al registrarse!',
+                            text: 'Ocurrió un problema al guardar el registro. Intente nuevamente.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Cerrar'
+                        });
+                    </script>";
                 }
+            } else {
+                echo "<script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Datos inválidos',
+                        text: 'Verifique que el documento tenga entre 5 y 20 dígitos numéricos, que nombres y apellidos solo contengan letras y que el correo sea válido.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Cerrar'
+                    });
+                </script>";
             }
         }  // fin del isset
     }
@@ -408,6 +485,33 @@ class ControladorUsuarios
     public function ctrEditarUsuario()
     {
         if (isset($_POST["editarDocumento"]) && isset($_POST["idUsuarioEditar"])) {
+            $rolSesion = strtoupper($_SESSION["rol"] ?? "");
+            if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] !== "ok" || !in_array($rolSesion, array("ADMIN", "GESTORA"), true)) {
+                echo "<script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Acceso denegado',
+                        text: 'No tiene permisos para editar usuarios.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Cerrar'
+                    });
+                </script>";
+                return;
+            }
+
+            if (!self::validarTokenCsrf()) {
+                echo "<script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Sesión expirada',
+                        text: 'Por favor recargue la página e intente nuevamente.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar'
+                    });
+                </script>";
+                return;
+            }
+
             $tiposPermitidos = array("TI", "CC", "CE", "PEP", "PPT");
             $rolesPermitidos = array("APRENDIZ", "GESTORA", "ADMIN");
             $rolNormalizado = strtoupper(trim($_POST["editarRol"] ?? ""));
@@ -415,13 +519,28 @@ class ControladorUsuarios
             if (
                 in_array($_POST["editarTipoDocumento"] ?? "", $tiposPermitidos, true) &&
                 in_array($rolNormalizado, $rolesPermitidos, true) &&
-                preg_match('/^[0-9]+$/', $_POST["editarDocumento"]) &&
-                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["editarNombre"]) &&
-                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["editarApellido"])
+                preg_match('/^[0-9]+$/', trim($_POST["editarDocumento"])) &&
+                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', trim($_POST["editarNombre"])) &&
+                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', trim($_POST["editarApellido"])) &&
+                filter_var(trim($_POST["editarCorreo"]), FILTER_VALIDATE_EMAIL)
             ) {
                 $tabla = "usuarios";
                 $usuarioDB = ModeloUsuarios::mdlMostrarUsuarios("usuarios", "id", $_POST["idUsuarioEditar"]);
                 if (!$usuarioDB) {
+                    return;
+                }
+
+                // Impedir que una GESTORA edite a un ADMIN o escale privilegios a ADMIN
+                if ($rolSesion === "GESTORA" && (strtoupper($usuarioDB["rol"]) === "ADMIN" || $rolNormalizado === "ADMIN")) {
+                    echo "<script>
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Permiso insuficiente',
+                            text: 'Solo un Administrador puede gestionar cuentas con rol ADMIN.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Cerrar'
+                        });
+                    </script>";
                     return;
                 }
 
@@ -502,6 +621,15 @@ class ControladorUsuarios
                     );
                     ModeloUsuarios::mdlGuardarContacto($_POST["idUsuarioEditar"], $contacto);
 
+                    // Si el usuario editado es el mismo en sesión, sincronizar variables de sesión
+                    if ((int)$_POST["idUsuarioEditar"] === (int)($_SESSION["id"] ?? 0)) {
+                        $_SESSION["nombres"] = $datos["nombres"];
+                        $_SESSION["apellidos"] = $datos["apellidos"];
+                        $_SESSION["rol"] = $datos["rol"];
+                        $_SESSION["ficha_id"] = $datos["ficha_id"];
+                        $_SESSION["foto"] = $datos["foto"];
+                    }
+
                     echo "<script>
                         Swal.fire({
                             icon: 'success',
@@ -538,7 +666,7 @@ class ControladorUsuarios
                 echo "<script>
                     Swal.fire({
                         icon: 'error',
-                        title: '¡El nombre o apellidos no pueden ir vacíos o llevar caracteres especiales!',
+                        title: '¡El nombre, apellidos o correo no son válidos!',
                         showConfirmButton: true,
                         confirmButtonText: 'Cerrar'
                     });
@@ -559,9 +687,22 @@ class ControladorUsuarios
                 return;
             }
 
+            if (!self::validarTokenCsrf()) {
+                echo "<script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Sesión expirada',
+                        text: 'Por favor recargue la página e intente nuevamente.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar'
+                    });
+                </script>";
+                return;
+            }
+
             if (
-                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["editarNombrePerfil"]) &&
-                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["editarApellidoPerfil"])
+                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', trim($_POST["editarNombrePerfil"])) &&
+                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', trim($_POST["editarApellidoPerfil"]))
             ) {
                 $tabla = "usuarios";
                 $usuarioDB = ModeloUsuarios::mdlMostrarUsuarios("usuarios", "id", $_SESSION["id"]);
