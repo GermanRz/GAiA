@@ -7,9 +7,10 @@
     <div class="card-body login-card-body">
       <p class="login-box-msg">Iniciar sesión</p>
 
-      <form method="post">
+      <form method="post" autocomplete="off">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION["csrf_token"] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
         <div class="input-group mb-3">
-          <input type="text" class="form-control" placeholder="Documento" name="ingDocumento">
+          <input type="text" class="form-control" placeholder="Documento" name="ingDocumento" inputmode="numeric" pattern="[0-9]+" required autocomplete="username">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-id-card"></span>
@@ -17,7 +18,7 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="Contraseña" name="ingPassword">
+          <input type="password" class="form-control" placeholder="Contraseña" name="ingPassword" required autocomplete="current-password">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -73,7 +74,8 @@
             <div class="modal-body">
                 <form action="" method="post" enctype="multipart/form-data">
                     
-                    <input type="hidden" name="nuevoRol" value="Aprendiz">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION["csrf_token"] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                    <input type="hidden" name="registroAprendizPublico" value="1">
 
                     <div class="form-group">
                         <div class="row">

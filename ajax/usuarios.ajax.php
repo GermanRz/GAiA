@@ -1,5 +1,9 @@
 <?php
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once "../controladores/usuarios.controlador.php";
 require_once "../modelos/usuarios.modelo.php";
 
@@ -12,34 +16,73 @@ class AjaxUsuarios
 
     public function ajaxValidarDocumento()
     {
-
         $item = "documento_id";
-        $valor = $this->nuevoDocumento;
+        $valor = preg_replace('/[^0-9]/', '', (string)$this->nuevoDocumento);
+
+        if ($valor === "") {
+            echo json_encode(false);
+            return;
+        }
 
         $respuesta = ControladorUsuarios::ctrMostrarUsuarios($item, $valor);
 
-        echo json_encode($respuesta);
+        // No exponer datos del usuario ni hash de contraseña; devolver únicamente indicador de existencia
+        echo json_encode($respuesta ? array("existe" => true) : false);
     }
 
     public function ajaxCambiarEstado()
     {
+        if (
+            !isset($_SESSION["iniciarSesion"]) ||
+            $_SESSION["iniciarSesion"] !== "ok" ||
+            strtoupper($_SESSION["rol"] ?? "") !== "ADMIN"
+        ) {
+            echo "error";
+            return;
+        }
 
-        $idUsuario = $this->idUsuarioEstado;
-        $estado = $this->estado;
+        $idUsuario = (int)$this->idUsuarioEstado;
+        $estado = ($this->estado === "activo") ? "activo" : "inactivo";
+
+        // Impedir que el administrador se desactive a sí mismo por accidente
+        if ($idUsuario === (int)$_SESSION["id"] && $estado === "inactivo") {
+            echo "error";
+            return;
+        }
+
         $respuesta = ControladorUsuarios::ctrCambiarEstadoUsuario($idUsuario, $estado);
         echo $respuesta ? 'ok' : 'error';
     }
+
     public $idUsuario; // usado para editar usuario
 
     public function ajaxEditarUsuario()
     {
+        if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] !== "ok") {
+            echo json_encode(false);
+            return;
+        }
+
+        $valor = (int)$this->idUsuario;
+        $esAdmin = (strtoupper($_SESSION["rol"] ?? "") === "ADMIN");
+        $esPropioUsuario = ((int)($_SESSION["id"] ?? 0) === $valor);
+
+        if (!$esAdmin && !$esPropioUsuario) {
+            echo json_encode(false);
+            return;
+        }
+
         $item = "id";
-        $valor = $this->idUsuario;
         $respuesta = ControladorUsuarios::ctrMostrarUsuarios($item, $valor);
-        
-        $contacto = ModeloUsuarios::mdlObtenerContactoUsuario($valor);
-        if ($contacto) {
-            $respuesta["contacto"] = $contacto;
+
+        if (is_array($respuesta)) {
+            // Jamás enviar el hash de contraseña al navegador
+            unset($respuesta["password"], $respuesta[7]);
+
+            $contacto = ModeloUsuarios::mdlObtenerContactoUsuario($valor);
+            if ($contacto) {
+                $respuesta["contacto"] = $contacto;
+            }
         }
 
         echo json_encode($respuesta);
@@ -77,3 +120,4 @@ if (isset($_POST["codigo_dep"])) {
     $ciudades->codigo_dep = $_POST["codigo_dep"];
     $ciudades->ajaxObtenerCiudades();
 }
+

@@ -3,29 +3,111 @@
 class ControladorUsuarios
 {
 
+    private const MAX_INTENTOS_LOGIN = 5;
+    private const TIEMPO_BLOQUEO_SEGUNDOS = 300; // 5 minutos
+
+    /**
+     * Genera un hash seguro usando Bcrypt con sal aleatoria criptográfica y costo 12.
+     */
+    private static function generarHashPassword($passwordPlano)
+    {
+        return password_hash($passwordPlano, PASSWORD_BCRYPT, ['cost' => 12]);
+    }
+
+    /**
+     * Verifica la contraseña contra hashes Bcrypt modernos o el hash legacy en tiempo constante.
+     */
+    private static function verificarPasswordUsuario($passwordPlano, $hashAlmacenado)
+    {
+        if (empty($hashAlmacenado)) {
+            return false;
+        }
+
+        if (password_verify($passwordPlano, $hashAlmacenado)) {
+            return true;
+        }
+
+        $hashLegacy = crypt($passwordPlano, '$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
+        return hash_equals($hashAlmacenado, $hashLegacy);
+    }
+
+    /**
+     * Valida el token CSRF enviado por formulario POST contra la sesión activa.
+     */
+    private static function validarTokenCsrf()
+    {
+        return isset($_POST["csrf_token"], $_SESSION["csrf_token"]) &&
+               hash_equals($_SESSION["csrf_token"], $_POST["csrf_token"]);
+    }
+
+    /**
+     * Registra un intento fallido de inicio de sesión y activa bloqueo temporal si supera el umbral.
+     */
+    private static function registrarIntentoFallido()
+    {
+        $_SESSION["login_intentos"] = ($_SESSION["login_intentos"] ?? 0) + 1;
+        if ($_SESSION["login_intentos"] >= self::MAX_INTENTOS_LOGIN) {
+            $_SESSION["login_bloqueo_hasta"] = time() + self::TIEMPO_BLOQUEO_SEGUNDOS;
+        }
+    }
+
     // ************************************
     // LOGIN DE USUARIO 
     // ************************************
     public function ctrIngresarUsuario()
     {
         if (isset($_POST["ingDocumento"])) {
+
+            // 1. Verificar bloqueo temporal por fuerza bruta (Rate Limiting)
+            if (isset($_SESSION["login_bloqueo_hasta"])) {
+                $tiempoRestante = $_SESSION["login_bloqueo_hasta"] - time();
+                if ($tiempoRestante > 0) {
+                    $minutos = ceil($tiempoRestante / 60);
+                    echo "<br><div class='alert alert-danger'>Demasiados intentos fallidos. Por seguridad, intente nuevamente en {$minutos} minuto(s).</div>";
+                    return;
+                } else {
+                    unset($_SESSION["login_bloqueo_hasta"]);
+                    $_SESSION["login_intentos"] = 0;
+                }
+            }
+
+            // 2. Validar token CSRF
+            if (!self::validarTokenCsrf()) {
+                echo "<br><div class='alert alert-danger'>Sesión expirada o solicitud inválida. Recargue la página e intente de nuevo.</div>";
+                return;
+            }
+
+            $documento = trim($_POST["ingDocumento"]);
+            $password = $_POST["ingPassword"] ?? "";
+
+            // 3. Validar formato de entrada permitiendo caracteres especiales en la contraseña
             if (
-                preg_match('/^[0-9]+$/', $_POST["ingDocumento"]) &&
-                preg_match('/^[a-zA-Z0-9]+$/', $_POST["ingPassword"])
+                preg_match('/^[0-9]{5,20}$/', $documento) &&
+                strlen($password) >= 1 &&
+                strlen($password) <= 72
             ) {
-                $documento = $_POST["ingDocumento"];
                 $respuesta = ModeloUsuarios::mdlIngresarUsuario($documento);
 
-                // $tempo=crypt("admin123",'$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
-                // var_dump($tempo);
-                // exit;
-
-                $passEncriptado = crypt($_POST["ingPassword"], '$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
-
                 if (is_array($respuesta)) {
-                    //preguntar si el usuario esta activo
                     if ($respuesta["estado"] == "activo") {
-                        if ($respuesta["password"] == $passEncriptado && $respuesta["documento_id"] == $documento) {
+                        if (
+                            $respuesta["documento_id"] === $documento &&
+                            self::verificarPasswordUsuario($password, $respuesta["password"])
+                        ) {
+                            // Reiniciar contadores de intentos fallidos
+                            $_SESSION["login_intentos"] = 0;
+                            unset($_SESSION["login_bloqueo_hasta"]);
+
+                            // Migración transparente a Bcrypt cost 12 con sal única si aún usa hash antiguo
+                            if (password_needs_rehash($respuesta["password"], PASSWORD_BCRYPT, ['cost' => 12])) {
+                                $nuevoHash = self::generarHashPassword($password);
+                                ModeloUsuarios::mdlActualizarPassword($respuesta["id"], $nuevoHash);
+                            }
+
+                            // Prevenir Session Fixation regenerando el ID de sesión al autenticar
+                            session_regenerate_id(true);
+                            $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+
                             $_SESSION["iniciarSesion"] = "ok";
                             $_SESSION["id"] = $respuesta["id"];
                             $_SESSION["documento"] = $respuesta["documento_id"];
@@ -35,16 +117,18 @@ class ControladorUsuarios
                             $_SESSION["ficha_id"] = $respuesta["ficha_id"];
                             $_SESSION["foto"] = $respuesta["foto"];
                             echo "<script>window.location = 'identificacion';</script>";
+                            return;
                         } else {
-                            // var_dump($respuesta);
-                            echo  "<br><div class='alert alert-danger'>Usuario o contraseña incorrecto</div>";
+                            self::registrarIntentoFallido();
+                            echo "<br><div class='alert alert-danger'>Usuario o contraseña incorrecto</div>";
                             return;
                         }
                     } else {
-                        echo  "<br><div class='alert alert-warning'>El usuario esta inactivo</div>";
+                        echo "<br><div class='alert alert-warning'>El usuario esta inactivo</div>";
                         return;
                     }
                 } else {
+                    self::registrarIntentoFallido();
                     // El usuario no existe en la base de datos
                     echo "<script>
                         Swal.fire({
@@ -61,6 +145,10 @@ class ControladorUsuarios
                     </script>";
                     return;
                 }
+            } else {
+                self::registrarIntentoFallido();
+                echo "<br><div class='alert alert-danger'>Formato de documento o contraseña inválido</div>";
+                return;
             }
         }
     } //fin del metodo de ingresar usuario
@@ -89,8 +177,6 @@ class ControladorUsuarios
     // ************************************
     public function ctrAgregarUsuario()
     {
-
-
         if (
             isset($_POST["nuevoTipoDocumento"])  &&
             isset($_POST["nuevoDocumento"])  &&
@@ -100,28 +186,25 @@ class ControladorUsuarios
             isset($_POST["nuevoFechaNacimiento"])  &&
             isset($_POST["nuevoRol"])
         ) {
-            // echo "entrando a agregar usuario";
-            // exit;
             if (
                 preg_match('/^[0-9]+$/', $_POST["nuevoDocumento"]) &&
                 preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoNombre"]) &&
-                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoApellido"])
+                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoApellido"]) &&
+                filter_var($_POST["nuevoCorreo"], FILTER_VALIDATE_EMAIL)
             ) {
 
                 $tabla = "usuarios";
-                // $passEncriptado=$_POST["nuevoDocumento"];
-
-                $passEncriptado = crypt($_POST["nuevoDocumento"], '$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
+                $passEncriptado = self::generarHashPassword($_POST["nuevoDocumento"]);
 
                 $fichaId = null;
-                if ($_POST["nuevoRol"] == "Aprendiz" && isset($_POST["nuevaFicha"])) {
+                if (strtoupper($_POST["nuevoRol"]) == "APRENDIZ" && isset($_POST["nuevaFicha"]) && $_POST["nuevaFicha"] !== "") {
                     $fichaId = $_POST["nuevaFicha"];
                 }
 
                 // ==========================================
                 // VALIDAR IMAGEN
                 // ==========================================
-                $ruta = self::procesarSubidaFoto($_FILES["nuevaFoto"], $_POST["nuevoDocumento"]);
+                $ruta = self::procesarSubidaFoto($_FILES["nuevaFoto"] ?? null, $_POST["nuevoDocumento"]);
 
                 $datos = array(
                     "tipoDocumento" => $_POST["nuevoTipoDocumento"],
@@ -157,10 +240,7 @@ class ControladorUsuarios
                                 window.location = 'Usuarios';
                             }
                         });
-                                
-                        
                     </script>";
-                    // echo "<br><div class='alert alert-success'>El usuario ha sido registrado correctamente</div>";
                 } else if ($respuesta == "duplicate") {
                     echo "<script>
                         Swal.fire({
@@ -185,49 +265,67 @@ class ControladorUsuarios
     {
 
         if (
+            isset($_POST["registroAprendizPublico"]) &&
             isset($_POST["nuevoTipoDocumento"])  &&
             isset($_POST["nuevoDocumento"])  &&
             isset($_POST["nuevoNombre"])  &&
             isset($_POST["nuevoApellido"])  &&
             isset($_POST["nuevoCorreo"])  &&
-            isset($_POST["nuevoFechaNacimiento"])  &&
-            isset($_POST["nuevoRol"])
+            isset($_POST["nuevoFechaNacimiento"])
         ) {
+            if (!self::validarTokenCsrf()) {
+                echo "<script>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Sesión expirada',
+                        text: 'Por favor recargue la página e intente nuevamente.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Aceptar'
+                    });
+                </script>";
+                return;
+            }
+
+            $tiposPermitidos = array("TI", "CC", "CE", "PEP", "PPT");
+
             if (
-                preg_match('/^[0-9]+$/', $_POST["nuevoDocumento"]) &&
+                in_array($_POST["nuevoTipoDocumento"], $tiposPermitidos, true) &&
+                preg_match('/^[0-9]{5,20}$/', $_POST["nuevoDocumento"]) &&
                 preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoNombre"]) &&
-                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoApellido"])
+                preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoApellido"]) &&
+                filter_var($_POST["nuevoCorreo"], FILTER_VALIDATE_EMAIL)
             ) {
 
                 $tabla = "usuarios";
 
-                $passEncriptado = crypt($_POST["nuevoDocumento"], '$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
+                // Hash seguro con sal aleatoria; rol forzado estrictamente a APRENDIZ
+                $passEncriptado = self::generarHashPassword($_POST["nuevoDocumento"]);
+                $rolForzado = "APRENDIZ";
 
-                $fichaId = null;
-                if ($_POST["nuevoRol"] == "Aprendiz" && isset($_POST["nuevaFicha"])) {
-                    $fichaId = $_POST["nuevaFicha"];
-                }
+                $fichaId = (!empty($_POST["nuevaFicha"]) && preg_match('/^[0-9]+$/', $_POST["nuevaFicha"]))
+                    ? (int)$_POST["nuevaFicha"]
+                    : null;
 
                 // ==========================================
                 // VALIDAR IMAGEN
                 // ==========================================
-                $ruta = self::procesarSubidaFoto($_FILES["nuevaFoto"], $_POST["nuevoDocumento"]);
+                $ruta = self::procesarSubidaFoto($_FILES["nuevaFoto"] ?? null, $_POST["nuevoDocumento"]);
 
                 $datos = array(
                     "tipoDocumento" => $_POST["nuevoTipoDocumento"],
                     "documentoId" => $_POST["nuevoDocumento"],
-                    "nombres" => $_POST["nuevoNombre"],
-                    "apellidos" => $_POST["nuevoApellido"],
-                    "correo" => $_POST["nuevoCorreo"],
+                    "nombres" => trim($_POST["nuevoNombre"]),
+                    "apellidos" => trim($_POST["nuevoApellido"]),
+                    "correo" => trim($_POST["nuevoCorreo"]),
                     "fechaNacimiento" => $_POST["nuevoFechaNacimiento"],
-                    "rol" => $_POST["nuevoRol"],
+                    "rol" => $rolForzado,
                     "password" => $passEncriptado,
                     "ficha_id" => $fichaId,
                     "foto" => $ruta
                 );
                 $contacto = array(
-                    "direccion" => isset($_POST["nuevaDireccion"]) ? $_POST["nuevaDireccion"] : "",
-                    "telefono" => isset($_POST["nuevoTelefono"]) ? $_POST["nuevoTelefono"] : "",
+                    "direccion" => isset($_POST["nuevaDireccion"]) ? trim($_POST["nuevaDireccion"]) : "",
+                    "telefono" => isset($_POST["nuevoTelefono"]) ? trim($_POST["nuevoTelefono"]) : "",
                     "codigo_dep" => isset($_POST["nuevoDepartamento"]) ? $_POST["nuevoDepartamento"] : "",
                     "codigo_ciu" => isset($_POST["nuevaCiudad"]) ? $_POST["nuevaCiudad"] : ""
                 );
@@ -288,15 +386,19 @@ class ControladorUsuarios
                 preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["editarApellido"])
             ) {
                 $tabla = "usuarios";
+                $usuarioDB = ModeloUsuarios::mdlMostrarUsuarios("usuarios", "id", $_POST["idUsuarioEditar"]);
+                if (!$usuarioDB) {
+                    return;
+                }
 
                 if ($_POST["editarPassword"] != "") {
-                    if (preg_match('/^[a-zA-Z0-9]+$/', $_POST["editarPassword"])) {
-                        $passEncriptado = crypt($_POST["editarPassword"], '$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
+                    if (strlen($_POST["editarPassword"]) >= 4 && strlen($_POST["editarPassword"]) <= 72) {
+                        $passEncriptado = self::generarHashPassword($_POST["editarPassword"]);
                     } else {
                         echo "<script>
                             Swal.fire({
                                 icon: 'error',
-                                title: '¡La contraseña no puede ir vacía o llevar caracteres especiales!',
+                                title: '¡La contraseña debe tener entre 4 y 72 caracteres!',
                                 showConfirmButton: true,
                                 confirmButtonText: 'Cerrar'
                             }).then((result) => {
@@ -308,7 +410,7 @@ class ControladorUsuarios
                         return;
                     }
                 } else {
-                    $passEncriptado = $_POST["passwordActual"];
+                    $passEncriptado = $usuarioDB["password"];
                 }
 
                 $fichaId = null;
@@ -349,7 +451,7 @@ class ControladorUsuarios
                     $contacto = array(
                         "direccion" => isset($_POST["editarDireccion"]) ? $_POST["editarDireccion"] : "",
                         "telefono" => isset($_POST["editarTelefono"]) ? $_POST["editarTelefono"] : "",
-                        "codigo_dep" => isset($_POST["editarDepartamento"]) ? $_POST["editarDepartamento"] : "",
+                        "codigo_dep" => isset($_POST["editarDepartamento"]) ? $_POST["nuevoDepartamento"] ?? $_POST["editarDepartamento"] : "",
                         "codigo_ciu" => isset($_POST["editarCiudad"]) ? $_POST["editarCiudad"] : ""
                     );
                     ModeloUsuarios::mdlGuardarContacto($_POST["idUsuarioEditar"], $contacto);
@@ -405,20 +507,30 @@ class ControladorUsuarios
     public function ctrEditarPerfil()
     {
         if (isset($_POST["idPerfil"]) && isset($_POST["editarNombrePerfil"])) {
+
+            // Prevenir IDOR: solo el propio usuario en sesión puede editar su perfil
+            if (!isset($_SESSION["id"]) || (int)$_POST["idPerfil"] !== (int)$_SESSION["id"]) {
+                return;
+            }
+
             if (
                 preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["editarNombrePerfil"]) &&
                 preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["editarApellidoPerfil"])
             ) {
                 $tabla = "usuarios";
+                $usuarioDB = ModeloUsuarios::mdlMostrarUsuarios("usuarios", "id", $_SESSION["id"]);
+                if (!$usuarioDB) {
+                    return;
+                }
 
                 if ($_POST["editarPasswordPerfil"] != "") {
-                    if (preg_match('/^[a-zA-Z0-9]+$/', $_POST["editarPasswordPerfil"])) {
-                        $passEncriptado = crypt($_POST["editarPasswordPerfil"], '$2a$07$asdfsdvafdsgf04sdfsadfGAiADeveloper$');
+                    if (strlen($_POST["editarPasswordPerfil"]) >= 4 && strlen($_POST["editarPasswordPerfil"]) <= 72) {
+                        $passEncriptado = self::generarHashPassword($_POST["editarPasswordPerfil"]);
                     } else {
                         echo "<script>
                             Swal.fire({
                                 icon: 'error',
-                                title: '¡La contraseña no puede llevar caracteres especiales!',
+                                title: '¡La contraseña debe tener entre 4 y 72 caracteres!',
                                 showConfirmButton: true,
                                 confirmButtonText: 'Cerrar'
                             });
@@ -426,21 +538,18 @@ class ControladorUsuarios
                         return;
                     }
                 } else {
-                    // we need to get current password from DB or assume it's kept. 
-                    // To do this we can fetch current user:
-                    $usuarioDB = ModeloUsuarios::mdlMostrarUsuarios("usuarios", "id", $_POST["idPerfil"]);
                     $passEncriptado = $usuarioDB["password"];
                 }
 
-                $ruta = $_POST["fotoActual"];
+                $ruta = $usuarioDB["foto"] ?: $_POST["fotoActual"];
 
                 if (isset($_FILES["editarFotoPerfil"]["tmp_name"]) && !empty($_FILES["editarFotoPerfil"]["tmp_name"])) {
-                    $ruta = self::procesarSubidaFoto($_FILES["editarFotoPerfil"], $_POST["documentoPerfil"], $_POST["fotoActual"]);
+                    $ruta = self::procesarSubidaFoto($_FILES["editarFotoPerfil"], $_SESSION["documento"], $ruta);
                 }
 
 
                 $datos = array(
-                    "id" => $_POST["idPerfil"],
+                    "id" => $_SESSION["id"],
                     "nombres" => $_POST["editarNombrePerfil"],
                     "apellidos" => $_POST["editarApellidoPerfil"],
                     "password" => $passEncriptado,
@@ -457,7 +566,7 @@ class ControladorUsuarios
                         "codigo_dep" => isset($_POST["editarDepartamentoPerfil"]) ? $_POST["editarDepartamentoPerfil"] : "",
                         "codigo_ciu" => isset($_POST["editarCiudadPerfil"]) ? $_POST["editarCiudadPerfil"] : ""
                     );
-                    ModeloUsuarios::mdlGuardarContacto($_POST["idPerfil"], $contacto);
+                    ModeloUsuarios::mdlGuardarContacto($_SESSION["id"], $contacto);
 
                     // Actualizar variables de sesion
                     $_SESSION["nombres"] = $_POST["editarNombrePerfil"];
@@ -511,21 +620,29 @@ class ControladorUsuarios
     }
 
     /**
-     * Procesa la subida de una foto de usuario, aplicando redimensión si GD está habilitado,
-     * o guardando el archivo directamente como fallback.
+     * Procesa la subida de una foto de usuario validando su firma binaria real (getimagesize)
+     * y aplicando redimensión si GD está habilitado.
      */
     private static function procesarSubidaFoto($fileInput, $documentoId, $fotoActual = null)
     {
         $ruta = !empty($fotoActual) ? $fotoActual : "documentos/anonimo/anonimo.png";
 
         if (isset($fileInput["tmp_name"]) && !empty($fileInput["tmp_name"])) {
-            $directorio = "documentos/" . $documentoId;
+            $documentoSanitizado = preg_replace('/[^0-9]/', '', (string)$documentoId);
+            if ($documentoSanitizado === "") {
+                return $ruta;
+            }
+
+            $directorio = "documentos/" . $documentoSanitizado;
             if (!is_dir($directorio)) {
                 mkdir($directorio, 0755, true);
             }
 
-            // Validar formato
-            if ($fileInput["type"] == "image/jpeg" || $fileInput["type"] == "image/png" || $fileInput["type"] == "image/jpg") {
+            // Validar contenido real de la imagen (previene falsificación de cabecera MIME)
+            $infoImagen = @getimagesize($fileInput["tmp_name"]);
+            $esImagenValida = ($infoImagen !== false) && in_array($infoImagen[2], array(IMAGETYPE_JPEG, IMAGETYPE_PNG), true);
+
+            if ($esImagenValida) {
                 // Validar peso (4MB max)
                 if ($fileInput["size"] <= 4194304) {
 
@@ -536,7 +653,8 @@ class ControladorUsuarios
                         }
                     }
 
-                    $extension = ($fileInput["type"] == "image/png") ? ".png" : ".jpg";
+                    $esPng = ($infoImagen[2] === IMAGETYPE_PNG);
+                    $extension = $esPng ? ".png" : ".jpg";
                     $aleatorio = mt_rand(100, 999);
                     $rutaNueva = $directorio . "/" . $aleatorio . $extension;
 
@@ -547,12 +665,13 @@ class ControladorUsuarios
                         }
                     } else {
                         // Procesar con GD (redimensionar a 500x500)
-                        list($ancho, $alto) = getimagesize($fileInput["tmp_name"]);
+                        $ancho = $infoImagen[0];
+                        $alto = $infoImagen[1];
                         $nuevoAncho = 500;
                         $nuevoAlto = 500;
                         $destino = imagecreatetruecolor($nuevoAncho, $nuevoAlto);
 
-                        if ($fileInput["type"] == "image/png") {
+                        if ($esPng) {
                             $origen = imagecreatefrompng($fileInput["tmp_name"]);
                             imagealphablending($destino, false);
                             imagesavealpha($destino, true);
@@ -586,7 +705,7 @@ class ControladorUsuarios
                     Swal.fire({
                         icon: 'error',
                         title: '¡Error al subir la imagen!',
-                        text: 'La imagen debe estar en formato JPG o PNG',
+                        text: 'La imagen debe estar en formato JPG o PNG válido',
                         showConfirmButton: true,
                         confirmButtonText: 'Cerrar'
                     });

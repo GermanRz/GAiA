@@ -103,11 +103,26 @@ class ModeloUsuarios
 
     static public function mdlMostrarUsuarios($tabla, $item, $valor)
     {
+        $columnasPermitidas = array("id", "documento_id", "correo");
+        if (!in_array($item, $columnasPermitidas, true)) {
+            return false;
+        }
+
         $stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla WHERE $item = :valor");
         $stmt->bindParam(":valor", $valor, PDO::PARAM_STR);
-        error_log("valor en el modelo:" . $tabla);
         $stmt->execute();
         return $stmt->fetch();
+    }
+
+    // ************************************
+    // ACTUALIZAR PASSWORD (REHASH AUTOMÁTICO)
+    // ************************************
+    static public function mdlActualizarPassword($idUsuario, $passwordHash)
+    {
+        $stmt = Conexion::conectar()->prepare("UPDATE usuarios SET password = :password WHERE id = :id");
+        $stmt->bindParam(":password", $passwordHash, PDO::PARAM_STR);
+        $stmt->bindParam(":id", $idUsuario, PDO::PARAM_INT);
+        return $stmt->execute();
     }
 
     // ************************************
