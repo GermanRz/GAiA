@@ -1,5 +1,9 @@
 <?php
 
+  if (!ob_get_level()) {
+    ob_start();
+  }
+
   if (session_status() === PHP_SESSION_NONE) {
     session_start([
       'cookie_httponly' => true,
@@ -40,7 +44,7 @@
     <link rel="stylesheet" href="vistas/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 
     <!-- Estilos Personalizados de la App -->
-    <link rel="stylesheet" href="vistas/css/plantilla.css">
+    <link rel="stylesheet" href="vistas/css/plantilla.css?v=<?php echo filemtime('vistas/css/plantilla.css'); ?>">
 
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="vistas/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">

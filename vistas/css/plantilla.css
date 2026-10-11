@@ -187,3 +187,25 @@ MODALES DE APOYOS - ESTILO SECONDARY
     color: #ffffff;
     opacity: 1;
 }
+
+/*=============================================
+MODAL IMPORTAR APRENDICES (ALERT PRIMARY)
+=============================================*/
+#modal-importarUsuarios .alert-primary {
+    color: #ffffff;
+}
+
+#modal-importarUsuarios .alert-primary code {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.18);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+#modal-importarUsuarios .alert-primary em {
+    color: #ffffff !important;
+    font-weight: bold !important;
+    font-style: italic;
+}
+

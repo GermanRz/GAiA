@@ -105,7 +105,9 @@ class ControladorUsuarios
                             }
 
                             // Prevenir Session Fixation regenerando el ID de sesión al autenticar
-                            session_regenerate_id(true);
+                            if (!headers_sent() && session_status() === PHP_SESSION_ACTIVE) {
+                                session_regenerate_id(true);
+                            }
                             $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
 
                             $_SESSION["iniciarSesion"] = "ok";

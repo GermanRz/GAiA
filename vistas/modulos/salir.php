@@ -2,7 +2,7 @@
 
     $_SESSION = array();
 
-    if (ini_get("session.use_cookies")) {
+    if (!headers_sent() && ini_get("session.use_cookies")) {
         $params = session_get_cookie_params();
         setcookie(
             session_name(),
@@ -15,7 +15,9 @@
         );
     }
 
-    session_destroy();
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_destroy();
+    }
     echo "<script> 
                 window.location = 'ingreso';
           </script>";
