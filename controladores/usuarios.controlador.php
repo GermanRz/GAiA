@@ -903,4 +903,387 @@ class ControladorUsuarios
 
         return $ruta;
     }
+
+    // ************************************
+    // IMPORTAR APRENDICES MASIVAMENTE (CSV / EXCEL XLSX)
+    // ************************************
+    public function ctrImportarAprendices()
+    {
+        if (!isset($_POST["importarAprendices"])) {
+            return;
+        }
+
+        $rolSesion = strtoupper($_SESSION["rol"] ?? "");
+        if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] !== "ok" || !in_array($rolSesion, array("ADMIN", "GESTORA"), true)) {
+            echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso denegado',
+                    text: 'No tiene permisos para importar aprendices.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Cerrar'
+                });
+            </script>";
+            return;
+        }
+
+        if (!self::validarTokenCsrf()) {
+            echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Sesión expirada',
+                    text: 'Por favor recargue la página e intente nuevamente.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Aceptar'
+                });
+            </script>";
+            return;
+        }
+
+        if (!isset($_FILES["archivoImportarUsuarios"]["tmp_name"]) || empty($_FILES["archivoImportarUsuarios"]["tmp_name"])) {
+            echo "<script>
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Archivo requerido',
+                    text: 'Debe seleccionar un archivo CSV o Excel (.xlsx) válido.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Cerrar'
+                });
+            </script>";
+            return;
+        }
+
+        $archivo = $_FILES["archivoImportarUsuarios"];
+        $extension = strtolower(pathinfo($archivo["name"] ?? "", PATHINFO_EXTENSION));
+
+        if (!in_array($extension, array("csv", "txt", "xlsx"), true)) {
+            echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Formato no soportado',
+                    text: 'Solo se permiten archivos en formato .CSV o Excel .XLSX.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Cerrar'
+                });
+            </script>";
+            return;
+        }
+
+        if (($archivo["size"] ?? 0) > 5242880) { // 5 MB máximo
+            echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Archivo demasiado grande',
+                    text: 'El archivo no debe superar los 5 MB.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Cerrar'
+                });
+            </script>";
+            return;
+        }
+
+        $filas = self::extraerFilasArchivoImportacion($archivo["tmp_name"], $extension);
+
+        if (empty($filas)) {
+            echo "<script>
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Archivo vacío o ilegible',
+                    text: 'No se encontraron registros válidos para procesar en el archivo.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Cerrar'
+                });
+            </script>";
+            return;
+        }
+
+        $tiposPermitidos = array("TI", "CC", "CE", "PEP", "PPT");
+        $importados = 0;
+        $ignorados = 0;
+        $ignoradosDuplicados = 0;
+        $ignoradosFicha = 0;
+        $ignoradosFormato = 0;
+        $cacheFichas = array();
+
+        foreach ($filas as $indice => $fila) {
+            // Ignorar filas completamente vacías
+            $filaLimpia = array_map(function ($v) {
+                return trim((string)$v);
+            }, $fila);
+
+            if (implode("", $filaLimpia) === "") {
+                continue;
+            }
+
+            $colTipoDoc = strtoupper($filaLimpia[0] ?? "");
+            $colDocId   = preg_replace('/\s+/', '', $filaLimpia[1] ?? "");
+
+            // Detectar y omitir fila de encabezado si está en la primera fila
+            if ($indice === 0 && (
+                in_array(strtolower($colTipoDoc), array("tipo_documento", "tipo", "tipodocumento", "tipo doc"), true) ||
+                !preg_match('/^[0-9]+$/', $colDocId)
+            )) {
+                continue;
+            }
+
+            $colNombres   = $filaLimpia[2] ?? "";
+            $colApellidos = $filaLimpia[3] ?? "";
+            $colFechaNac  = self::normalizarFechaImportacion($filaLimpia[4] ?? "");
+            $colCorreo    = strtolower($filaLimpia[5] ?? "");
+            $colCodFicha  = $filaLimpia[6] ?? "";
+            $colDireccion = $filaLimpia[7] ?? "";
+            $colTelefono  = $filaLimpia[8] ?? "";
+            $colCodDep    = $filaLimpia[9] ?? "";
+            $colCodCiu    = $filaLimpia[10] ?? "";
+
+            // 1. Validar formato de campos obligatorios
+            if (
+                !in_array($colTipoDoc, $tiposPermitidos, true) ||
+                !preg_match('/^[0-9]{5,20}$/', $colDocId) ||
+                !preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/u', $colNombres) ||
+                !preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/u', $colApellidos) ||
+                $colFechaNac === null ||
+                !filter_var($colCorreo, FILTER_VALIDATE_EMAIL) ||
+                $colCodFicha === ""
+            ) {
+                $ignorados++;
+                $ignoradosFormato++;
+                continue;
+            }
+
+            // 2. Resolver ficha activa por su código (con caché en memoria)
+            if (!array_key_exists($colCodFicha, $cacheFichas)) {
+                $fichaEncontrada = ModeloUsuarios::mdlObtenerFichaPorCodigo($colCodFicha);
+                $cacheFichas[$colCodFicha] = $fichaEncontrada ? (int)$fichaEncontrada["id_ficha"] : null;
+            }
+
+            $fichaId = $cacheFichas[$colCodFicha];
+            if ($fichaId === null) {
+                $ignorados++;
+                $ignoradosFicha++;
+                continue;
+            }
+
+            // 3. Preparar inserción como APRENDIZ
+            $datosUsuario = array(
+                "tipoDocumento" => $colTipoDoc,
+                "documentoId" => $colDocId,
+                "nombres" => $colNombres,
+                "apellidos" => $colApellidos,
+                "correo" => $colCorreo,
+                "fechaNacimiento" => $colFechaNac,
+                "rol" => "APRENDIZ",
+                "password" => self::generarHashPassword($colDocId),
+                "ficha_id" => $fichaId,
+                "foto" => "documentos/anonimo/anonimo.png"
+            );
+
+            $datosContacto = array(
+                "direccion" => $colDireccion,
+                "telefono" => $colTelefono,
+                "codigo_dep" => preg_match('/^[0-9]{2}$/', $colCodDep) ? $colCodDep : "76",
+                "codigo_ciu" => preg_match('/^[0-9]{5}$/', $colCodCiu) ? $colCodCiu : "76834"
+            );
+
+            $resultado = ModeloUsuarios::mdlAgregarUsuario("usuarios", $datosUsuario, $datosContacto);
+
+            if ($resultado === "ok") {
+                $importados++;
+            } else if ($resultado === "duplicate") {
+                $ignorados++;
+                $ignoradosDuplicados++;
+            } else {
+                $ignorados++;
+                $ignoradosFormato++;
+            }
+        }
+
+        $icono = ($importados > 0) ? "success" : "warning";
+        $titulo = ($importados > 0) ? "¡Importación finalizada!" : "Importación sin nuevos registros";
+        $detalleIgnorados = "";
+        if ($ignorados > 0) {
+            $detalleIgnorados = "<br><small class='text-muted'>Detalle ignorados: {$ignoradosDuplicados} duplicado(s), {$ignoradosFicha} por ficha inexistente/inactiva, {$ignoradosFormato} por formato inválido.</small>";
+        }
+
+        $htmlResumen = "<b>Registros importados:</b> {$importados}<br><b>Registros ignorados:</b> {$ignorados}{$detalleIgnorados}";
+
+        echo "<script>
+            Swal.fire({
+                icon: '{$icono}',
+                title: '{$titulo}',
+                html: " . json_encode($htmlResumen, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",
+                showConfirmButton: true,
+                confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location = 'Usuarios';
+                }
+            });
+        </script>";
+    }
+
+    /**
+     * Extrae las filas de un archivo CSV (con coma o punto y coma) o Excel (.xlsx nativo).
+     */
+    private static function extraerFilasArchivoImportacion($rutaArchivo, $extension)
+    {
+        if ($extension === "xlsx") {
+            return self::leerFilasXlsx($rutaArchivo);
+        }
+        return self::leerFilasCsv($rutaArchivo);
+    }
+
+    /**
+     * Lee archivos CSV detectando automáticamente el delimitador (';' o ',') y codificación UTF-8.
+     */
+    private static function leerFilasCsv($rutaArchivo)
+    {
+        $filas = array();
+        if (!file_exists($rutaArchivo) || ($handle = fopen($rutaArchivo, "r")) === false) {
+            return $filas;
+        }
+
+        $primeraLinea = fgets($handle);
+        if ($primeraLinea === false) {
+            fclose($handle);
+            return $filas;
+        }
+
+        // Eliminar BOM UTF-8 si existe
+        $primeraLinea = preg_replace('/^\xEF\xBB\xBF/', '', $primeraLinea);
+        $delimitador = (substr_count($primeraLinea, ";") >= substr_count($primeraLinea, ",")) ? ";" : ",";
+
+        rewind($handle);
+        $esPrimera = true;
+        while (($datos = fgetcsv($handle, 4096, $delimitador)) !== false) {
+            if ($esPrimera && isset($datos[0])) {
+                $datos[0] = preg_replace('/^\xEF\xBB\xBF/', '', $datos[0]);
+                $esPrimera = false;
+            }
+            // Asegurar codificación UTF-8 válida en cada celda
+            foreach ($datos as $k => $valor) {
+                if (!mb_check_encoding($valor, 'UTF-8')) {
+                    $datos[$k] = mb_convert_encoding($valor, 'UTF-8', 'ISO-8859-1');
+                }
+            }
+            $filas[] = $datos;
+        }
+        fclose($handle);
+        return $filas;
+    }
+
+    /**
+     * Lee la primera hoja de un archivo Excel .xlsx usando ZipArchive y SimpleXMLElement nativos.
+     */
+    private static function leerFilasXlsx($rutaArchivo)
+    {
+        $filas = array();
+        if (!class_exists('ZipArchive') || !file_exists($rutaArchivo)) {
+            return $filas;
+        }
+
+        $zip = new ZipArchive();
+        if ($zip->open($rutaArchivo) !== true) {
+            return $filas;
+        }
+
+        $sharedStrings = array();
+        $xmlShared = $zip->getFromName('xl/sharedStrings.xml');
+        if ($xmlShared !== false) {
+            $sxShared = @simplexml_load_string($xmlShared);
+            if ($sxShared && isset($sxShared->si)) {
+                foreach ($sxShared->si as $si) {
+                    if (isset($si->t)) {
+                        $sharedStrings[] = (string)$si->t;
+                    } else if (isset($si->r)) {
+                        $texto = "";
+                        foreach ($si->r as $run) {
+                            $texto .= (string)$run->t;
+                        }
+                        $sharedStrings[] = $texto;
+                    } else {
+                        $sharedStrings[] = "";
+                    }
+                }
+            }
+        }
+
+        $xmlSheet = $zip->getFromName('xl/worksheets/sheet1.xml');
+        if ($xmlSheet !== false) {
+            $sxSheet = @simplexml_load_string($xmlSheet);
+            if ($sxSheet && isset($sxSheet->sheetData->row)) {
+                foreach ($sxSheet->sheetData->row as $row) {
+                    $filaActual = array();
+                    foreach ($row->c as $celda) {
+                        $ref = (string)$celda['r'];
+                        $letrasCol = preg_replace('/[0-9]/', '', $ref);
+                        $indiceCol = 0;
+                        $len = strlen($letrasCol);
+                        for ($i = 0; $i < $len; $i++) {
+                            $indiceCol = $indiceCol * 26 + (ord($letrasCol[$i]) - 64);
+                        }
+                        $indiceCol--; // 0-based
+
+                        while (count($filaActual) < $indiceCol) {
+                            $filaActual[] = "";
+                        }
+
+                        $tipo = (string)$celda['t'];
+                        $valor = "";
+                        if ($tipo === 's') {
+                            $idx = (int)$celda->v;
+                            $valor = $sharedStrings[$idx] ?? "";
+                        } else if ($tipo === 'inlineStr') {
+                            $valor = (string)$celda->is->t;
+                        } else {
+                            $valor = (string)$celda->v;
+                        }
+                        $filaActual[$indiceCol] = $valor;
+                    }
+                    $filas[] = $filaActual;
+                }
+            }
+        }
+
+        $zip->close();
+        return $filas;
+    }
+
+    /**
+     * Normaliza fechas en formato YYYY-MM-DD, DD/MM/YYYY, DD-MM-YYYY o número serial de Excel.
+     */
+    private static function normalizarFechaImportacion($valor)
+    {
+        $valor = trim((string)$valor);
+        if ($valor === "") {
+            return null;
+        }
+
+        // Formato estándar YYYY-MM-DD
+        if (preg_match('/^(\d{4})[-\/](\d{2})[-\/](\d{2})$/', $valor, $m)) {
+            if (checkdate((int)$m[2], (int)$m[3], (int)$m[1])) {
+                return "{$m[1]}-{$m[2]}-{$m[3]}";
+            }
+            return null;
+        }
+
+        // Formato local DD/MM/YYYY o DD-MM-YYYY
+        if (preg_match('/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/', $valor, $m)) {
+            if (checkdate((int)$m[2], (int)$m[1], (int)$m[3])) {
+                return "{$m[3]}-{$m[2]}-{$m[1]}";
+            }
+            return null;
+        }
+
+        // Fecha serial numérica de Excel (ej. 37391)
+        if (preg_match('/^\d{4,5}$/', $valor)) {
+            $diasExcel = (int)$valor;
+            if ($diasExcel > 10000 && $diasExcel < 60000) {
+                $unixTimestamp = ($diasExcel - 25569) * 86400;
+                return gmdate("Y-m-d", $unixTimestamp);
+            }
+        }
+
+        return null;
+    }
 }//fin de la clase ControladorUsuarios

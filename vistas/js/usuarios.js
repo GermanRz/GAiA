@@ -530,3 +530,61 @@ $('[data-target="#modal-miPerfil"]').click(function() {
         }
     });
 });
+
+/*=============================================
+IMPORTACIÓN MASIVA DE APRENDICES (VALIDACIÓN DE ARCHIVO Y DESCARGA DE PLANTILLA)
+=============================================*/
+$(document).on("change", "#archivoImportarUsuarios", function() {
+    let archivo = this.files[0];
+    if (!archivo) {
+        $(this).next(".custom-file-label").html("Seleccionar archivo CSV o Excel (.xlsx)");
+        return;
+    }
+
+    let nombreArchivo = archivo.name;
+    let extension = nombreArchivo.split('.').pop().toLowerCase();
+
+    if (extension !== "csv" && extension !== "xlsx") {
+        $(this).val("");
+        $(this).next(".custom-file-label").html("Seleccionar archivo CSV o Excel (.xlsx)");
+        Swal.fire({
+            icon: 'error',
+            title: 'Formato no válido',
+            text: 'Por favor seleccione un archivo en formato .CSV o Excel (.XLSX).',
+            confirmButtonText: 'Cerrar'
+        });
+        return;
+    }
+
+    if (archivo.size > 5242880) {
+        $(this).val("");
+        $(this).next(".custom-file-label").html("Seleccionar archivo CSV o Excel (.xlsx)");
+        Swal.fire({
+            icon: 'error',
+            title: 'Archivo demasiado grande',
+            text: 'El archivo no debe pesar más de 5 MB.',
+            confirmButtonText: 'Cerrar'
+        });
+        return;
+    }
+
+    $(this).next(".custom-file-label").html(nombreArchivo);
+});
+
+$(document).on("click", "#btnDescargarPlantillaUsuarios", function(e) {
+    e.preventDefault();
+    let encabezados = "tipo_documento;documento_id;nombres;apellidos;fecha_nacimiento;correo;codigo_ficha;direccion;telefono;codigo_dep;codigo_ciu\n";
+    let ejemplo1 = "CC;1005558899;Juan Camilo;Perez Gomez;2003-05-14;jcperez@soy.sena.edu.co;3063989;Calle 25 # 14-30;3158889900;76;76834\n";
+    let ejemplo2 = "TI;1114567890;Laura Sofia;Ramirez Lopez;2006-11-20;lsramirez@soy.sena.edu.co;2827300;Carrera 10 # 5-12;3104445566;76;76834\n";
+    let contenidoCsv = "\uFEFF" + encabezados + ejemplo1 + ejemplo2;
+
+    let blob = new Blob([contenidoCsv], { type: "text/csv;charset=utf-8;" });
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "plantilla_importar_aprendices_GAiA.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+});

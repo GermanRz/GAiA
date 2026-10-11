@@ -51,6 +51,17 @@ class ModeloUsuarios
     }
 
     // ************************************
+    // OBTENER FICHA ACTIVA POR CÓDIGO (IMPORTACIÓN MASIVA)
+    // ************************************
+    static public function mdlObtenerFichaPorCodigo($codigo)
+    {
+        $stmt = Conexion::conectar()->prepare("SELECT id_ficha, codigo, programa_ficha, estado FROM fichas WHERE codigo = :codigo AND estado = 'activo'");
+        $stmt->bindParam(":codigo", $codigo, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch();
+    }
+
+    // ************************************
     // AGREGAR USUARIO A LA BD
     // ************************************    
     static public function mdlAgregarUsuario($tabla, $datos, $contacto = null)

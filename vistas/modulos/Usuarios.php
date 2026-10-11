@@ -22,7 +22,9 @@
               <div class="card-header border-0 d-flex justify-content-between align-items-center">
                   <h3 class="card-title font-weight-bold mb-0" style="font-size: 1.5rem; line-height: 2;">USUARIOS</h3>
                   <div class="card-tools ml-auto">
-                      <button type="button" class="btn btn-success mr-2">Importar Usuarios</button>
+                      <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#modal-importarUsuarios">
+                          <i class="fas fa-file-import mr-1"></i> Importar Aprendices
+                      </button>
                       <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-agregarUsuario">Agregar Usuario</button>
                   </div>
               </div>
@@ -581,6 +583,73 @@ CONSULTAR USUARIO   -->
               <div class="modal-footer justify-content-end">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
               </div>
+          </div>
+          <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+  </div>
+  <!-- /.modal -->
+
+  <!-- ********************************************************************************************************
+IMPORTAR APRENDICES (CSV / EXCEL)   -->
+
+  <div class="modal fade" id="modal-importarUsuarios">
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title"><i class="fas fa-file-import mr-2"></i>Importar Aprendices desde CSV / Excel</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+              <form id="formImportarUsuarios" action="" method="post" enctype="multipart/form-data">
+                  <div class="modal-body">
+                      <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION["csrf_token"] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                      <input type="hidden" name="importarAprendices" value="1">
+
+                      <div class="alert alert-warning text-dark">
+                          <h5><i class="icon fas fa-exclamation-triangle"></i> ¡Atención! Estructura obligatoria del archivo</h5>
+                          <p class="mb-2">
+                              El archivo debe estar en formato <strong>.CSV</strong> (separado por punto y coma <code>;</code> o coma <code>,</code>) o <strong>Excel (.XLSX)</strong> y respetar exactamente el siguiente orden de columnas:
+                          </p>
+                          <ol class="mb-2 pl-3 small">
+                              <li><strong>tipo_documento</strong> <em>(Obligatorio: <code>TI</code>, <code>CC</code>, <code>CE</code>, <code>PEP</code> o <code>PPT</code>)</em></li>
+                              <li><strong>documento_id</strong> <em>(Obligatorio: Número de identificación entre 5 y 20 dígitos, será su contraseña inicial)</em></li>
+                              <li><strong>nombres</strong> <em>(Obligatorio: Solo letras y espacios)</em></li>
+                              <li><strong>apellidos</strong> <em>(Obligatorio: Solo letras y espacios)</em></li>
+                              <li><strong>fecha_nacimiento</strong> <em>(Obligatorio: Formato <code>AAAA-MM-DD</code> o <code>DD/MM/AAAA</code>)</em></li>
+                              <li><strong>correo</strong> <em>(Obligatorio: Correo electrónico válido y único)</em></li>
+                              <li><strong>codigo_ficha</strong> <em>(Obligatorio: Código exacto de una ficha activa en GAiA, ej. <code>3063989</code>)</em></li>
+                              <li><strong>direccion</strong> <em>(Opcional: Dirección de residencia)</em></li>
+                              <li><strong>telefono</strong> <em>(Opcional: Teléfono de contacto)</em></li>
+                              <li><strong>codigo_dep</strong> <em>(Opcional: Código DANE de departamento de 2 dígitos; por defecto <code>76</code> - Valle)</em></li>
+                              <li><strong>codigo_ciu</strong> <em>(Opcional: Código DANE de municipio de 5 dígitos; por defecto <code>76834</code> - Tuluá)</em></li>
+                          </ol>
+                          <p class="mb-2 small">
+                              * Los registros con documentos/correos ya existentes, fichas inactivas/inexistentes o formatos inválidos serán <strong>ignorados automáticamente</strong> y reportados al finalizar.
+                          </p>
+                          <button type="button" id="btnDescargarPlantillaUsuarios" class="btn btn-sm btn-dark">
+                              <i class="fas fa-download mr-1"></i> Descargar Plantilla CSV de Ejemplo
+                          </button>
+                      </div>
+
+                      <div class="form-group mt-3">
+                          <label for="archivoImportarUsuarios" class="font-weight-bold">Seleccionar archivo (.CSV o .XLSX - Máx. 5 MB)</label>
+                          <div class="custom-file">
+                              <input type="file" class="custom-file-input" id="archivoImportarUsuarios" name="archivoImportarUsuarios" accept=".csv, .xlsx, text/csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required>
+                              <label class="custom-file-label" for="archivoImportarUsuarios" data-browse="Elegir">Seleccionar archivo CSV o Excel (.xlsx)</label>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                      <button type="submit" class="btn btn-success"><i class="fas fa-upload mr-1"></i> Procesar Importación</button>
+                  </div>
+                  <?php
+                  $importarAprendices = new ControladorUsuarios();
+                  $importarAprendices->ctrImportarAprendices();
+                  ?>
+              </form>
           </div>
           <!-- /.modal-content -->
       </div>
