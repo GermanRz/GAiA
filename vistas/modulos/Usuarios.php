@@ -101,7 +101,7 @@ AGREGAR USUARIO   -->
                   </button>
               </div>
               <div class="modal-body">
-                  <form action="" method="post" enctype="multipart/form-data">
+                  <form id="formAgregarUsuario" action="" method="post" enctype="multipart/form-data">
 
                       <div class="form-group">
                           <div class="row">
@@ -273,7 +273,7 @@ EDITAR USUARIO   -->
                   </button>
               </div>
               <div class="modal-body">
-                  <form action="" method="post" enctype="multipart/form-data">
+                  <form id="formEditarUsuario" action="" method="post" enctype="multipart/form-data">
                       <input type="hidden" name="idUsuarioEditar" id="idUsuarioEditar">
                       <input type="hidden" name="fotoActualEditar" id="fotoActualEditar">
 
@@ -457,6 +457,11 @@ CONSULTAR USUARIO   -->
                   </button>
               </div>
               <div class="modal-body">
+                  <!-- FOTO DE PERFIL -->
+                  <div class="form-group text-center mb-3">
+                      <img id="consultarFoto" src="documentos/anonimo/anonimo.png" class="img-thumbnail rounded-circle" width="110px" height="110px" style="object-fit: cover;" alt="Foto Usuario">
+                  </div>
+
                   <div class="form-group">
                       <div class="row">
                           <div class="col-md-5">
@@ -519,6 +524,56 @@ CONSULTAR USUARIO   -->
                           <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
                       </div>
                       <input type="text" class="form-control" id="descripcionConsultarFicha" readonly>
+                  </div>
+
+                  <hr class="border-secondary">
+                  <label class="mb-2"><i class="fas fa-address-book mr-1"></i> Información de Contacto</label>
+
+                  <!-- CONTACTO: DIRECCIÓN -->
+                  <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                      </div>
+                      <input type="text" class="form-control" id="consultarDireccion" placeholder="Dirección" readonly>
+                  </div>
+
+                  <!-- CONTACTO: TELÉFONO -->
+                  <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                      </div>
+                      <input type="text" class="form-control" id="consultarTelefono" placeholder="Teléfono" readonly>
+                  </div>
+
+                  <!-- CONTACTO: DEPARTAMENTO Y CIUDAD -->
+                  <div class="row">
+                      <div class="col-md-6">
+                          <div class="input-group mb-3">
+                              <div class="input-group-prepend">
+                                  <span class="input-group-text"><i class="fas fa-map"></i></span>
+                              </div>
+                              <input type="text" class="form-control" id="consultarDepartamento" placeholder="Departamento" readonly>
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                          <div class="input-group mb-3">
+                              <div class="input-group-prepend">
+                                  <span class="input-group-text"><i class="fas fa-city"></i></span>
+                              </div>
+                              <input type="text" class="form-control" id="consultarCiudad" placeholder="Ciudad/Municipio" readonly>
+                          </div>
+                      </div>
+                  </div>
+
+                  <!-- DOCUMENTO DE IDENTIDAD MAESTRO -->
+                  <div class="form-group mt-2" id="divConsultarDocIdentidad" style="display: none;">
+                      <label class="d-block"><i class="fas fa-file-pdf mr-1"></i> Documento de Identidad Maestro</label>
+                      <a href="#" id="btnVerDocIdentidadMaestro" target="_blank" class="btn btn-sm btn-info" style="display: none;">
+                          <i class="fas fa-external-link-alt mr-1"></i> Ver PDF Documento de Identidad
+                      </a>
+                      <span id="sinDocIdentidadMaestro" class="badge badge-secondary p-2" style="display: none;">
+                          Sin soporte de identidad cargado
+                      </span>
                   </div>
               </div>
               <div class="modal-footer justify-content-end">

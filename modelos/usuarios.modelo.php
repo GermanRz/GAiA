@@ -30,13 +30,24 @@ class ModeloUsuarios
     }
 
     // ************************************
-    // LISTA DE FICHAS
+    // LISTA DE FICHAS ACTIVAS
     // ************************************    
     static public function mdlListarFichas()
     {
-        $stmt = Conexion::conectar()->prepare("SELECT * FROM fichas");
+        $stmt = Conexion::conectar()->prepare("SELECT * FROM fichas WHERE estado = 'activo' ORDER BY codigo ASC");
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    // ************************************
+    // VERIFICAR EXISTENCIA DE FICHA
+    // ************************************
+    static public function mdlExisteFicha($idFicha)
+    {
+        $stmt = Conexion::conectar()->prepare("SELECT id_ficha, estado FROM fichas WHERE id_ficha = :id_ficha");
+        $stmt->bindParam(":id_ficha", $idFicha, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch();
     }
 
     // ************************************
@@ -108,7 +119,12 @@ class ModeloUsuarios
             return false;
         }
 
-        $stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla WHERE $item = :valor");
+        $stmt = Conexion::conectar()->prepare(
+            "SELECT u.*, f.codigo AS codigo_ficha, f.programa_ficha 
+             FROM $tabla u 
+             LEFT JOIN fichas f ON f.id_ficha = u.ficha_id 
+             WHERE u.$item = :valor"
+        );
         $stmt->bindParam(":valor", $valor, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch();
@@ -215,11 +231,17 @@ class ModeloUsuarios
     }
 
     // ************************************
-    // OBTENER CONTACTO DE USUARIO
+    // OBTENER CONTACTO DE USUARIO CON NOMBRES DE DEPARTAMENTO Y CIUDAD
     // ************************************
     static public function mdlObtenerContactoUsuario($usuario_id)
     {
-        $stmt = Conexion::conectar()->prepare("SELECT * FROM usuarios_contacto WHERE usuario_id = :usuario_id");
+        $stmt = Conexion::conectar()->prepare(
+            "SELECT uc.*, d.nombre AS nombre_departamento, c.nombre AS nombre_ciudad 
+             FROM usuarios_contacto uc
+             LEFT JOIN departamentos d ON d.codigo_dep = uc.codigo_dep
+             LEFT JOIN ciudades c ON c.codigo_ciu = uc.codigo_ciu
+             WHERE uc.usuario_id = :usuario_id"
+        );
         $stmt->bindParam(":usuario_id", $usuario_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch();

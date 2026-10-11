@@ -108,6 +108,42 @@ $('#inputFicha').on('input', function() {
     }
 });
 
+// Validar que se seleccione una ficha existente de la lista al enviar formularios de Aprendiz
+$(document).on("submit", "#formAgregarUsuario, #formRegistroAprendiz", function(e) {
+    let rol = $(this).find("select[name='nuevoRol']").val();
+    let esRegistroLogin = ($(this).attr("id") === "formRegistroAprendiz");
+    if (esRegistroLogin || rol === "APRENDIZ" || rol === "Aprendiz") {
+        let fichaId = $(this).find("#nuevaFicha").val();
+        if (!fichaId) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Ficha no válida',
+                text: 'Por favor seleccione una ficha de formación válida de la lista desplegable.',
+                confirmButtonText: 'Entendido'
+            });
+            return false;
+        }
+    }
+});
+
+$(document).on("submit", "#formEditarUsuario", function(e) {
+    let rol = $("#editarRol").val();
+    if (rol === "APRENDIZ" || rol === "Aprendiz") {
+        let fichaId = $("#editarFicha").val();
+        if (!fichaId) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Ficha no válida',
+                text: 'Por favor seleccione una ficha de formación válida de la lista desplegable.',
+                confirmButtonText: 'Entendido'
+            });
+            return false;
+        }
+    }
+});
+
 //===========================================
 // EDITAR USUARIO
 //===========================================
@@ -125,6 +161,8 @@ $(document).on("click", ".btnEditarUsuario", function() {
         processData: false,
         dataType: "json",
         success: function(respuesta) {
+            if (!respuesta) return;
+
             $("#idUsuarioEditar").val(respuesta["id"]);
             $("#editarTipoDocumento").val(respuesta["tipo_documento"]);
             $("#editarDocumento").val(respuesta["documento_id"]);
@@ -134,7 +172,7 @@ $(document).on("click", ".btnEditarUsuario", function() {
             $("#editarCorreo").val(respuesta["correo"]);
             
             // Seleccionar el rol (ignorando mayúsculas/minúsculas)
-            let rolDB = respuesta["rol"].toUpperCase();
+            let rolDB = (respuesta["rol"] || "").toUpperCase();
             $("#editarRol option").each(function() {
                 if($(this).val().toUpperCase() === rolDB) {
                     $(this).prop("selected", true);
@@ -172,19 +210,28 @@ $(document).on("click", ".btnEditarUsuario", function() {
             }
 
             // Lógica para Aprendiz
-            if(respuesta["rol"] === "Aprendiz" || respuesta["rol"] === "APRENDIZ"){
+            if(rolDB === "APRENDIZ"){
                 $("#divEditarFicha").show();
                 $("#inputEditarFicha").attr('required', true);
                 
-                // Si trae ficha guardada, pre-cargar el input
+                // Si trae ficha guardada, pre-cargar el input (con respaldo directo del JOIN si la ficha está inactiva)
                 if(respuesta["ficha_id"]){
                     let fichaOption = $('#listaFichas option[data-id="'+respuesta["ficha_id"]+'"]');
+                    $("#editarFicha").val(respuesta["ficha_id"]);
                     if(fichaOption.length > 0){
                         $("#inputEditarFicha").val(fichaOption.attr('value'));
-                        $("#editarFicha").val(respuesta["ficha_id"]);
                         $("#descripcionEditarFicha").val(fichaOption.attr('data-programa'));
                         $("#divDescripcionEditarFicha").show();
+                    } else if (respuesta["codigo_ficha"]) {
+                        $("#inputEditarFicha").val(respuesta["codigo_ficha"]);
+                        $("#descripcionEditarFicha").val(respuesta["programa_ficha"] || "");
+                        $("#divDescripcionEditarFicha").show();
                     }
+                } else {
+                    $("#inputEditarFicha").val('');
+                    $("#editarFicha").val('');
+                    $("#divDescripcionEditarFicha").hide();
+                    $("#descripcionEditarFicha").val('');
                 }
             }else{
                 $("#divEditarFicha").hide();
@@ -259,24 +306,64 @@ $(document).on("click", ".btnConsultarUsuario", function() {
         processData: false,
         dataType: "json",
         success: function(respuesta) {
-            $("#consultarTipoDocumento").val(respuesta["tipo_documento"]);
-            $("#consultarDocumento").val(respuesta["documento_id"]);
-            $("#consultarNombre").val(respuesta["nombres"]);
-            $("#consultarApellido").val(respuesta["apellidos"]);
-            $("#consultarFechaNacimiento").val(respuesta["fecha_nacimiento"]);
-            $("#consultarCorreo").val(respuesta["correo"]);
-            $("#consultarRol").val(respuesta["rol"]);
+            if (!respuesta) return;
+
+            // Foto del usuario
+            if (respuesta["foto"] && respuesta["foto"] !== "") {
+                $("#consultarFoto").attr("src", respuesta["foto"]);
+            } else {
+                $("#consultarFoto").attr("src", "documentos/anonimo/anonimo.png");
+            }
+
+            $("#consultarTipoDocumento").val(respuesta["tipo_documento"] || "");
+            $("#consultarDocumento").val(respuesta["documento_id"] || "");
+            $("#consultarNombre").val(respuesta["nombres"] || "");
+            $("#consultarApellido").val(respuesta["apellidos"] || "");
+            $("#consultarFechaNacimiento").val(respuesta["fecha_nacimiento"] || "");
+            $("#consultarCorreo").val(respuesta["correo"] || "");
+            $("#consultarRol").val(respuesta["rol"] || "");
+
+            // Datos de contacto
+            if (respuesta["contacto"]) {
+                $("#consultarDireccion").val(respuesta["contacto"]["direccion"] || "No registrada");
+                $("#consultarTelefono").val(respuesta["contacto"]["telefono"] || "No registrado");
+                $("#consultarDepartamento").val(respuesta["contacto"]["nombre_departamento"] || respuesta["contacto"]["codigo_dep"] || "No registrado");
+                $("#consultarCiudad").val(respuesta["contacto"]["nombre_ciudad"] || respuesta["contacto"]["codigo_ciu"] || "No registrado");
+            } else {
+                $("#consultarDireccion").val("No registrada");
+                $("#consultarTelefono").val("No registrado");
+                $("#consultarDepartamento").val("No registrado");
+                $("#consultarCiudad").val("No registrado");
+            }
+
+            // Documento de identidad maestro (PDF)
+            let rolDB = (respuesta["rol"] || "").toUpperCase();
+            if (rolDB === "APRENDIZ" || respuesta["doc_identidad_maestro_url"]) {
+                $("#divConsultarDocIdentidad").show();
+                if (respuesta["doc_identidad_maestro_url"] && respuesta["doc_identidad_maestro_url"] !== "") {
+                    $("#btnVerDocIdentidadMaestro").attr("href", respuesta["doc_identidad_maestro_url"]).show();
+                    $("#sinDocIdentidadMaestro").hide();
+                } else {
+                    $("#btnVerDocIdentidadMaestro").attr("href", "#").hide();
+                    $("#sinDocIdentidadMaestro").show();
+                }
+            } else {
+                $("#divConsultarDocIdentidad").hide();
+            }
 
             // Lógica para Aprendiz (Ficha)
-            if(respuesta["rol"] === "Aprendiz" || respuesta["rol"] === "APRENDIZ"){
+            if (rolDB === "APRENDIZ") {
                 $("#divConsultarFicha").show();
                 
-                // Buscar ficha en el datalist para mostrar el programa
-                if(respuesta["ficha_id"]){
+                if (respuesta["ficha_id"]) {
                     let fichaOption = $('#listaFichas option[data-id="'+respuesta["ficha_id"]+'"]');
-                    if(fichaOption.length > 0){
-                        $("#inputConsultarFicha").val(fichaOption.attr('value')); // código
+                    if (fichaOption.length > 0) {
+                        $("#inputConsultarFicha").val(fichaOption.attr('value'));
                         $("#descripcionConsultarFicha").val(fichaOption.attr('data-programa'));
+                        $("#divDescripcionConsultarFicha").show();
+                    } else if (respuesta["codigo_ficha"]) {
+                        $("#inputConsultarFicha").val(respuesta["codigo_ficha"]);
+                        $("#descripcionConsultarFicha").val(respuesta["programa_ficha"] || "");
                         $("#divDescripcionConsultarFicha").show();
                     } else {
                         $("#inputConsultarFicha").val(respuesta["ficha_id"]);

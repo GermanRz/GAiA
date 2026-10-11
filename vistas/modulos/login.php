@@ -72,7 +72,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="" method="post" enctype="multipart/form-data">
+                <form id="formRegistroAprendiz" action="" method="post" enctype="multipart/form-data">
                     
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION["csrf_token"] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                     <input type="hidden" name="registroAprendizPublico" value="1">

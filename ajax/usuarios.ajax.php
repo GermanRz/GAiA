@@ -64,10 +64,11 @@ class AjaxUsuarios
         }
 
         $valor = (int)$this->idUsuario;
-        $esAdmin = (strtoupper($_SESSION["rol"] ?? "") === "ADMIN");
+        $rolSesion = strtoupper($_SESSION["rol"] ?? "");
+        $esAutorizado = ($rolSesion === "ADMIN" || $rolSesion === "GESTORA");
         $esPropioUsuario = ((int)($_SESSION["id"] ?? 0) === $valor);
 
-        if (!$esAdmin && !$esPropioUsuario) {
+        if (!$esAutorizado && !$esPropioUsuario) {
             echo json_encode(false);
             return;
         }

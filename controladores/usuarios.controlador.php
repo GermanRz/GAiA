@@ -203,7 +203,19 @@ class ControladorUsuarios
                 $passEncriptado = self::generarHashPassword($_POST["nuevoDocumento"]);
 
                 $fichaId = null;
-                if ($rolNormalizado === "APRENDIZ" && isset($_POST["nuevaFicha"]) && $_POST["nuevaFicha"] !== "") {
+                if ($rolNormalizado === "APRENDIZ") {
+                    if (empty($_POST["nuevaFicha"]) || !preg_match('/^[0-9]+$/', (string)$_POST["nuevaFicha"]) || !ModeloUsuarios::mdlExisteFicha((int)$_POST["nuevaFicha"])) {
+                        echo "<script>
+                            Swal.fire({
+                                icon: 'warning',
+                                title: '¡Ficha inválida!',
+                                text: 'Debe seleccionar una ficha de formación válida de la lista para el aprendiz.',
+                                showConfirmButton: true,
+                                confirmButtonText: 'Cerrar'
+                            });
+                        </script>";
+                        return;
+                    }
                     $fichaId = (int)$_POST["nuevaFicha"];
                 }
 
@@ -302,15 +314,25 @@ class ControladorUsuarios
                 filter_var($_POST["nuevoCorreo"], FILTER_VALIDATE_EMAIL)
             ) {
 
+                if (empty($_POST["nuevaFicha"]) || !preg_match('/^[0-9]+$/', (string)$_POST["nuevaFicha"]) || !ModeloUsuarios::mdlExisteFicha((int)$_POST["nuevaFicha"])) {
+                    echo "<script>
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '¡Ficha inválida!',
+                            text: 'Debe seleccionar una ficha de formación válida de la lista.',
+                            showConfirmButton: true,
+                            confirmButtonText: 'Cerrar'
+                        });
+                    </script>";
+                    return;
+                }
+
                 $tabla = "usuarios";
 
                 // Hash seguro con sal aleatoria; rol forzado estrictamente a APRENDIZ
                 $passEncriptado = self::generarHashPassword($_POST["nuevoDocumento"]);
                 $rolForzado = "APRENDIZ";
-
-                $fichaId = (!empty($_POST["nuevaFicha"]) && preg_match('/^[0-9]+$/', $_POST["nuevaFicha"]))
-                    ? (int)$_POST["nuevaFicha"]
-                    : null;
+                $fichaId = (int)$_POST["nuevaFicha"];
 
                 // ==========================================
                 // VALIDAR IMAGEN
@@ -426,7 +448,19 @@ class ControladorUsuarios
                 }
 
                 $fichaId = null;
-                if ($rolNormalizado === "APRENDIZ" && isset($_POST["editarFicha"]) && $_POST["editarFicha"] != "") {
+                if ($rolNormalizado === "APRENDIZ") {
+                    if (empty($_POST["editarFicha"]) || !preg_match('/^[0-9]+$/', (string)$_POST["editarFicha"]) || !ModeloUsuarios::mdlExisteFicha((int)$_POST["editarFicha"])) {
+                        echo "<script>
+                            Swal.fire({
+                                icon: 'warning',
+                                title: '¡Ficha inválida!',
+                                text: 'Debe seleccionar una ficha de formación válida de la lista para el aprendiz.',
+                                showConfirmButton: true,
+                                confirmButtonText: 'Cerrar'
+                            });
+                        </script>";
+                        return;
+                    }
                     $fichaId = (int)$_POST["editarFicha"];
                 }
 
