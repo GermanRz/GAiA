@@ -4,8 +4,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once "../controladores/usuarios.controlador.php";
-require_once "../modelos/usuarios.modelo.php";
+require_once __DIR__ . "/../controladores/usuarios.controlador.php";
+require_once __DIR__ . "/../modelos/usuarios.modelo.php";
 
 class AjaxUsuarios
 {
