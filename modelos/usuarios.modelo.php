@@ -69,8 +69,8 @@ class ModeloUsuarios
                     
                     $direccion = isset($contacto["direccion"]) ? $contacto["direccion"] : "";
                     $telefono = isset($contacto["telefono"]) ? $contacto["telefono"] : "";
-                    $codigo_dep = !empty($contacto["codigo_dep"]) ? $contacto["codigo_dep"] : null;
-                    $codigo_ciu = !empty($contacto["codigo_ciu"]) ? $contacto["codigo_ciu"] : null;
+                    $codigo_dep = !empty($contacto["codigo_dep"]) ? $contacto["codigo_dep"] : "76";
+                    $codigo_ciu = !empty($contacto["codigo_ciu"]) ? $contacto["codigo_ciu"] : "76834";
 
                     $stmtContacto->bindParam(":usuario_id", $idUsuario, PDO::PARAM_INT);
                     $stmtContacto->bindParam(":direccion", $direccion, PDO::PARAM_STR);
@@ -234,8 +234,8 @@ class ModeloUsuarios
         
         $direccion = isset($datos["direccion"]) ? $datos["direccion"] : "";
         $telefono = isset($datos["telefono"]) ? $datos["telefono"] : "";
-        $codigo_dep = !empty($datos["codigo_dep"]) ? $datos["codigo_dep"] : null;
-        $codigo_ciu = !empty($datos["codigo_ciu"]) ? $datos["codigo_ciu"] : null;
+        $codigo_dep = !empty($datos["codigo_dep"]) ? $datos["codigo_dep"] : "76";
+        $codigo_ciu = !empty($datos["codigo_ciu"]) ? $datos["codigo_ciu"] : "76834";
 
         $stmt->bindParam(":usuario_id", $usuario_id, PDO::PARAM_INT);
         $stmt->bindParam(":direccion", $direccion, PDO::PARAM_STR);

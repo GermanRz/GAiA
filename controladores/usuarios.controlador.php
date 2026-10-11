@@ -186,7 +186,13 @@ class ControladorUsuarios
             isset($_POST["nuevoFechaNacimiento"])  &&
             isset($_POST["nuevoRol"])
         ) {
+            $tiposPermitidos = array("TI", "CC", "CE", "PEP", "PPT");
+            $rolesPermitidos = array("APRENDIZ", "GESTORA", "ADMIN");
+            $rolNormalizado = strtoupper(trim($_POST["nuevoRol"]));
+
             if (
+                in_array($_POST["nuevoTipoDocumento"], $tiposPermitidos, true) &&
+                in_array($rolNormalizado, $rolesPermitidos, true) &&
                 preg_match('/^[0-9]+$/', $_POST["nuevoDocumento"]) &&
                 preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoNombre"]) &&
                 preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["nuevoApellido"]) &&
@@ -197,8 +203,8 @@ class ControladorUsuarios
                 $passEncriptado = self::generarHashPassword($_POST["nuevoDocumento"]);
 
                 $fichaId = null;
-                if (strtoupper($_POST["nuevoRol"]) == "APRENDIZ" && isset($_POST["nuevaFicha"]) && $_POST["nuevaFicha"] !== "") {
-                    $fichaId = $_POST["nuevaFicha"];
+                if ($rolNormalizado === "APRENDIZ" && isset($_POST["nuevaFicha"]) && $_POST["nuevaFicha"] !== "") {
+                    $fichaId = (int)$_POST["nuevaFicha"];
                 }
 
                 // ==========================================
@@ -208,19 +214,19 @@ class ControladorUsuarios
 
                 $datos = array(
                     "tipoDocumento" => $_POST["nuevoTipoDocumento"],
-                    "documentoId" => $_POST["nuevoDocumento"],
-                    "nombres" => $_POST["nuevoNombre"],
-                    "apellidos" => $_POST["nuevoApellido"],
-                    "correo" => $_POST["nuevoCorreo"],
+                    "documentoId" => trim($_POST["nuevoDocumento"]),
+                    "nombres" => trim($_POST["nuevoNombre"]),
+                    "apellidos" => trim($_POST["nuevoApellido"]),
+                    "correo" => trim($_POST["nuevoCorreo"]),
                     "fechaNacimiento" => $_POST["nuevoFechaNacimiento"],
-                    "rol" => $_POST["nuevoRol"],
+                    "rol" => $rolNormalizado,
                     "password" => $passEncriptado,
                     "ficha_id" => $fichaId,
                     "foto" => $ruta
                 );
                 $contacto = array(
-                    "direccion" => isset($_POST["nuevaDireccion"]) ? $_POST["nuevaDireccion"] : "",
-                    "telefono" => isset($_POST["nuevoTelefono"]) ? $_POST["nuevoTelefono"] : "",
+                    "direccion" => isset($_POST["nuevaDireccion"]) ? trim($_POST["nuevaDireccion"]) : "",
+                    "telefono" => isset($_POST["nuevoTelefono"]) ? trim($_POST["nuevoTelefono"]) : "",
                     "codigo_dep" => isset($_POST["nuevoDepartamento"]) ? $_POST["nuevoDepartamento"] : "",
                     "codigo_ciu" => isset($_POST["nuevaCiudad"]) ? $_POST["nuevaCiudad"] : ""
                 );
@@ -380,7 +386,13 @@ class ControladorUsuarios
     public function ctrEditarUsuario()
     {
         if (isset($_POST["editarDocumento"]) && isset($_POST["idUsuarioEditar"])) {
+            $tiposPermitidos = array("TI", "CC", "CE", "PEP", "PPT");
+            $rolesPermitidos = array("APRENDIZ", "GESTORA", "ADMIN");
+            $rolNormalizado = strtoupper(trim($_POST["editarRol"] ?? ""));
+
             if (
+                in_array($_POST["editarTipoDocumento"] ?? "", $tiposPermitidos, true) &&
+                in_array($rolNormalizado, $rolesPermitidos, true) &&
                 preg_match('/^[0-9]+$/', $_POST["editarDocumento"]) &&
                 preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["editarNombre"]) &&
                 preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚÑñ ]+$/', $_POST["editarApellido"])
@@ -414,8 +426,8 @@ class ControladorUsuarios
                 }
 
                 $fichaId = null;
-                if (strtoupper($_POST["editarRol"]) == "APRENDIZ" && isset($_POST["editarFicha"]) && $_POST["editarFicha"] != "") {
-                    $fichaId = $_POST["editarFicha"];
+                if ($rolNormalizado === "APRENDIZ" && isset($_POST["editarFicha"]) && $_POST["editarFicha"] != "") {
+                    $fichaId = (int)$_POST["editarFicha"];
                 }
 
                 $foto = $_POST["fotoActualEditar"];
@@ -434,12 +446,12 @@ class ControladorUsuarios
                 $datos = array(
                     "id" => $_POST["idUsuarioEditar"],
                     "tipoDocumento" => $_POST["editarTipoDocumento"],
-                    "documentoId" => $_POST["editarDocumento"],
-                    "nombres" => $_POST["editarNombre"],
-                    "apellidos" => $_POST["editarApellido"],
-                    "correo" => $_POST["editarCorreo"],
+                    "documentoId" => trim($_POST["editarDocumento"]),
+                    "nombres" => trim($_POST["editarNombre"]),
+                    "apellidos" => trim($_POST["editarApellido"]),
+                    "correo" => trim($_POST["editarCorreo"]),
                     "fechaNacimiento" => $_POST["editarFechaNacimiento"],
-                    "rol" => $_POST["editarRol"],
+                    "rol" => $rolNormalizado,
                     "password" => $passEncriptado,
                     "ficha_id" => $fichaId,
                     "foto" => $foto
@@ -449,9 +461,9 @@ class ControladorUsuarios
 
                 if ($respuesta == "ok") {
                     $contacto = array(
-                        "direccion" => isset($_POST["editarDireccion"]) ? $_POST["editarDireccion"] : "",
-                        "telefono" => isset($_POST["editarTelefono"]) ? $_POST["editarTelefono"] : "",
-                        "codigo_dep" => isset($_POST["editarDepartamento"]) ? $_POST["nuevoDepartamento"] ?? $_POST["editarDepartamento"] : "",
+                        "direccion" => isset($_POST["editarDireccion"]) ? trim($_POST["editarDireccion"]) : "",
+                        "telefono" => isset($_POST["editarTelefono"]) ? trim($_POST["editarTelefono"]) : "",
+                        "codigo_dep" => isset($_POST["editarDepartamento"]) ? $_POST["editarDepartamento"] : "",
                         "codigo_ciu" => isset($_POST["editarCiudad"]) ? $_POST["editarCiudad"] : ""
                     );
                     ModeloUsuarios::mdlGuardarContacto($_POST["idUsuarioEditar"], $contacto);

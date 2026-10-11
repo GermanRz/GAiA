@@ -112,6 +112,7 @@ AGREGAR USUARIO   -->
                                       <option value="TI">TI</option>
                                       <option value="CC">CC</option>
                                       <option value="CE">CE</option>
+                                      <option value="PEP">PEP</option>
                                       <option value="PPT">PPT</option>
                                   </select>
                               </div>
@@ -160,9 +161,9 @@ AGREGAR USUARIO   -->
                           </div>
                           <select class="form-control" name="nuevoRol" id="nuevoRol" required>
                               <option value="">Seleccionar rol...</option>
-                              <option value="Bienestar">Bienestar</option>
-                              <option value="Financiera">Financiera</option>
-                              <option value="Aprendiz">Aprendiz</option>
+                              <option value="APRENDIZ">Aprendiz</option>
+                              <option value="GESTORA">Gestora</option>
+                              <option value="ADMIN">ADMIN</option>
                           </select>
                       </div>
 
@@ -303,6 +304,7 @@ EDITAR USUARIO   -->
                                       <option value="TI">TI</option>
                                       <option value="CC">CC</option>
                                       <option value="CE">CE</option>
+                                      <option value="PEP">PEP</option>
                                       <option value="PPT">PPT</option>
                                   </select>
                               </div>
@@ -350,11 +352,9 @@ EDITAR USUARIO   -->
                           </div>
                           <select class="form-control" name="editarRol" id="editarRol" required>
                               <option value="">Seleccionar rol...</option>
-                              <option value="BIENESTAR">Bienestar</option>
-                              <option value="FINANCIERA">Financiera</option>
-                              <option value="ADMIN">ADMIN</option>
                               <option value="APRENDIZ">Aprendiz</option>
                               <option value="GESTORA">Gestora</option>
+                              <option value="ADMIN">ADMIN</option>
                           </select>
                       </div>
 

@@ -67,7 +67,7 @@ $(document).on("click", ".btnActivarUsuario", function(){
 // Mostrar ocultar ficha según rol
 $('#nuevoRol').change(function() {
     let rol = $(this).val();
-    if (rol === "Aprendiz") {
+    if (rol === "Aprendiz" || rol === "APRENDIZ") {
         $('#divFicha').show();
         $('#inputFicha').attr('required', true);
         $('#nuevaDireccion').attr('required', true);

@@ -85,6 +85,7 @@
                                     <option value="TI">TI</option>
                                     <option value="CC">CC</option>
                                     <option value="CE">CE</option>
+                                    <option value="PEP">PEP</option>
                                     <option value="PPT">PPT</option>
                                 </select>
                             </div>
