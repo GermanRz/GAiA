@@ -1,3 +1,80 @@
+//************************************************************
+//  SERVERSIDE USUARIOS
+//************************************************************
+if ($("#tblUsuarios").length) {
+    if ($.fn.DataTable.isDataTable("#tblUsuarios")) {
+        $("#tblUsuarios").DataTable().destroy();
+    }
+    let tablaUsuarios = $("#tblUsuarios").DataTable({
+        "destroy": true,
+        "processing": true,
+        "serverSide": true,
+        "sAjaxSource": "ajax/serverside/serverside.usuarios.php",
+        "columns": [
+            { "data": 0, "width": "4%", "responsivePriority": 1 },
+            { "data": 1, "width": "6%", "className": "text-center" },
+            { "data": 2, "width": "11%", "responsivePriority": 2 },
+            { "data": 3, "width": "15%" },
+            { "data": 4, "width": "15%" },
+            { "data": 5, "width": "20%" },
+            { "data": 6, "width": "8%", "className": "text-center" },
+            { "data": 7, "width": "8%", "className": "text-center" },
+            { "data": 8, "width": "6%", "className": "text-center", "responsivePriority": 2 },
+            { "data": null, "width": "7%", "className": "text-center", "orderable": false, "searchable": false, "responsivePriority": 1 }
+        ],
+        "columnDefs": [
+            {
+                "targets": [8],
+                "render": function(data, type, row) {
+                    let idUsuario = row[0];
+                    if (data === "activo") {
+                        return "<button class='btn btn-xs btn-success btnActivarUsuario' data-estadoUsuario='inactivo' data-idUsuario='" + idUsuario + "'>activo</button>";
+                    } else {
+                        return "<button class='btn btn-xs btn-danger btnActivarUsuario' data-estadoUsuario='activo' data-idUsuario='" + idUsuario + "'>inactivo</button>";
+                    }
+                }
+            },
+            {
+                "targets": [-1],
+                "render": function(data, type, row) {
+                    let idUsuario = row[0];
+                    return '<div class="btn-group">' +
+                        '<button class="btn btn-sm btn-outline-light btnEditarUsuario" data-idUsuario="' + idUsuario + '" data-toggle="modal" data-target="#modal-editarUsuario" title="Editar usuario"><i class="fas fa-edit"></i></button>' +
+                        '<button class="btn btn-sm btn-outline-light btnConsultarUsuario" data-idUsuario="' + idUsuario + '" data-toggle="modal" data-target="#modal-consultarUsuario" title="Consultar detalles"><i class="fas fa-eye"></i></button>' +
+                    '</div>';
+                }
+            }
+        ],
+        "drawCallback": function() {
+            this.api().columns.adjust();
+        },
+        "responsive": true,
+        "autoWidth": false,
+        "lengthChange": true,
+        "lengthMenu": [10, 25, 50, 100],
+        "language": {
+            "processing": "Procesando...",
+            "lengthMenu": "Mostrar _MENU_ registros",
+            "zeroRecords": "No se encontraron resultados",
+            "emptyTable": "No hay datos disponibles en la tabla",
+            "info": "Mostrando página _PAGE_ de _PAGES_ (_TOTAL_ registros)",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "buttons": ["excel", "pdf"],
+        "dom": "<'row'<'col-sm-12 col-md-6'lB><'col-sm-12 col-md-6'f>>" +
+               "<'row'<'col-sm-12'tr>>" +
+               "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+    });
+}
+
 $('#nuevoDocumento').change(function() {
 
     let nuevoDocumento = $(this).val();

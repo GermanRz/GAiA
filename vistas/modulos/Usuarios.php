@@ -30,54 +30,22 @@
               </div>
               <!-- /.card-header -->
               <div class="card-body">
-                  <table id="tblUsuarios" class="table table-dark table-bordered table-striped dt-responsive nowrap" style="width:100%">
+                  <table id="tblUsuarios" class="table table-dark table-bordered table-striped dt-responsive" style="width:100%">
                       <thead style="background-color: #198754; color: white;">
                           <tr>
-                              <th>ID</th>
-                              <th>Tipo de Documento</th>
-                              <th>Nº de Documento</th>
-                              <th>Nombre</th>
-                              <th>Apellidos</th>
-                              <th>Correo</th>
-                              <th>Ficha</th>
-                              <th>Rol</th>
-                              <th>Estado</th>
-                              <th>Acciones</th>
+                              <th style="width: 4%;">ID</th>
+                              <th style="width: 6%;">Tipo Doc.</th>
+                              <th style="width: 11%;">Nº Documento</th>
+                              <th style="width: 15%;">Nombre</th>
+                              <th style="width: 15%;">Apellidos</th>
+                              <th style="width: 20%;">Correo</th>
+                              <th style="width: 8%;">Ficha</th>
+                              <th style="width: 8%;">Rol</th>
+                              <th style="width: 6%;">Estado</th>
+                              <th style="width: 7%;">Acciones</th>
                           </tr>
                       </thead>
                       <tbody>
-                          <?php
-                            $respuesta = ControladorUsuarios::ctrListarUsuarios();
-                            // var_dump($respuesta);
-                            foreach ($respuesta as $usuario) {
-                                echo "<tr>";
-                                echo "<td>" . $usuario['id'] . "</td>";
-                                echo "<td>" . $usuario['tipo_documento'] . "</td>";
-                                echo "<td>" . $usuario['documento_id'] . "</td>";
-                                echo "<td>" . $usuario['nombres'] . "</td>";
-                                echo "<td>" . $usuario['apellidos'] . "</td>";
-                                echo "<td>" . $usuario['correo'] . "</td>";
-                                echo "<td>" . $usuario['codigo'] . "</td>";
-                                echo "<td>" . $usuario['rol'] . "</td>";
-                                echo "<td>";
-                                if ($usuario['estado'] == 'activo') {
-                                    echo "<button class='btn btn-xs btn-success btnActivarUsuario' data-estadoUsuario='inactivo' data-idUsuario='" . $usuario['id'] . "'>activo</button>";
-                                } else {
-                                    echo "<button class='btn btn-xs btn-danger btnActivarUsuario' data-estadoUsuario='activo' data-idUsuario='" . $usuario['id'] . "'>inactivo</button>";
-                                };
-                                echo "</td>";
-                                echo "<td>";
-                                echo '<div class="btn-group">
-                            <button class="btn btn-sm btn-outline-light btnEditarUsuario" data-idUsuario="' . $usuario["id"] . '" data-toggle="modal" data-target="#modal-editarUsuario"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-outline-light btnConsultarUsuario" data-idUsuario="' . $usuario["id"] . '" data-toggle="modal" data-target="#modal-consultarUsuario"><i class="fas fa-eye"></i></button>
-                          </div>
-                        </td>';
-
-                                echo "</tr>";
-                            };
-
-                            ?>
-
                       </tbody>
                   </table>
               </div>

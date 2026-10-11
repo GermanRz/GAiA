@@ -154,8 +154,8 @@
 
 
 
-  <script src="vistas/js/plantilla.js"></script>
-  <script src="vistas/js/usuarios.js"></script>
+  <script src="vistas/js/plantilla.js?v=<?php echo filemtime('vistas/js/plantilla.js'); ?>"></script>
+  <script src="vistas/js/usuarios.js?v=<?php echo filemtime('vistas/js/usuarios.js'); ?>"></script>
   <script src="vistas/js/sedes.js"></script>
   <script src="vistas/js/fichas.js"></script>
   <script src="vistas/js/apoyos.js"></script>
