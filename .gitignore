@@ -1,5 +1,30 @@
 AdminLTE/
-.htaccess
-modelos/conexion.php
 documentos/*
 !documentos/anonimo/
+
+# Configuración local de Agentes / IA
+.agents/
+.gemini/
+GEMINI.md
+CLAUDE.md
+
+# Archivos de prueba, diagnóstico y desarrollo temporal
+fix*.php
+test*.php
+reset*.php
+update*.php
+
+# Entorno, logs y temporales
+.env
+.env.*
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Editores / IDEs y Sistema Operativo
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
